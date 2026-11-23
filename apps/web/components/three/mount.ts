@@ -26,13 +26,14 @@ export type SceneDef<S> = {
 
 export const ease = (p: number) => p * p * (3 - 2 * p);
 
-// Soft studio reflections: three bright planes, baked once into an environment map.
+// Soft studio reflections: white strip lights, a burgundy kicker and a dark fill, baked once into an environment map.
 function environment(T: Three, renderer: THREE.WebGLRenderer, track: Track) {
   const env = new T.Scene();
   const planes: [number, number, number, [number, number, number]][] = [
-    [8, 1, 0xfff1dd, [-3, 4, 3]],
-    [1, 6, 0xfff1dd, [4, 0, 2]],
-    [6, 0.8, 0xe0662b, [2, -4, 3]],
+    [8, 1, 0xffffff, [-3, 4, 3]],
+    [1, 6, 0xffffff, [4, 0, 2]],
+    [6, 0.8, 0x6d001a, [2, -4, 3]],
+    [3, 3, 0x14060a, [-5, -1, 2]],
   ];
   const parts: Disposable[] = [];
   for (const [w, h, color, pos] of planes) {
@@ -78,9 +79,9 @@ export async function mountScene<S>(
 
   const scene = new T.Scene();
   scene.environment = environment(T, renderer, track);
-  const key = new T.DirectionalLight(0xfff1dd, 1.1 * Math.PI);
+  const key = new T.DirectionalLight(0xffffff, 1.1 * Math.PI);
   key.position.set(-3, 4, 4);
-  const rim = new T.PointLight(0xe0662b, 2.2 * 0.8 * Math.PI, 30, 0);
+  const rim = new T.PointLight(0x6d001a, 2.2 * 0.8 * Math.PI, 30, 0);
   rim.position.set(4, -3, 3);
   scene.add(key, rim);
 
