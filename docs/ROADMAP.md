@@ -11,7 +11,9 @@ The design reference is a static prototype (`docs/references/Siliqua · The coin
 - Price collectors (PLAN 0.1, 0.2). The 30-day gate starts only when at least 5 sources are live.
 - Foundation items F1-F3, F4a, F6a, F8.
 
-So the real shape is: Foundation, then Frontend and Collectors side by side, then Backend completion, Oracle, CMI, Market, Launch.
+So the real shape is: Foundation, then Frontend and Collectors side by side, then Backend completion, Oracle, CMI, Market, one Testnet release, Launch.
+
+Owner decision 2026-11-24, which changes only the sequencing of PLAN D13: finish and test the whole system on a local chain first (Foundry and anvil), then deploy once to testnet, then go to mainnet after the owner approves the testnet results. Nothing is deployed to a public chain before Stage 6. The wall-clock gates that need a public chain (14 days of oracle reports, 3 weekly market cycles) therefore start at Stage 6 and run in parallel. Consequence: contracts are frozen before the testnet deploy. Contracts are immutable and not proxied, so a change after the freeze means a new deployment and a restart of the gates.
 
 ## Stage 0 - Foundation (minimum)
 
@@ -74,7 +76,7 @@ Gate: at least 5 sources live per qualifying class; 30 days with no raw-coverage
 
 ## Stage 3 - Smart contracts, part 1: oracle
 
-Interfaces first, so the oracle-node, indexer and `/oracle` page can be built against a fixed ABI. May run on testnet while Stage 2's 30-day gate is still open (PLAN D13).
+Interfaces first, so the oracle-node, indexer and `/oracle` page can be built against a fixed ABI. Everything runs against a local chain; the public testnet deploy is Stage 6.
 
 | #   | Task                                                                                                                                         | Depends on         |
 | --- | -------------------------------------------------------------------------------------------------------------------------------------------- | ------------------ |
@@ -82,13 +84,11 @@ Interfaces first, so the oracle-node, indexer and `/oracle` page can be built ag
 | 3.2 | `SiliquaOracle` + registry with unit, fuzz, invariant tests; shared JSON vectors **[owner]**                                                  | 3.1                |
 | 3.3 | `services/oracle-node` (Python): snapshot, `siliqua-index`, EIP-712 sign, post to report board; cross-language fixtures verified in Foundry   | 3.1, 2.7           |
 | 3.4 | Report board endpoint in `api` and batch relayer; alert if a slot is not finalized                                                           | 3.1                |
-| 3.5 | `services/indexer`: events to Postgres, reorg handling, per-operator values                                                                  | 3.2                |
-| 3.6 | Testnet deploy, three operator Railway projects with separate keys, Blockscout verification                                                  | [H] A7, A8         |
-| 3.7 | `/oracle` page on live data                                                                                                                  | 3.5, 1.8           |
-| 3.8 | Read-only example consumer and docs                                                                                                          | 3.2, [H] A12       |
-| 3.9 | Mainnet deploy with multisig and timelock; operator addresses published                                                                      | [H] A7, both gates |
+| 3.5 | `services/indexer`: events to Postgres, reorg handling (tested with anvil reorgs), per-operator values                                       | 3.2                |
+| 3.6 | Local end-to-end: three oracle-node instances with separate keys report to a local chain; `/oracle` page on that data                         | 3.3-3.5, 1.8       |
+| 3.7 | Read-only example consumer and docs                                                                                                          | 3.2, [H] A12       |
 
-Gate: 14 days of reports; max pairwise operator spread under 0.5% per slot from events; replay, duplicate, wrong-signer, late and outlier cases tested and visible; one operator-offline drill and one key-rotation drill. Independent review of the oracle before mainnet is recommended (PLAN Phase 1 risks).
+Gate (local chain): replay, duplicate, wrong-signer, late and outlier cases tested and visible; max pairwise operator spread under 0.5% per slot from events in the local run; one operator-offline drill and one key-rotation drill pass. The 14-day public run is in Stage 6.
 
 ## Stage 4 - CMI
 
@@ -100,13 +100,13 @@ Gate: 14 days of reports; max pairwise operator spread under 0.5% per slot from 
 | 4.4 | Credibility scoring, frozen and versioned classifier                                                                                | 4.1        |
 | 4.5 | CMI in `siliqua-index` with vectors and property tests; daily job in `index-engine`                                                  | 4.1        |
 | 4.6 | 500-post manual test with precision and recall per narrative                                                                         | [H] A10    |
-| 4.7 | On-chain CMI through the oracle path; `/narratives` on live data                                                                     | Stage 3    |
+| 4.7 | CMI through the oracle path on the local chain; `/narratives` on that data (live data in Stage 6)                                     | Stage 3    |
 
 Gate: methodology and test report published; at least 7 days of daily CMI with per-platform health visible.
 
 ## Stage 5 - Smart contracts, part 2: market
 
-Money enters here. Nothing in this stage touches mainnet before Stage 6.
+Money enters here. Nothing in this stage touches a public chain; Stage 6 is the first deploy and Stage 7 is the first mainnet deploy.
 
 | #   | Task                                                                                                                                              | Depends on |
 | --- | ------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- |
@@ -116,25 +116,42 @@ Money enters here. Nothing in this stage touches mainnet before Stage 6.
 | 5.4 | Indexer and API for markets (`/v1/markets`, implied odds)                                                                                          | 5.2        |
 | 5.5 | Frontend `/markets`: wagmi + viem, buy, claim, refund, countdowns, void banner; geoblock on frontend and API                                       | 5.4, 2.9   |
 | 5.6 | $SILQ address and `FeeRouter` recipients into configuration                                                                                        | [H]        |
-| 5.7 | Testnet rehearsal: at least 3 weekly cycles including forced void, tie, empty pools                                                                | 5.3-5.5    |
+| 5.7 | Local rehearsal with anvil time warp: at least 3 weekly cycles including forced void, tie, empty pools                                            | 5.3-5.5    |
 
-Gate: rehearsal log shows every branch end to end; invariants hold: claims plus refunds never exceed balance, `claim` and `refundIfVoid` never blocked by pause.
+Gate: local rehearsal log shows every branch end to end; invariants hold: claims plus refunds never exceed balance, `claim` and `refundIfVoid` never blocked by pause.
 
-## Stage 6 - Launch readiness
+## Stage 6 - Testnet release (single deploy)
 
-| #   | Task                                                                                           | Depends on |
-| --- | ---------------------------------------------------------------------------------------------- | ---------- |
-| 6.1 | Legal review and geoblock scope                                                                | [H] A11    |
-| 6.2 | Contract audit; findings fixed or accepted in writing                                          | [H] A11    |
-| 6.3 | Go/No-Go checklist from the brief plus caps active, multisig and timelock, pause drill         | 6.1, 6.2   |
-| 6.4 | Mainnet deploy of market contracts; first market capped; monitoring and runbooks               | 6.3        |
+First public-chain deploy. Oracle, `MarketFactory`, `RangeMarket` and `FeeRouter` go out together after a code freeze. One Railway set and one database, with the chain data replaced at mainnet cutover.
+
+| #   | Task                                                                                                                           | Depends on           |
+| --- | ------------------------------------------------------------------------------------------------------------------------------ | -------------------- |
+| 6.1 | Chain facts checked against official docs: chain ID, USDG address and `decimals()`, RPC, Blockscout; `verified` flag set        | [H] A7               |
+| 6.2 | Code freeze and tag; deploy all contracts to testnet; verify on Blockscout; three operator Railway projects with separate keys  | 6.1, Stage 5, [H] A8 |
+| 6.3 | `indexer`, `market-keeper` and `api` against testnet; `/oracle`, `/narratives`, `/markets` on live testnet data                 | 6.2                  |
+| 6.4 | Oracle run: 14 days of reports, plus one operator-offline drill and one key-rotation drill on testnet                           | 6.2                  |
+| 6.5 | Market run: at least 3 weekly cycles, including forced void, tie and empty pools, created by `market-keeper`                    | 6.2, 6.3             |
+| 6.6 | Owner review of the run logs and sign-off recorded in the repo                                                                  | 6.4, 6.5             |
+
+Gate: 6.4 and 6.5 finish with no unexplained divergence; max pairwise operator spread under 0.5% per slot from testnet events; invariants hold on testnet (claims plus refunds never exceed balance, `claim` and `refundIfVoid` never blocked by pause); owner sign-off recorded. Stage 2's 30-day data gate must also be closed before Stage 7.
+
+## Stage 7 - Launch readiness and mainnet
+
+| #   | Task                                                                                                                                                  | Depends on                          |
+| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------- |
+| 7.1 | Legal review and geoblock scope                                                                                                                       | [H] A11                             |
+| 7.2 | Contract audit of the frozen code; findings fixed or accepted in writing. A fix means a new deployment and a Stage 6 rerun                            | [H] A11, Stage 6                    |
+| 7.3 | Go/No-Go checklist from the brief plus caps active, multisig and timelock, pause drill                                                                | 7.1, 7.2                            |
+| 7.4 | Mainnet deploy of oracle and market contracts with multisig and timelock; operator addresses published; first market capped; monitoring and runbooks | 7.3, Stage 2 gate, Stage 6 sign-off |
+
+Independent review of the oracle before mainnet is recommended (PLAN Phase 1 risks). Schedule the audit on the frozen code before or during Stage 6 so its findings do not arrive after the testnet run.
 
 ## Open items blocking this roadmap
 
 1. A2: confirm `git init`, GitHub, `core.hooksPath`. Blocks Stage 0.
 2. Three.js approval for the hero (Stage 1.9).
 3. A4: GPU provider accounts, keys and terms review. Blocks collectors, so it sets the real start date.
-4. A7: chain facts checked against official docs. Blocks Stage 3 testnet.
+4. A7: chain facts checked against official docs. Blocks Stage 6 testnet.
 5. Q-N2: confirm empty-pool and TWAP rounding rules. Blocks Stage 5 spec.
 6. A9, A10, A11: social cost approval, labelers, legal and audit budget.
 
