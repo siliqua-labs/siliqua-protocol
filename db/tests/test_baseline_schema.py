@@ -116,3 +116,53 @@ def test_input_must_belong_to_an_existing_hour(conn):
             "insert into gri_inputs (index_id, hour, source_id, price, weight, kept)"
             " values ('gri-h100', '2026-11-23T10:00:00Z', 'runpod', 2.5, 1, true)"
         )
+
+
+REPORT = {
+    "index_id": "0x" + "ab" * 32,
+    "slot_ts": 1795420800,
+    "operator": "0x" + "11" * 20,
+    "value": 3523000,
+    "sources": 6,
+    "methodology_version": 10000,
+    "nonce": 1,
+    "signature": "0x" + "cd" * 65,
+}
+
+
+def insert_report(conn, **overrides):
+    row = {**REPORT, **overrides}
+    conn.execute(
+        "insert into oracle_reports (index_id, slot_ts, operator, value, sources,"
+        " methodology_version, nonce, signature)"
+        " values (%(index_id)s, %(slot_ts)s, %(operator)s, %(value)s, %(sources)s,"
+        " %(methodology_version)s, %(nonce)s, %(signature)s)",
+        row,
+    )
+
+
+def test_report_board_accepts_one_value_per_operator_per_slot(conn):
+    insert_report(conn)
+    with pytest.raises(psycopg.errors.UniqueViolation):
+        insert_report(conn, nonce=2)
+
+
+def test_report_board_rejects_a_reused_nonce(conn):
+    insert_report(conn)
+    with pytest.raises(psycopg.errors.UniqueViolation):
+        insert_report(conn, slot_ts=1795424400)
+
+
+@pytest.mark.parametrize(
+    "override",
+    [
+        {"value": 0},
+        {"value": 2**128},
+        {"operator": "0x" + "AA" * 20},
+        {"signature": "0x" + "cd" * 64},
+        {"sources": 256},
+    ],
+)
+def test_report_board_checks_what_the_contract_checks(conn, override):
+    with pytest.raises(psycopg.errors.CheckViolation):
+        insert_report(conn, **override)
