@@ -1,12 +1,12 @@
 :root {
-  --bg: #0a0a0b;
-  --bg2: #121214;
-  --tx: #d8d4cc;
-  --dim: #8c8880;
-  --ln: #26262a;
-  --em: #e0662b;
-  --up: #6fa383;
-  --dn: #c0675b;
+  --bg: #ffffff;
+  --bg2: #faf8f8;
+  --tx: #0a0a0a;
+  --dim: #6b6767;
+  --ln: #e8e4e4;
+  --em: #6d001a;
+  --up: #2e7d5b;
+  --dn: #b45309;
   --pad: clamp(20px, 5vw, 64px);
 }
 

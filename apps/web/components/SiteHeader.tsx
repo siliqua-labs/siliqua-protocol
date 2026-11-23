@@ -17,10 +17,10 @@ export function SiteHeader() {
               cy="11"
               r="10"
               fill="none"
-              stroke="#d8d4cc"
+              stroke="#0A0A0A"
               strokeWidth="1.5"
             />
-            <rect x="7" y="7" width="8" height="8" fill="#e0662b" />
+            <rect x="7" y="7" width="8" height="8" fill="#6D001A" />
           </svg>
           SILIQUA
         </Link>

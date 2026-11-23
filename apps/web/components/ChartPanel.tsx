@@ -111,9 +111,9 @@ export function ChartPanel({
                   x2={W - RIGHT}
                   y1={y(v)}
                   y2={y(v)}
-                  stroke="#26262A"
+                  stroke="#E8E4E4"
                 />
-                <text x={4} y={y(v) + 4} fill="#8C8880" fontSize={11}>
+                <text x={4} y={y(v) + 4} fill="#6B6767" fontSize={11}>
                   {formatUsd(String(Math.round(v)))}
                 </text>
               </g>
@@ -126,10 +126,10 @@ export function ChartPanel({
                 x2={W - RIGHT}
                 y1={y(thr)}
                 y2={y(thr)}
-                stroke="#E0662B"
+                stroke="#6D001A"
                 strokeDasharray="2 4"
               />
-              <text x={W - 150} y={y(thr) - 5} fill="#E0662B" fontSize={11}>
+              <text x={W - 150} y={y(thr) - 5} fill="#6D001A" fontSize={11}>
                 threshold {formatUsd(String(thr))}
               </text>
             </g>
@@ -139,7 +139,7 @@ export function ChartPanel({
               key={s.pts[0]}
               points={s.pts.join(" ")}
               fill="none"
-              stroke={s.stale ? "#E0662B" : "#D8D4CC"}
+              stroke={s.stale ? "#6D001A" : "#0A0A0A"}
               strokeWidth={1.6}
               strokeDasharray={s.stale ? "5 4" : undefined}
             />
@@ -151,13 +151,13 @@ export function ChartPanel({
                 x2={x(active)}
                 y1={TOP}
                 y2={H - BOTTOM}
-                stroke="#8C8880"
+                stroke="#6B6767"
               />
               <circle
                 cx={x(active)}
                 cy={y(nth(vals, active))}
                 r={4}
-                fill="#E0662B"
+                fill="#6D001A"
               />
             </g>
           )}

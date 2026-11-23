@@ -8,11 +8,19 @@ import { at } from "../lib/at";
 import { formatInt, formatUsd } from "../lib/format";
 
 export const NARRATIVE_COLORS: Record<Narrative, string> = {
-  AGENTS: "#E0662B",
-  DEPIN: "#C9C6C0",
-  INFER: "#9a968f",
-  ZKPROVE: "#6e6b66",
-  OTHER: "#4a4946",
+  AGENTS: "#6D001A",
+  DEPIN: "#0A0A0A",
+  INFER: "#6B6767",
+  ZKPROVE: "#A9A4A4",
+  OTHER: "#D6D1D1",
+};
+
+const NARRATIVE_TEXT: Record<Narrative, string> = {
+  AGENTS: "#FFFFFF",
+  DEPIN: "#FFFFFF",
+  INFER: "#FFFFFF",
+  ZKPROVE: "#0A0A0A",
+  OTHER: "#0A0A0A",
 };
 
 export function Sparkline({
@@ -42,7 +50,7 @@ export function Sparkline({
       role="img"
       aria-label={`7-day trend, from ${formatUsd(at(values, 0))} to ${formatUsd(at(values, values.length - 1))} USD`}
     >
-      <polyline points={pts} fill="none" stroke="#D8D4CC" strokeWidth={1.5} />
+      <polyline points={pts} fill="none" stroke="#0A0A0A" strokeWidth={1.5} />
     </svg>
   );
 }
@@ -72,11 +80,11 @@ export function SourceSpread({
       }`}
       fontFamily="monospace"
     >
-      <line x1={30} x2={770} y1={70} y2={70} stroke="#26262A" />
+      <line x1={30} x2={770} y1={70} y2={70} stroke="#E8E4E4" />
       {med !== null && (
         <g>
-          <line x1={x(med)} x2={x(med)} y1={20} y2={90} stroke="#E0662B" />
-          <text x={x(med) + 6} y={28} fill="#E0662B" fontSize={11}>
+          <line x1={x(med)} x2={x(med)} y1={20} y2={90} stroke="#6D001A" />
+          <text x={x(med) + 6} y={28} fill="#6D001A" fontSize={11}>
             median {formatUsd(String(med))}
           </text>
         </g>
@@ -90,14 +98,14 @@ export function SourceSpread({
               cx={x(p)}
               cy={cy}
               r={6}
-              fill={s.included ? "#D8D4CC" : "none"}
-              stroke={s.included ? "#D8D4CC" : "#C0675B"}
+              fill={s.included ? "#0A0A0A" : "none"}
+              stroke={s.included ? "#0A0A0A" : "#B45309"}
               strokeWidth={2}
             >
               <title>{`${s.name} ${formatUsd(s.priceMicroUsd)}${s.included ? "" : " excluded"}`}</title>
             </circle>
             {!s.included && (
-              <text x={x(p) + 10} y={cy + 4} fill="#C0675B" fontSize={11}>
+              <text x={x(p) + 10} y={cy + 4} fill="#B45309" fontSize={11}>
                 excluded
               </text>
             )}
@@ -122,7 +130,7 @@ export function NarrativeBar({ bps }: { bps: Record<Narrative, number> }) {
           style={{
             width: `${bps[n] / 100}%`,
             background: NARRATIVE_COLORS[n],
-            color: "#0A0A0B",
+            color: NARRATIVE_TEXT[n],
             display: "flex",
             flexDirection: "column",
             justifyContent: "center",
@@ -158,7 +166,7 @@ export function NarrativeTreemap({ bps }: { bps: Record<Narrative, number> }) {
               style={{
                 flex: `${bps[n]} 1 0`,
                 background: NARRATIVE_COLORS[n],
-                color: "#0A0A0B",
+                color: NARRATIVE_TEXT[n],
                 padding: 10,
                 minWidth: 0,
                 border: "1px solid var(--bg)",
@@ -222,7 +230,7 @@ export function NarrativeArea({ days }: { days: NarrativeDay[] }) {
           x2={px(i)}
           y1={0}
           y2={H}
-          stroke="#0A0A0B"
+          stroke="#E8E4E4"
           strokeDasharray="4 4"
         />
       ))}

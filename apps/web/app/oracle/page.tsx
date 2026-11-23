@@ -9,7 +9,7 @@ export const metadata: Metadata = { title: "Oracle" };
 
 const W = 800;
 const H = 220;
-const COLORS = ["#D8D4CC", "#E0662B", "#8C8880"];
+const COLORS = ["#0A0A0A", "#6D001A", "#6B6767"];
 
 export default async function OraclePage() {
   const o = await getOracle();
@@ -134,16 +134,16 @@ export default async function OraclePage() {
               x2={780}
               y1={y(t)}
               y2={y(t)}
-              stroke="#E0662B"
+              stroke="#6D001A"
               strokeDasharray="3 4"
             />
-            <text x={4} y={y(t) + 4} fill="#E0662B" fontSize={11}>
+            <text x={4} y={y(t) + 4} fill="#6D001A" fontSize={11}>
               {t > 0 ? "+" : "-"}
               {tol}
             </text>
           </g>
         ))}
-        <line x1={40} x2={780} y1={y(0)} y2={y(0)} stroke="#26262A" />
+        <line x1={40} x2={780} y1={y(0)} y2={y(0)} stroke="#E8E4E4" />
         {o.spread24h.map((series, j) => (
           <polyline
             key={COLORS[j]}
@@ -161,7 +161,7 @@ export default async function OraclePage() {
         ))}
       </svg>
       <p style={{ fontSize: 13 }}>
-        Lines: Operator A solid silver, B solid ember, C dashed grey. Dotted
+        Lines: Operator A solid ink, B solid burgundy, C dashed grey. Dotted
         lines mark the contract tolerance ({tol}, a parameter).
       </p>
 

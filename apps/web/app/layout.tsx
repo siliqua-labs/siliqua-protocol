@@ -21,13 +21,13 @@ export const metadata: Metadata = {
   title: { default: "Siliqua · The coin of compute", template: "%s · Siliqua" },
   description: "Open, recomputable indexes of GPU rent and compute narratives.",
   icons: {
-    icon: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='7' fill='%23c9c6c0'/%3E%3Crect x='5' y='5' width='6' height='6' fill='%230A0A0B'/%3E%3C/svg%3E",
+    icon: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='7' fill='%236D001A'/%3E%3Crect x='5' y='5' width='6' height='6' fill='%23ffffff'/%3E%3C/svg%3E",
   },
 };
 
 export const viewport: Viewport = {
   viewportFit: "cover",
-  themeColor: "#0a0a0b",
+  themeColor: "#ffffff",
 };
 
 export default function RootLayout({

@@ -19,12 +19,12 @@ export const metadata: Metadata = {
 };
 
 const SWATCHES = [
-  ["obsidian", "#0A0A0B"],
-  ["silver", "#D8D4CC"],
-  ["dim", "#8C8880"],
-  ["ember", "#E0662B"],
-  ["up", "#6FA383"],
-  ["down", "#C0675B"],
+  ["white", "#FFFFFF"],
+  ["ink", "#0A0A0A"],
+  ["dim", "#6B6767"],
+  ["burgundy", "#6D001A"],
+  ["up", "#2E7D5B"],
+  ["down", "#B45309"],
 ] as const;
 
 const CHIPS: ChipStatus[] = [

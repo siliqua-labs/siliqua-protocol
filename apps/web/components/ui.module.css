@@ -4,13 +4,13 @@
   border-bottom: 1px solid var(--ln);
   background: radial-gradient(
     ellipse at 50% 15%,
-    rgba(10, 10, 11, 0.82),
-    rgba(10, 10, 11, 0.62)
+    rgba(255, 255, 255, 0.5),
+    rgba(255, 255, 255, 0.25)
   );
 }
 
 .tinted {
-  background: rgba(10, 10, 11, 0.62);
+  background: rgba(255, 255, 255, 0.3);
 }
 
 .plain {
@@ -78,12 +78,12 @@
 .primary {
   background: var(--em);
   border-color: var(--em);
-  color: #0a0a0b;
+  color: #fff;
 }
 
 .primary:hover:not(:disabled) {
-  background: #f07a3e;
-  color: #0a0a0b;
+  background: #4a0012;
+  color: #fff;
 }
 
 .cta {
@@ -107,7 +107,7 @@
 
 .card {
   border: 1px solid var(--ln);
-  background: rgba(10, 10, 11, 0.8);
+  background: rgba(255, 255, 255, 0.8);
   padding: 24px;
 }
 
@@ -115,7 +115,7 @@
   border: 1px solid var(--em);
   padding: 14px 18px;
   color: var(--tx);
-  background: rgba(224, 102, 43, 0.08);
+  background: rgba(109, 0, 26, 0.08);
   margin: 12px 0;
 }
 
@@ -126,7 +126,7 @@
 
 .danger {
   border-color: var(--dn);
-  background: rgba(192, 103, 91, 0.08);
+  background: rgba(180, 83, 9, 0.08);
 }
 
 .grid2 {
@@ -175,7 +175,7 @@
   overflow-x: auto;
   max-width: 100%;
   border: 1px solid var(--ln);
-  background: rgba(10, 10, 11, 0.88);
+  background: rgba(255, 255, 255, 0.88);
 }
 
 .tableWrap table {
@@ -252,7 +252,7 @@
 }
 
 .no {
-  background: #5a5a60;
+  background: #0a0a0a;
 }
 
 .nowrap {
@@ -330,7 +330,7 @@
 
 .skeleton {
   height: 16px;
-  background: linear-gradient(90deg, var(--ln), #33333a, var(--ln));
+  background: linear-gradient(90deg, var(--ln), #f1eded, var(--ln));
   background-size: 200% 100%;
   animation: sheen 1.6s infinite;
   margin: 8px 0;
@@ -344,7 +344,7 @@
   flex-wrap: wrap;
   padding: 32px var(--pad);
   border-bottom: 1px solid var(--ln);
-  background: rgba(10, 10, 11, 0.5);
+  background: rgba(250, 248, 248, 0.4);
 }
 
 .band h3 {

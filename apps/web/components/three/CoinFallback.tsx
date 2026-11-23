@@ -6,8 +6,8 @@ export function CoinFallback() {
         cx="100"
         cy="100"
         r="92"
-        fill="#8d8a85"
-        stroke="#D8D4CC"
+        fill="#EBE7E7"
+        stroke="#0A0A0A"
         strokeWidth="3"
       />
       <circle
@@ -15,7 +15,7 @@ export function CoinFallback() {
         cy="100"
         r="76"
         fill="none"
-        stroke="#55524e"
+        stroke="#6D001A"
         strokeDasharray="2 6"
         strokeWidth="4"
       />
@@ -24,11 +24,11 @@ export function CoinFallback() {
         y="66"
         width="68"
         height="68"
-        fill="#2b2a28"
-        stroke="#E0662B"
+        fill="#0A0A0A"
+        stroke="#6D001A"
         strokeWidth="2"
       />
-      <rect x="82" y="82" width="36" height="36" fill="#5c5954" />
+      <rect x="82" y="82" width="36" height="36" fill="#6D001A" />
     </svg>
   );
 }
