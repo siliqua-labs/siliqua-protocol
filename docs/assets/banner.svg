@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 400" width="1200" height="400" role="img" aria-labelledby="t d">
+  <title id="t">Siliqua</title>
+  <desc id="d">Siliqua wordmark with the tagline "The price of a GPU hour, recomputable by anyone" beside a stylised hourly price line with a dashed stale stretch and a spread of source prices.</desc>
+  <defs>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M40 0H0V40" fill="none" stroke="#1B1B1F" stroke-width="1"/>
+    </pattern>
+    <linearGradient id="fade" x1="0" x2="1" y1="0" y2="0">
+      <stop offset="0" stop-color="#0B0B0D" stop-opacity="0"/>
+      <stop offset="1" stop-color="#0B0B0D" stop-opacity="1"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="400" fill="#0B0B0D"/>
+  <rect width="1200" height="400" fill="url(#grid)"/>
+  <rect x="0" y="0" width="1200" height="400" fill="none" stroke="#26262A" stroke-width="2"/>
+
+  <!-- left: wordmark -->
+  <text x="64" y="64" font-family="ui-monospace, Consolas, Menlo, monospace" font-size="13" letter-spacing="3" fill="#8A877F">ON-CHAIN COMPUTE INDEXES</text>
+  <text x="60" y="190" font-family="Georgia, 'Times New Roman', serif" font-size="96" letter-spacing="10" fill="#ECE8E0">SILIQUA<tspan fill="#E0662B">.</tspan></text>
+  <line x1="64" y1="222" x2="560" y2="222" stroke="#E0662B" stroke-width="2"/>
+  <circle cx="312" cy="222" r="4" fill="#E0662B"/>
+  <text x="64" y="268" font-family="Georgia, 'Times New Roman', serif" font-size="26" font-style="italic" fill="#D8D4CC">The price of a GPU hour,</text>
+  <text x="64" y="302" font-family="Georgia, 'Times New Roman', serif" font-size="26" font-style="italic" fill="#D8D4CC">recomputable by anyone.</text>
+
+  <!-- right: stylised series, no real values -->
+  <g transform="translate(676 70) scale(0.9)">
+    <line x1="0" y1="260" x2="500" y2="260" stroke="#26262A"/>
+    <line x1="0" y1="0" x2="0" y2="260" stroke="#26262A"/>
+    <!-- threshold -->
+    <line x1="0" y1="110" x2="500" y2="110" stroke="#3A3A40" stroke-dasharray="3 6"/>
+    <text x="6" y="102" font-family="ui-monospace, Consolas, Menlo, monospace" font-size="11" fill="#6E6B66">THRESHOLD</text>
+    <!-- live, stale (dashed), live -->
+    <polyline points="0,190 40,176 80,182 120,150 160,158 200,132" fill="none" stroke="#D8D4CC" stroke-width="2.5" stroke-linejoin="round"/>
+    <polyline points="200,132 230,132 260,132 290,132" fill="none" stroke="#D8D4CC" stroke-width="2.5" stroke-dasharray="6 6"/>
+    <polyline points="290,132 330,104 370,112 410,84 450,92 490,60" fill="none" stroke="#D8D4CC" stroke-width="2.5" stroke-linejoin="round"/>
+    <circle cx="490" cy="60" r="5" fill="#E0662B"/>
+    <text x="200" y="152" font-family="ui-monospace, Consolas, Menlo, monospace" font-size="11" fill="#8A877F">STALE HOURS SKIPPED</text>
+    <!-- source spread strip -->
+    <line x1="0" y1="226" x2="500" y2="226" stroke="#26262A"/>
+    <g fill="#9A968F">
+      <circle cx="160" cy="226" r="4"/><circle cx="196" cy="226" r="4"/><circle cx="214" cy="226" r="4"/>
+      <circle cx="236" cy="226" r="4"/><circle cx="262" cy="226" r="4"/>
+    </g>
+    <circle cx="430" cy="226" r="4" fill="none" stroke="#6E6B66"/>
+    <line x1="214" y1="212" x2="214" y2="240" stroke="#E0662B"/>
+    <text x="222" y="208" font-family="ui-monospace, Consolas, Menlo, monospace" font-size="11" fill="#E0662B">MEDIAN</text>
+    <text x="0" y="284" font-family="ui-monospace, Consolas, Menlo, monospace" font-size="11" fill="#6E6B66">SOURCES, OUTLIER DROPPED</text>
+  </g>
+
+  <!-- footer -->
+  <text x="64" y="364" font-family="ui-monospace, Consolas, Menlo, monospace" font-size="12" letter-spacing="2" fill="#8A877F">GRI  &#183;  CMI  &#183;  WEEKLY MARKET  &#183;  ROBINHOOD CHAIN</text>
+  <text x="1136" y="364" text-anchor="end" font-family="ui-monospace, Consolas, Menlo, monospace" font-size="12" letter-spacing="2" fill="#6E6B66">PUBLIC DATA &#183; OPEN METHOD &#183; RECOMPUTABLE</text>
+</svg>
