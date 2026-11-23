@@ -1,6 +1,6 @@
 import pg from "pg";
 import { buildApp } from "./app.ts";
-import { reportBoardFromEnv } from "./env.ts";
+import { reportBoardFromEnv, toleranceFromEnv } from "./env.ts";
 
 const databaseUrl = process.env.DATABASE_URL;
 if (!databaseUrl) {
@@ -12,6 +12,9 @@ if (!Number.isInteger(port) || port <= 0) {
 }
 
 const pool = new pg.Pool({ connectionString: databaseUrl, max: 5 });
-const app = await buildApp(pool, { reportBoard: reportBoardFromEnv() });
+const app = await buildApp(pool, {
+  reportBoard: reportBoardFromEnv(),
+  oracleToleranceBps: toleranceFromEnv(),
+});
 
 await app.listen({ port, host: "0.0.0.0" });

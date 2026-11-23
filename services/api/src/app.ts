@@ -3,6 +3,7 @@ import Fastify, { type FastifyInstance } from "fastify";
 import type { Pool } from "pg";
 import { type ReportBoardConfig, registerReportBoard } from "./board.ts";
 import { isoSeconds, medianMicro } from "./money.ts";
+import { indexLabels, loadOracleView } from "./oracleView.ts";
 import {
   buildSeries,
   buildSnapshot,
@@ -34,6 +35,8 @@ export async function buildApp(
   options: {
     rateLimitPerMinute?: number;
     reportBoard?: ReportBoardConfig;
+    // Per-index tolerance is on chain; the page needs the GRI value to mark dropped values.
+    oracleToleranceBps?: number;
   } = {},
 ): Promise<FastifyInstance> {
   const app = Fastify({ logger: true });
@@ -154,6 +157,23 @@ export async function buildApp(
   );
 
   registerReportBoard(app, pool, options.reportBoard);
+
+  app.get("/v1/oracle", async (_request, reply) => {
+    const toleranceBps = options.oracleToleranceBps;
+    if (toleranceBps === undefined) {
+      return reply
+        .code(503)
+        .send(
+          errorBody(
+            "oracle_not_configured",
+            "ORACLE_TOLERANCE_BPS is not set on this deployment",
+          ),
+        );
+    }
+    const classes = await listGpuClasses(pool);
+    const labels = indexLabels(classes.map((c) => `GRI-${c.id.toUpperCase()}`));
+    return loadOracleView(pool, toleranceBps, labels);
+  });
 
   return app;
 }

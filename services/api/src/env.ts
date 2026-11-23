@@ -48,3 +48,15 @@ export function reportBoardFromEnv(): ReportBoardConfig | undefined {
     operators: new Set(env.operators),
   };
 }
+
+export function toleranceFromEnv(): number | undefined {
+  const raw = process.env.ORACLE_TOLERANCE_BPS;
+  if (raw === undefined) return undefined;
+  const value = Number(raw);
+  if (!Number.isInteger(value) || value < 0 || value > 10_000) {
+    throw new Error(
+      `ORACLE_TOLERANCE_BPS must be an integer in 0..10000, got ${raw}`,
+    );
+  }
+  return value;
+}
