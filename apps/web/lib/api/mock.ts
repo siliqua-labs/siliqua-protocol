@@ -363,46 +363,63 @@ export function mockMarketDetail(id: string) {
 export function mockOracle(): OracleResponse {
   const r = rng(91);
   const toleranceBps = 100;
-  const rejects = [
-    null,
-    null,
-    "tolerance exceeded",
-    null,
-    "stale timestamp",
-    null,
-    "replay",
-    null,
-  ];
-  const reports = rejects.map((reason, i) => {
+  const operators = ["0xa11c...e001", "0xb0b0...e002", "0xca01...e003"];
+  const byValue = (a: bigint, b: bigint) => (a < b ? -1 : 1);
+  const slots = Array.from({ length: 8 }, (_, i) => {
     const m = 2_410_000 * (1 + (r() - 0.5) * 0.008);
-    const v = [0, 1, 2].map(() => Math.round(m * (1 + (r() - 0.5) * 0.006)));
-    if (reason === "tolerance exceeded") v[2] = Math.round(m * 1.011);
-    const med = Number(medianOf(v.map(BigInt)));
-    const gap = Math.max(
-      ...v.map((x) => Math.abs(Math.round(((x - med) * 10000) / med))),
-    );
+    const v = operators.map(() => Math.round(m * (1 + (r() - 0.5) * 0.006)));
+    if (i === 2) v[2] = Math.round(m * 1.011);
+    const med = Number(medianOf(v.map(BigInt).sort(byValue)));
+    const values = v.map((x, k) => {
+      const gap = Math.round(((x - med) * 10000) / med);
+      return {
+        operator: operators[k] as string,
+        valueMicroUsd: String(x),
+        kept: Math.abs(gap) <= toleranceBps,
+        gapBps: Math.abs(gap),
+        deviationBps: gap,
+      };
+    });
+    const kept = values
+      .filter((x) => x.kept)
+      .map((x) => BigInt(x.valueMicroUsd))
+      .sort(byValue);
     return {
       indexId: "GRI-H100",
-      hour: `2026-11-21T0${7 - i}:00:00Z`,
-      values: v.map(String) as [string, string, string],
+      indexLabel: "GRI-H100",
+      slot: `2026-11-21T0${7 - i}:00:00Z`,
+      values,
       medianMicroUsd: String(med),
-      maxGapBps: gap,
-      result: reason ? ("rejected" as const) : ("accepted" as const),
-      ...(reason ? { reason } : {}),
+      maxGapBps: Math.max(...values.map((x) => x.gapBps)),
+      finalizedValueMicroUsd: String(medianOf(kept)),
+      keptCount: kept.length,
     };
   });
-  const spread = [0, 1, 2].map(() =>
-    Array.from({ length: 24 }, () => Math.round((r() - 0.5) * 50)),
-  ) as [number[], number[], number[]];
   return {
     isSample: true,
     toleranceBps,
-    operators: ["Operator A", "Operator B", "Operator C"].map((name) => ({
-      name,
+    operators: operators.map((address) => ({
+      address,
+      active: true,
       lastSignedAt: "2026-11-21T08:00:00Z",
       reports24h: 24,
     })),
-    reports,
-    spread24h: spread,
+    slots,
+    rejections: [
+      {
+        indexLabel: "GRI-H100",
+        slot: "2026-11-21T04:00:00Z",
+        operator: operators[1] as string,
+        reason: "window closed",
+        at: "2026-11-21T08:03:00Z",
+      },
+      {
+        indexLabel: "GRI-H100",
+        slot: "2026-11-21T02:00:00Z",
+        operator: operators[0] as string,
+        reason: "nonce used",
+        at: "2026-11-21T06:01:00Z",
+      },
+    ],
   };
 }

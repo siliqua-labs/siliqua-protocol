@@ -109,25 +109,43 @@ export type MarketDetailResponse = {
 };
 
 export type OperatorRow = {
-  name: string;
-  lastSignedAt: string;
+  address: string;
+  active: boolean;
+  lastSignedAt: string | null;
   reports24h: number;
 };
 
-export type OracleReport = {
+export type OracleSlotValue = {
+  operator: string;
+  valueMicroUsd: string;
+  kept: boolean;
+  gapBps: number;
+  deviationBps: number;
+};
+
+export type OracleSlot = {
   indexId: string;
-  hour: string;
-  values: [string, string, string];
+  indexLabel: string;
+  slot: string;
+  values: OracleSlotValue[];
   medianMicroUsd: string;
   maxGapBps: number;
-  result: "accepted" | "rejected";
-  reason?: string;
+  finalizedValueMicroUsd: string | null;
+  keptCount: number | null;
+};
+
+export type OracleRejection = {
+  indexLabel: string;
+  slot: string;
+  operator: string;
+  reason: string;
+  at: string;
 };
 
 export type OracleResponse = {
   isSample: boolean;
   toleranceBps: number;
   operators: OperatorRow[];
-  reports: OracleReport[];
-  spread24h: [number[], number[], number[]];
+  slots: OracleSlot[];
+  rejections: OracleRejection[];
 };

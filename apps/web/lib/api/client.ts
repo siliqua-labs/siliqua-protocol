@@ -18,17 +18,21 @@ import type {
 
 // Single seam the pages read through. Index data comes from `api` when
 // API_BASE_URL is set; without it the pages show sample data and say so.
-// Narratives, markets and oracle stay on samples until their services exist.
+// Narratives and markets stay on samples until their services exist. The oracle page reads
+// /v1/oracle, which answers 503 until the oracle is configured on that deployment.
 const REVALIDATE_SECONDS = 60;
 
-async function fetchApi<T>(path: string): Promise<T | null> {
+async function fetchApi<T>(
+  path: string,
+  nullOn: number[] = [404],
+): Promise<T | null> {
   const base = process.env.API_BASE_URL;
   if (!base) throw new Error("API_BASE_URL is not set");
   const url = new URL(path, base);
   const response = await fetch(url, {
     next: { revalidate: REVALIDATE_SECONDS },
   });
-  if (response.status === 404) return null;
+  if (nullOn.includes(response.status)) return null;
   if (!response.ok) {
     throw new Error(
       `GET ${url.pathname} failed with status ${response.status}`,
@@ -74,6 +78,8 @@ export async function getMarketDetail(
   return d && { isSample: true, perAddressCapTokens: 1000, ...d };
 }
 
-export async function getOracle(): Promise<OracleResponse> {
-  return mockOracle();
+/** null when this deployment has no oracle configured (503); the page then says so. */
+export async function getOracle(): Promise<OracleResponse | null> {
+  if (!process.env.API_BASE_URL) return mockOracle();
+  return fetchApi<OracleResponse>("/v1/oracle", [404, 503]);
 }
