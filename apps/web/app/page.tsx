@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { NarrativeBar, Sparkline } from "../components/charts";
+import { HeroHud } from "../components/HeroHud";
 import { MarketCard } from "../components/MarketCard";
 import { ButtonLink, DataTable, SampleTag } from "../components/primitives";
 import { Reveal } from "../components/Reveal";
@@ -82,12 +83,14 @@ export default async function Home() {
               <ButtonLink href="/methodology">Read the methodology</ButtonLink>
             </div>
           </div>
-          <ThreeScene
-            kind="coin"
-            label="Silver siliqua coin, slowly rotating"
-            className={styles.coin}
-            fallback={<CoinFallback />}
-          />
+          <HeroHud gpuClass={lead.gpuClass} isSample={isSample}>
+            <ThreeScene
+              kind="coin"
+              label="Layered burgundy and white hex panels, slowly rotating"
+              className={styles.coin}
+              fallback={<CoinFallback />}
+            />
+          </HeroHud>
         </div>
         <div className={ui.spec}>
           <div>

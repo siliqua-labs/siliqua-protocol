@@ -1,0 +1,70 @@
+.wrap {
+  position: relative;
+  aspect-ratio: 1;
+  width: 100%;
+  max-width: 540px;
+  justify-self: center;
+  container-type: inline-size;
+}
+
+.float {
+  position: absolute;
+  inset: 0;
+  animation: float 7s ease-in-out infinite;
+}
+
+@keyframes float {
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.chip {
+  position: absolute;
+  background: #0a0a0a;
+  color: #fff;
+  font:
+    500 2cqw / 1 var(--font-mono),
+    monospace;
+  pointer-events: none;
+}
+
+.clock {
+  left: 3%;
+  top: 4%;
+  padding: 1.6cqw 2.4cqw;
+  border-radius: 6px;
+}
+
+.clock em {
+  font-style: normal;
+  opacity: 0.55;
+  margin-right: 1.2cqw;
+}
+
+.clock span {
+  opacity: 0.55;
+  margin-left: 1.2cqw;
+}
+
+.sync {
+  left: 14%;
+  bottom: 5%;
+  width: 24%;
+  line-height: 8.5cqw;
+  text-align: center;
+  letter-spacing: 0.14em;
+  font-size: 1.7cqw;
+  clip-path: polygon(0 0, 92% 0, 100% 100%, 6% 100%);
+}
+
+.klass {
+  right: 7%;
+  bottom: 11%;
+  width: 13%;
+  line-height: 6cqw;
+  text-align: center;
+  font-size: 1.7cqw;
+  background: #6d001a;
+  clip-path: polygon(8% 0, 100% 0, 92% 100%, 0 100%);
+}

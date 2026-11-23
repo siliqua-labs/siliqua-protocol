@@ -14,10 +14,10 @@
 }
 
 .coin {
-  aspect-ratio: 1;
-  width: 100%;
-  max-width: 540px;
-  justify-self: center;
+  position: absolute;
+  inset: 0;
+  /* Fades the soft shadow out before the canvas edge so no box shows. */
+  mask-image: radial-gradient(closest-side, #000 82%, transparent 100%);
 }
 
 .arch {
