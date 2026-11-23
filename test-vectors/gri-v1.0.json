@@ -1,0 +1,78 @@
+{
+  "methodology_version": "1.0",
+  "unit": "micro-USD per GPU-hour",
+  "gri": [
+    {
+      "name": "five clean sources",
+      "quotes": {"a": 2500000, "b": 2520000, "c": 2480000, "d": 2510000, "e": 2490000},
+      "expected": {"value": 2500000, "valid_sources": 5, "dropped": []}
+    },
+    {
+      "name": "one outlier dropped, five remain",
+      "quotes": {"a": 2500000, "b": 2520000, "c": 2480000, "d": 2510000, "e": 2490000, "f": 3900000},
+      "expected": {"value": 2500000, "valid_sources": 5, "dropped": ["f"]}
+    },
+    {
+      "name": "four sources is below the minimum",
+      "quotes": {"a": 2500000, "b": 2520000, "c": 2480000, "d": 2510000},
+      "expected": {"value": null, "valid_sources": 4, "dropped": []}
+    },
+    {
+      "name": "minimum counted after the outlier filter",
+      "quotes": {"a": 2500000, "b": 2510000, "c": 2490000, "d": 2505000, "e": 5000000},
+      "expected": {"value": null, "valid_sources": 4, "dropped": ["e"]}
+    },
+    {
+      "name": "MAD is zero, 1 percent floor keeps a near quote",
+      "quotes": {"a": 2000000, "b": 2000000, "c": 2000000, "d": 2000000, "e": 2030000},
+      "expected": {"value": 2006000, "valid_sources": 5, "dropped": []}
+    },
+    {
+      "name": "quote exactly at the bound is kept",
+      "quotes": {"a": 2000000, "b": 2000000, "c": 2000000, "d": 2000000, "e": 2060000},
+      "expected": {"value": 2012000, "valid_sources": 5, "dropped": []}
+    },
+    {
+      "name": "quote one micro-USD past the bound is dropped",
+      "quotes": {"a": 2000000, "b": 2000000, "c": 2000000, "d": 2000000, "e": 2060001},
+      "expected": {"value": null, "valid_sources": 4, "dropped": ["e"]}
+    },
+    {
+      "name": "mean rounds half up",
+      "quotes": {"a": 1000000, "b": 1000000, "c": 1000000, "d": 1000000, "e": 1000000, "f": 1000003},
+      "expected": {"value": 1000001, "valid_sources": 6, "dropped": []}
+    },
+    {
+      "name": "no quotes",
+      "quotes": {},
+      "expected": {"value": null, "valid_sources": 0, "dropped": []}
+    }
+  ],
+  "twap": [
+    {
+      "name": "all 24 hours published",
+      "hours": [2500000, 2500000, 2500000, 2500000, 2500000, 2500000, 2500000, 2500000, 2500000, 2500000, 2500000, 2500000, 2500000, 2500000, 2500000, 2500000, 2500000, 2500000, 2500000, 2500000, 2500000, 2500000, 2500000, 2500000],
+      "expected": {"value": 2500000, "stale_hours": 0, "void": false}
+    },
+    {
+      "name": "two levels average",
+      "hours": [2000000, 2000000, 2000000, 2000000, 2000000, 2000000, 2000000, 2000000, 2000000, 2000000, 2000000, 2000000, 3000000, 3000000, 3000000, 3000000, 3000000, 3000000, 3000000, 3000000, 3000000, 3000000, 3000000, 3000000],
+      "expected": {"value": 2500000, "stale_hours": 0, "void": false}
+    },
+    {
+      "name": "six stale hours are skipped, not void",
+      "hours": [2500000, 2500000, 2500000, 2500000, 2500000, 2500000, 2500000, 2500000, 2500000, 2500000, 2500000, 2500000, 2500000, 2500000, 2500000, 2500000, 2500000, 2500000, null, null, null, null, null, null],
+      "expected": {"value": 2500000, "stale_hours": 6, "void": false}
+    },
+    {
+      "name": "seven stale hours void the market",
+      "hours": [2500000, 2500000, 2500000, 2500000, 2500000, 2500000, 2500000, 2500000, 2500000, 2500000, 2500000, 2500000, 2500000, 2500000, 2500000, 2500000, 2500000, null, null, null, null, null, null, null],
+      "expected": {"value": null, "stale_hours": 7, "void": true}
+    },
+    {
+      "name": "stale hours are cumulative, not contiguous",
+      "hours": [2500000, null, 2500000, null, 2500000, null, 2500000, null, 2500000, null, 2500000, null, 2500000, null, 2500000, 2500000, 2500000, 2500000, 2500000, 2500000, 2500000, 2500000, 2500000, 2500000],
+      "expected": {"value": null, "stale_hours": 7, "void": true}
+    }
+  ]
+}
