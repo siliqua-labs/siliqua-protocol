@@ -1,6 +1,7 @@
 import rateLimit from "@fastify/rate-limit";
 import Fastify, { type FastifyInstance } from "fastify";
 import type { Pool } from "pg";
+import { type ReportBoardConfig, registerReportBoard } from "./board.ts";
 import { isoSeconds, medianMicro } from "./money.ts";
 import {
   buildSeries,
@@ -30,7 +31,10 @@ function errorBody(code: string, message: string): ApiError {
 // Awaiting the plugin matters: rate-limit only covers routes added after it has loaded.
 export async function buildApp(
   pool: Pool,
-  options: { rateLimitPerMinute?: number } = {},
+  options: {
+    rateLimitPerMinute?: number;
+    reportBoard?: ReportBoardConfig;
+  } = {},
 ): Promise<FastifyInstance> {
   const app = Fastify({ logger: true });
 
@@ -148,6 +152,8 @@ export async function buildApp(
       return body;
     },
   );
+
+  registerReportBoard(app, pool, options.reportBoard);
 
   return app;
 }

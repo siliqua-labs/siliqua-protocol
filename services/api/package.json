@@ -4,6 +4,8 @@
   "type": "module",
   "scripts": {
     "start": "node src/main.ts",
+    "relayer": "node src/relayer-main.ts",
+    "e2e": "node e2e/local-oracle.ts",
     "test": "node --test src/",
     "typecheck": "tsc --noEmit"
   },
@@ -11,7 +13,8 @@
     "@fastify/rate-limit": "11.3.0",
     "fastify": "5.12.8",
     "kysely": "0.29.9",
-    "pg": "8.23.1"
+    "pg": "8.23.1",
+    "viem": "2.58.4"
   },
   "devDependencies": {
     "@types/node": "26.6.6",

@@ -1,0 +1,52 @@
+{
+  "spec": "docs/spec/oracle-v1.md section 4",
+  "note": "Signed with viem; the contract (Foundry) and eth-account (Python) must agree. The key is a throwaway.",
+  "privateKey": "0x0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a0a",
+  "signer": "0xc171033d5cbff7175f29dfd3a63dda3d6f8f385e",
+  "chainId": 31337,
+  "oracle": "0x5fbdb2315678afecb367f032d93f642f64180aa3",
+  "cases": [
+    {
+      "name": "GRI-H100 slot 2026-11-23 08:00 UTC",
+      "index": "GRI-H100",
+      "report": {
+        "indexId": "0x5f4173d72ba8e6e76182a9fe2ee366220e3e89a9ebfe36b16c1a6638dbcde573",
+        "timestamp": "1795420800",
+        "value": "3523000",
+        "sources": 6,
+        "methodologyVersion": 10000,
+        "nonce": "1"
+      },
+      "digest": "0xf93f3eb590a3609545d672f555d5cc7fccb1badc686ba23e2b4c826d825f608e",
+      "signature": "0xdf861b2bf154fbb9703a51ab4d265ead3caacef57fe9b3f6fc03c5d06d744cd3638e76dba792d552f7c62a9fea0c6900ec73727a13cd49df2aa37b75a42d891f1c"
+    },
+    {
+      "name": "nonce above 255 uses another bitmap word",
+      "index": "GRI-H100",
+      "report": {
+        "indexId": "0x5f4173d72ba8e6e76182a9fe2ee366220e3e89a9ebfe36b16c1a6638dbcde573",
+        "timestamp": "1795424400",
+        "value": "3521501",
+        "sources": 9,
+        "methodologyVersion": 10000,
+        "nonce": "515"
+      },
+      "digest": "0x4ef3b906f9db426a9a0109096bd1183a525de5c8ff6f9d01ee558f977c83b69e",
+      "signature": "0x9939efbcdf63b553cd69a296db9aa3d582da0a69014e066659b86fa196d3e5ca0700f772469ebb5929c3eb702628fdab6c14885bceeb7bf424992fff45dccbd21b"
+    },
+    {
+      "name": "largest allowed value",
+      "index": "CMI-AGENTS",
+      "report": {
+        "indexId": "0xbeea19ba708ed9af3ff86967fbd4e9e4ab7a42f37f2a3ace7292a74d0aabb868",
+        "timestamp": "1795392000",
+        "value": "340282366920938463463374607431768211455",
+        "sources": 3,
+        "methodologyVersion": 10000,
+        "nonce": "18446744073709551616"
+      },
+      "digest": "0x44d23b534b9b543a9b4388a3905616d18d21345fffaf9aeb24adf1af67e05c44",
+      "signature": "0x74e9925f97b7ed805fdbec7b86c9d013a0646f223ee6f14c979926cb1a24f2f265930ce03f236f6462cd7c846d90522bbee8ccc94549e90c5d4ac448c336de131b"
+    }
+  ]
+}
