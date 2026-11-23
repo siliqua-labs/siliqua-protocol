@@ -88,6 +88,7 @@ The index is USD per GPU-hour. Providers differ, so the collector must normalize
 - Fields: `gpus[].price_per_hr` (per GPU, with separate vCPU, RAM and storage charges), `v0Name` (includes SXM or PCIe and VRAM), `max_count`, `availableCount`, location. No spot field on the pages read.
 - Terms (https://docs.tensordock.com/legal-information/terms-of-service-tos.md, last updated September 24, 2024): section 5.2 bars copying, distributing, publishing or creating derivative works of information from the Platform, and using scrapers. The terms cover the website Platform and do not name the API.
 - Verdict: ask whether the API is covered by section 5.2.
+- Collector (`tensordock`, off by default, needs `TENSORDOCK_API_KEY`): reads `/api/v2/locations` and takes the median `price_per_hr` across locations with stock. Only `h100-sxm5-80gb` and `geforcertx4090-pcie-24gb` are mapped, because the docs show no other model ids. Its test payload follows the docs, not a live recording; after the first call with a key, check the logged unmapped ids, map A100, H200 and B200, and re-record the fixture.
 
 ## Hyperstack
 
@@ -98,7 +99,8 @@ The index is USD per GPU-hour. Providers differ, so the collector must normalize
 - Fields: the pricebook `value` is "The hourly rate your account is billed", so it can include account discounts; it has no GPU count or region. Flavors give `gpu`, `gpu_count`, `region_name`, `stock_available`. VRAM and SXM or PCIe appear only on the public pricing page.
 - Price meaning: per GPU rate multiplied by GPU count gives the flavor cost. The public list price is on https://hyperstack.cloud/gpu-pricing , readable without a key.
 - Terms (https://www.hyperstack.cloud/terms-and-conditions, version dated 13 January 2026): clause 6.4 bars derivation or appropriation of the Services and creating derivative works, unless agreed in writing. No clause on caching or republishing price data found.
-- Verdict: use the public list price, not the account pricebook; ask about index use.
+- Public page read 2026-11-23: https://www.hyperstack.cloud/gpu-pricing is server-rendered; `robots.txt` allows all paths except preview and preference pages. The "On-Demand GPU Pricing" table lists name, VRAM, max pCPUs, max RAM and price per hour: H200 SXM 3.99, H100 SXM 3.20, A100 SXM 1.60, B200 6.00 (also NVLink, PCIe and other models, not mapped).
+- Verdict: the collector (`hyperstack`) reads the public page, no key, and is off by default. It maps SXM H100 and A100 80GB, H200 141GB and B200 192GB only. Reading the page needs the same owner decision as Akash; ask Hyperstack about index use.
 
 ## Shadeform
 
@@ -107,6 +109,12 @@ The index is USD per GPU-hour. Providers differ, so the collector must normalize
 - Fields: `hourly_price` (integer cents, on-demand), `gpu_type`, `num_gpus`, `interconnect` (pcie or sxm), `availability[]` with `region`, `available`, `rental_type` (on_demand or spot). Per GPU or per instance is not stated.
 - It aggregates 30+ clouds and says it charges the same as going direct, so it is not independent of those providers.
 - Rate limit: not found. Terms: the terms URL returned 404; unverified.
+
+## Salad
+
+- Page: https://salad.com/pricing (redirects to `/pricing/`), read 2026-11-23. Server-rendered, no key, `robots.txt` allows all paths except `/cdn-cgi/`. No API for prices was looked for or found.
+- Table "GPU instances": USD per GPU-hour, vCPU and RAM included, in four priority tiers. RTX 4090 24GB: High 0.440, Medium 0.347, Low 0.253, Lowest 0.160. The page says higher tiers are protected from preemption and Lowest is the most interruptible.
+- Verdict: the collector (`salad`, off by default) reads the High tier, the closest to an on-demand price. The tier is a methodology decision for the owner. Salad rents consumer GPUs, so only RTX 4090 maps to a v1 class. Terms were not read: ask Salad about index use before go-live.
 
 ## Akash
 
