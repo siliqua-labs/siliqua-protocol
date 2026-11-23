@@ -1,0 +1,111 @@
+{
+  "spec": "docs/spec/oracle-v1.md section 7",
+  "unit": "integer index value, micro-USD per GPU-hour for GRI",
+  "cases": [
+    {
+      "name": "A three close values",
+      "toleranceBps": 100,
+      "minValues": 2,
+      "values": [3520000, 3523000, 3530000],
+      "expected": {"median": 3523000, "kept": [3520000, 3523000, 3530000], "dropped": [], "value": 3523000}
+    },
+    {
+      "name": "B one outlier dropped, two kept give the exact mean",
+      "toleranceBps": 100,
+      "minValues": 2,
+      "values": [3520000, 3523000, 3700000],
+      "expected": {"median": 3523000, "kept": [3520000, 3523000], "dropped": [3700000], "value": 3521500}
+    },
+    {
+      "name": "C two kept, mean rounded half up",
+      "toleranceBps": 100,
+      "minValues": 2,
+      "values": [3520001, 3523000],
+      "expected": {"median": 3521501, "kept": [3520001, 3523000], "dropped": [], "value": 3521501}
+    },
+    {
+      "name": "D two values too far apart, both dropped",
+      "toleranceBps": 100,
+      "minValues": 2,
+      "values": [3520000, 3600000],
+      "expected": {"median": 3560000, "kept": [], "dropped": [3520000, 3600000], "value": null}
+    },
+    {
+      "name": "D2 two values inside tolerance",
+      "toleranceBps": 100,
+      "minValues": 2,
+      "values": [3520000, 3540000],
+      "expected": {"median": 3530000, "kept": [3520000, 3540000], "dropped": [], "value": 3530000}
+    },
+    {
+      "name": "E two outliers on both sides leave one value",
+      "toleranceBps": 100,
+      "minValues": 2,
+      "values": [3000000, 3500000, 4000000],
+      "expected": {"median": 3500000, "kept": [3500000], "dropped": [3000000, 4000000], "value": null}
+    },
+    {
+      "name": "F two colluding operators outvote the honest one (known v1 limit)",
+      "toleranceBps": 100,
+      "minValues": 2,
+      "values": [3500000, 5000000, 5000000],
+      "expected": {"median": 5000000, "kept": [5000000, 5000000], "dropped": [3500000], "value": 5000000}
+    },
+    {
+      "name": "three equal values",
+      "toleranceBps": 100,
+      "minValues": 2,
+      "values": [3500000, 3500000, 3500000],
+      "expected": {"median": 3500000, "kept": [3500000, 3500000, 3500000], "dropped": [], "value": 3500000}
+    },
+    {
+      "name": "value exactly on the tolerance bound is kept",
+      "toleranceBps": 100,
+      "minValues": 2,
+      "values": [990000, 1000000, 1010000],
+      "expected": {"median": 1000000, "kept": [990000, 1000000, 1010000], "dropped": [], "value": 1000000}
+    },
+    {
+      "name": "one unit past the bound is dropped",
+      "toleranceBps": 100,
+      "minValues": 2,
+      "values": [990000, 1000000, 1010001],
+      "expected": {"median": 1000000, "kept": [990000, 1000000], "dropped": [1010001], "value": 995000}
+    },
+    {
+      "name": "single value cannot finalize",
+      "toleranceBps": 100,
+      "minValues": 2,
+      "values": [3500000],
+      "expected": {"median": 3500000, "kept": [3500000], "dropped": [], "value": null}
+    },
+    {
+      "name": "four values, even count, outlier dropped, odd kept count",
+      "toleranceBps": 100,
+      "minValues": 2,
+      "values": [3500000, 3510000, 3520000, 3900000],
+      "expected": {"median": 3515000, "kept": [3500000, 3510000, 3520000], "dropped": [3900000], "value": 3510000}
+    },
+    {
+      "name": "input order does not matter",
+      "toleranceBps": 100,
+      "minValues": 2,
+      "values": [3700000, 3520000, 3523000],
+      "expected": {"median": 3523000, "kept": [3520000, 3523000], "dropped": [3700000], "value": 3521500}
+    },
+    {
+      "name": "wider tolerance keeps the outlier",
+      "toleranceBps": 600,
+      "minValues": 2,
+      "values": [3520000, 3523000, 3700000],
+      "expected": {"median": 3523000, "kept": [3520000, 3523000, 3700000], "dropped": [], "value": 3523000}
+    },
+    {
+      "name": "largest allowed value, two equal",
+      "toleranceBps": 100,
+      "minValues": 2,
+      "values": [340282366920938463463374607431768211455, 340282366920938463463374607431768211455],
+      "expected": {"median": 340282366920938463463374607431768211455, "kept": [340282366920938463463374607431768211455, 340282366920938463463374607431768211455], "dropped": [], "value": 340282366920938463463374607431768211455}
+    }
+  ]
+}

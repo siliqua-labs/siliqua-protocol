@@ -1,7 +1,7 @@
 import pytest
 from hypothesis import given
 from hypothesis import strategies as st
-from siliqua_index import gri, twap
+from siliqua_index import aggregate, gri, twap
 from siliqua_index.gri import median
 from siliqua_index.rounding import div_half_up
 
@@ -70,3 +70,34 @@ def test_gri_rejects_unknown_methodology_version():
 def test_twap_rejects_empty_window():
     with pytest.raises(ValueError, match="at least one hour"):
         twap([])
+
+
+oracle_values = st.lists(st.integers(min_value=1, max_value=2**128 - 1), min_size=1, max_size=3)
+
+
+@given(oracle_values, st.integers(min_value=0, max_value=10_000))
+def test_aggregate_partitions_values_and_ignores_order(values, tolerance):
+    result = aggregate(values, tolerance)
+    assert sorted(result.kept + result.dropped) == sorted(values)
+    assert result == aggregate(list(reversed(values)), tolerance)
+
+
+@given(oracle_values, st.integers(min_value=0, max_value=10_000))
+def test_aggregate_finalizes_only_with_enough_kept_values_inside_their_range(values, tolerance):
+    result = aggregate(values, tolerance)
+    if result.value is None:
+        assert len(result.kept) < 2
+    else:
+        assert len(result.kept) >= 2
+        assert min(result.kept) <= result.value <= max(result.kept)
+
+
+@given(oracle_values)
+def test_aggregate_with_one_operator_never_finalizes(values):
+    assert aggregate(values[:1]).value is None
+
+
+def test_aggregate_rejects_values_outside_the_allowed_range():
+    for bad in (0, -1, 2**128, 1.5):
+        with pytest.raises(ValueError, match="1..2"):
+            aggregate([3_500_000, bad])
