@@ -200,3 +200,15 @@ The same JSON drives `forge test` and the Python model `siliqua_index.oracle.agg
 ```
 
 `value` is `null` when the slot is not finalized. The file has 15 cases: A to F and D2 above, three equal values, a value exactly on the tolerance bound (kept), one unit past it (dropped), `n = 1`, an even count of four, input-order independence, a wider tolerance, and the largest allowed value (`2**128 - 1`). Python-signed EIP-712 fixtures (signer, digest, signature) are verified in Foundry to catch differences between `eth-account` and Solidity.
+
+## 14. As implemented
+
+`contracts/src/SiliquaOracle.sol`, with `Aggregation.sol` and `OracleRegistry.sol`. Where this section differs from sections 1 to 13, this section is what the code does.
+
+- A slot is finalized at the end of a batch, over every value stored for it, not after the second report. The order of reports inside a batch therefore does not matter.
+- The slot `sources` is the smallest `sources` among the values that were kept.
+- `twap(indexId, from, to)` returns `(value, usedSlots, staleSlots)` and does not decide what is too stale; the market does. `from` and `to` are slot-aligned and at most 168 slots apart. The mean is rounded half up.
+- `ISiliquaOracle.isOperator(address)` exists so a market can refuse bets from operators (brief, Go/No-Go).
+- At most 15 operators. `admin` is meant to be a timelock owned by the multisig; `guardian` is the multisig and may only remove an operator. The first methodology version is effective immediately; later ones need 14 days of notice.
+- The domain separator is computed from `block.chainid` on every call, so a signature never validates on a fork with another chain id.
+- Decision 12.4 (version encoding), 12.5 (`indexId` as `keccak256`) and 12.7 (value bound `< 2**128`, field `uint256`) are implemented with their defaults.

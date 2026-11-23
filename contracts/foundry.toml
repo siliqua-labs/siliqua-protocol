@@ -1,0 +1,33 @@
+[profile.default]
+src = "src"
+test = "test"
+script = "script"
+out = "out"
+libs = ["lib"]
+solc_version = "0.8.28"
+# Paris: no PUSH0 and no transient storage. The EVM level of Robinhood Chain is not matched
+# against official docs yet (docs/ROADMAP.md 6.1), so the conservative target is used.
+evm_version = "paris"
+optimizer = true
+optimizer_runs = 200
+bytecode_hash = "none"
+fs_permissions = [{ access = "read", path = "../test-vectors" }]
+
+[profile.default.fuzz]
+runs = 512
+
+[profile.default.invariant]
+runs = 128
+depth = 64
+fail_on_revert = false
+
+[profile.ci.fuzz]
+runs = 2048
+
+[profile.ci.invariant]
+runs = 256
+depth = 128
+
+[lint]
+# block.timestamp is the required time source (CLAUDE.md); casts are range-checked by the callers.
+exclude_lints = ["block-timestamp", "unsafe-typecast", "asm-keccak256"]
