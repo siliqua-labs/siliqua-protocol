@@ -1,0 +1,19 @@
+.x {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--ln);
+  border-radius: 50%;
+  color: var(--tx);
+  text-decoration: none;
+  transition:
+    color 0.2s,
+    border-color 0.2s;
+}
+
+.x:hover {
+  color: var(--em);
+  border-color: var(--em);
+}

@@ -1,0 +1,36 @@
+@keyframes scroll {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.tape {
+  overflow: hidden;
+  border-bottom: 1px solid var(--ln);
+  background: var(--bg);
+  padding: 12px 0;
+}
+
+.tape > div {
+  display: flex;
+  width: max-content;
+  animation: scroll 45s linear infinite;
+  font:
+    500 12px var(--font-mono),
+    monospace;
+  letter-spacing: 0.14em;
+  color: var(--dim);
+  white-space: nowrap;
+}
+
+.tape:hover > div {
+  animation-play-state: paused;
+}
+
+.tape span {
+  margin: 0 28px;
+}
+
+.change {
+  font-style: normal;
+}

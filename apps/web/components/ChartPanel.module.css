@@ -1,0 +1,21 @@
+.chart {
+  position: relative;
+  border: 1px solid var(--ln);
+  background: var(--bg);
+  touch-action: pan-y;
+}
+
+.tip {
+  position: absolute;
+  top: 8px;
+  background: var(--bg2);
+  border: 1px solid var(--ln);
+  padding: 4px 8px;
+  font-size: 12px;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.tip:empty {
+  display: none;
+}

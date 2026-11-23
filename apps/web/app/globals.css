@@ -1,0 +1,136 @@
+:root {
+  --bg: #0a0a0b;
+  --bg2: #121214;
+  --tx: #d8d4cc;
+  --dim: #8c8880;
+  --ln: #26262a;
+  --em: #e0662b;
+  --up: #6fa383;
+  --dn: #c0675b;
+  --pad: clamp(20px, 5vw, 64px);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-padding-top: env(safe-area-inset-top, 0px);
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--tx);
+  font:
+    16px / 1.6 var(--font-mono),
+    ui-monospace,
+    Menlo,
+    Consolas,
+    monospace;
+  font-variant-numeric: tabular-nums;
+  overflow-x: hidden;
+}
+
+a {
+  color: inherit;
+}
+
+a:focus-visible,
+button:focus-visible,
+summary:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--em);
+  outline-offset: 3px;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-head), "Helvetica Neue", Arial, sans-serif;
+  font-weight: 900;
+  text-transform: uppercase;
+  line-height: 0.98;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+h1 {
+  font-size: clamp(44px, 9vw, 112px);
+}
+
+h2 {
+  font-size: clamp(30px, 5vw, 60px);
+}
+
+p {
+  margin: 0 0 1em;
+  color: var(--dim);
+  max-width: 62ch;
+}
+
+.label {
+  font:
+    500 12px var(--font-mono),
+    monospace;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+
+.up {
+  color: var(--up);
+}
+
+.dn {
+  color: var(--dn);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+[hidden] {
+  /* biome-ignore lint/complexity/noImportantStyles: author display rules must not unhide [hidden] */
+  display: none !important;
+}
+
+main,
+footer {
+  position: relative;
+  z-index: 1;
+}
+
+footer {
+  background: var(--bg);
+}
+
+h3 {
+  font-size: 22px;
+}
+
+math {
+  font-size: 1.15em;
+  color: var(--tx);
+}
+
+.dim {
+  color: var(--dim);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    /* biome-ignore lint/complexity/noImportantStyles: reduced motion must beat every component animation */
+    animation: none !important;
+    /* biome-ignore lint/complexity/noImportantStyles: reduced motion must beat every component transition */
+    transition: none !important;
+  }
+}

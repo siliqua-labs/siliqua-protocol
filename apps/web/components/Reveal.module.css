@@ -1,0 +1,73 @@
+@keyframes up {
+  from {
+    opacity: 0;
+    transform: translateY(22px);
+  }
+}
+
+@keyframes grow {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+}
+
+.reveal {
+  transition:
+    opacity 0.6s,
+    transform 0.6s;
+}
+
+.hidden {
+  opacity: 0;
+  transform: translateY(16px);
+}
+
+.shown {
+  opacity: 1;
+  transform: none;
+}
+
+/* Child choreography runs once, when the section is revealed. */
+.shown tbody tr,
+.shown [data-cells] > div {
+  animation: up 0.6s both;
+}
+
+.shown tbody tr:nth-child(2),
+.shown [data-cells] > div:nth-child(2) {
+  animation-delay: 0.08s;
+}
+
+.shown tbody tr:nth-child(3),
+.shown [data-cells] > div:nth-child(3) {
+  animation-delay: 0.16s;
+}
+
+.shown tbody tr:nth-child(4),
+.shown [data-cells] > div:nth-child(4) {
+  animation-delay: 0.24s;
+}
+
+.shown tbody tr:nth-child(5) {
+  animation-delay: 0.32s;
+}
+
+.shown [data-bar] > div {
+  animation: grow 1.1s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+.shown [data-bar] > div:nth-child(2) {
+  animation-delay: 0.12s;
+}
+
+.shown [data-bar] > div:nth-child(3) {
+  animation-delay: 0.24s;
+}
+
+.shown [data-bar] > div:nth-child(4) {
+  animation-delay: 0.36s;
+}
+
+.shown [data-bar] > div:nth-child(5) {
+  animation-delay: 0.48s;
+}

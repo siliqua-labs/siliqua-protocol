@@ -1,0 +1,33 @@
+.chip {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  font:
+    500 11px var(--font-mono),
+    monospace;
+  letter-spacing: 0.12em;
+  padding: 3px 10px;
+  border: 1px solid currentColor;
+  text-transform: uppercase;
+}
+
+.LIVE,
+.OPEN,
+.SETTLED {
+  color: var(--up);
+}
+
+.STALE,
+.SETTLING {
+  color: var(--em);
+}
+
+.INSUFFICIENT_SOURCES,
+.VOID,
+.CLOSED {
+  color: var(--dn);
+}
+
+.NOT_LIVE {
+  color: var(--tx);
+}
