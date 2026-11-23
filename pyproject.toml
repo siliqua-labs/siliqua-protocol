@@ -1,0 +1,17 @@
+[project]
+name = "siliqua"
+version = "0.0.0"
+requires-python = ">=3.12"
+dependencies = []
+
+[dependency-groups]
+dev = ["hypothesis", "pytest", "ruff"]
+
+[tool.uv]
+package = false
+
+[tool.uv.workspace]
+members = ["packages/*", "workers/*"]
+
+[tool.ruff]
+line-length = 100

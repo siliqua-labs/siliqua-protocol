@@ -1,0 +1,42 @@
+#!/bin/sh
+# Rejects AI attribution and non-Conventional-Commit subjects.
+# Usage (git): commit-msg <message-file>
+
+msg_file="$1"
+if [ -z "$msg_file" ] || [ ! -f "$msg_file" ]; then
+  echo "commit-msg: message file missing" >&2
+  exit 1
+fi
+
+# Strip comment lines that git adds to the editor template.
+body=$(grep -v '^#' "$msg_file")
+
+attribution_pattern='co-authored-by:.*(claude|anthropic|copilot|openai|chatgpt|gemini|cursor|noreply@anthropic\.com)|generated (with|by)|claude|anthropic|chatgpt|copilot|ai-generated|ai-assisted|written by (an )?ai|🤖'
+
+if printf '%s\n' "$body" | grep -Eiq "$attribution_pattern"; then
+  echo "commit-msg: rejected, message contains AI attribution:" >&2
+  printf '%s\n' "$body" | grep -Ein "$attribution_pattern" >&2
+  exit 1
+fi
+
+subject=$(printf '%s\n' "$body" | sed -n '/./{p;q;}')
+
+# Let git-generated subjects through.
+case "$subject" in
+  Merge\ *|Revert\ *|fixup!\ *|squash!\ *) exit 0 ;;
+esac
+
+cc_pattern='^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\([a-z0-9._/-]+\))?!?: .+'
+if ! printf '%s\n' "$subject" | grep -Eq "$cc_pattern"; then
+  echo "commit-msg: rejected, subject is not a Conventional Commit:" >&2
+  echo "  $subject" >&2
+  echo "expected: type(scope)?: imperative summary (types: feat fix docs style refactor perf test build ci chore revert)" >&2
+  exit 1
+fi
+
+if [ "${#subject}" -gt 100 ]; then
+  echo "commit-msg: rejected, subject longer than 100 characters" >&2
+  exit 1
+fi
+
+exit 0

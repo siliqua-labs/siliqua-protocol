@@ -1,0 +1,6 @@
+packages:
+  - apps/*
+  - services/*
+  - packages/*
+minimumReleaseAgeExclude:
+  - "@fastify/rate-limit@11.3.0"

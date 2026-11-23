@@ -1,0 +1,18 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.6.8/schema.json",
+  "files": {
+    "includes": [
+      "**",
+      "!**/.next",
+      "!**/node_modules",
+      "!**/.venv",
+      "!**/.pytest_cache",
+      "!**/.ruff_cache",
+      "!**/.hypothesis",
+      "!.claude",
+      "!graphify-out",
+      "!**/next-env.d.ts"
+    ]
+  },
+  "formatter": { "indentStyle": "space", "indentWidth": 2 }
+}
