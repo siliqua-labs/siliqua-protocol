@@ -1,0 +1,12 @@
+[project]
+name = "price-collectors"
+version = "0.0.0"
+requires-python = ">=3.12"
+dependencies = ["httpx", "psycopg[binary]", "siliqua-index"]
+
+[tool.uv.sources]
+siliqua-index = { workspace = true }
+
+[build-system]
+requires = ["uv_build>=0.13.7,<0.14.0"]
+build-backend = "uv_build"
