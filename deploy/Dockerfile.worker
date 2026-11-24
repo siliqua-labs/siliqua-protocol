@@ -1,0 +1,23 @@
+# Price collector, index engine and watchdog in one container, to fit one small Railway service.
+# Build context is the repository root (leave Root Directory empty on the Railway service).
+FROM python:3.13-slim-bookworm
+
+COPY --from=ghcr.io/astral-sh/uv:0.13.7 /uv /usr/local/bin/uv
+
+ENV UV_COMPILE_BYTECODE=1 \
+    UV_LINK_MODE=copy \
+    PYTHONUNBUFFERED=1 \
+    PATH="/app/.venv/bin:$PATH"
+WORKDIR /app
+
+COPY pyproject.toml uv.lock ./
+COPY packages packages
+COPY workers workers
+# The index engine reads the methodology spec from docs/ next to the source tree.
+COPY docs/methodology docs/methodology
+COPY deploy/worker.sh deploy/worker.sh
+RUN uv sync --frozen --no-dev --all-packages
+
+RUN useradd --system --no-create-home worker
+USER worker
+CMD ["bash", "deploy/worker.sh"]
