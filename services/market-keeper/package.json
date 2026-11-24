@@ -1,0 +1,16 @@
+{
+  "name": "@siliqua/market-keeper",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node src/main.ts",
+    "test": "node --test src/",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "viem": "2.58.4"
+  },
+  "devDependencies": {
+    "@types/node": "26.6.6"
+  }
+}

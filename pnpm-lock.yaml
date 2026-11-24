@@ -245,6 +245,16 @@ importers:
         specifier: 8.23.1
         version: 8.23.1
 
+  services/market-keeper:
+    dependencies:
+      viem:
+        specifier: 2.58.4
+        version: 2.58.4(typescript@7.0.2)
+    devDependencies:
+      '@types/node':
+        specifier: 26.6.6
+        version: 26.6.6
+
 packages:
 
   '@adraffy/ens-normalize@1.11.1':
