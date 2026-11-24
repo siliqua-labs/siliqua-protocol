@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ChartPanel } from "../../../components/ChartPanel";
+import { LivePosition } from "../../../components/LivePosition";
+import { LiveTicket } from "../../../components/LiveTicket";
 import { MarketTicket } from "../../../components/MarketTicket";
 import { PositionCards } from "../../../components/PositionCards";
 import {
@@ -112,11 +114,21 @@ export default async function MarketPage({
             {formatUsd(m.thresholdMicroUsd)}
           </p>
         </div>
-        <MarketTicket
-          yesPool={m.yesPool}
-          noPool={m.noPool}
-          capTokens={d.perAddressCapTokens}
-        />
+        {d.live ? (
+          <LiveTicket
+            market={m.id as `0x${string}`}
+            config={d.live.config}
+            cap={d.live.capBase}
+            yesPool={d.live.yesPoolBase}
+            noPool={d.live.noPoolBase}
+          />
+        ) : (
+          <MarketTicket
+            yesPool={m.yesPool}
+            noPool={m.noPool}
+            capTokens={d.perAddressCapTokens}
+          />
+        )}
       </div>
 
       <h3 className={ui.h3}>TWAP window</h3>
@@ -129,7 +141,11 @@ export default async function MarketPage({
       />
 
       <h3 className={ui.h3}>Your position</h3>
-      <PositionCards />
+      {d.live ? (
+        <LivePosition market={m.id as `0x${string}`} config={d.live.config} />
+      ) : (
+        <PositionCards />
+      )}
 
       <h3 className={ui.h3}>Rules and fees</h3>
       <p>

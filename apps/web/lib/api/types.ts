@@ -109,6 +109,14 @@ export type MarketDetailResponse = {
   // Real markets carry their own schedule; samples fall back to the page's fixed week.
   timeline?: { when: string; what: string }[];
   factory?: string;
+  // Present for real markets: what the ticket needs to talk to the chain.
+  live?: {
+    config: import("../wallet").LiveConfig;
+    // Token base units, exact, unlike the whole-token pools on `market`.
+    capBase: string;
+    yesPoolBase: string;
+    noPoolBase: string;
+  };
 };
 
 export type OperatorRow = {

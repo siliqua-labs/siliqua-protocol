@@ -10,6 +10,7 @@ const base: ApiMarket = {
   twapFrom: "2026-11-26T00:00:00Z",
   twapTo: "2026-11-27T00:00:00Z",
   settleableFrom: "2026-11-27T03:00:00Z",
+  feeBps: 200,
   betCap: "1000000000",
   yesPool: "2500000",
   noPool: "7500000",

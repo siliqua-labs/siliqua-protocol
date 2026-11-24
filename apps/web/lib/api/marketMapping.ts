@@ -9,6 +9,7 @@ export type ApiMarket = {
   twapFrom: string;
   twapTo: string;
   settleableFrom: string;
+  feeBps: number;
   betCap: string;
   yesPool: string;
   noPool: string;

@@ -175,6 +175,9 @@ importers:
 
   apps/web:
     dependencies:
+      '@siliqua/chain':
+        specifier: workspace:*
+        version: link:../../packages/chain
       next:
         specifier: 16.4.6
         version: 16.4.6(@types/node@26.6.6)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)

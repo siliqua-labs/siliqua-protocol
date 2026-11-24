@@ -35,7 +35,7 @@ This repository is in **Stage 2: backend, data and API**. Nothing is deployed an
 | Index engine                            | Done. Computes every complete hour, stores stale hours, immutable once published                                               |
 | Database                                | Done locally. Plain Postgres, monthly partitions, row-level security on every table                                            |
 | API (`services/api`)                    | Done. `/v1/indexes`, `/v1/indexes/:slug`, rate limited. Redis cache not yet added                                              |
-| Frontend (`apps/web`)                   | Reads index data from the API when `API_BASE_URL` is set. Markets read the API once `RPC_URL` and `FACTORY_ADDRESS` are also set; narratives stay on labelled sample data |
+| Frontend (`apps/web`)                   | Reads index data from the API when `API_BASE_URL` is set. Markets read the API and the chain once `CHAIN_ENV` (testnet or mainnet), `RPC_URL` and `FACTORY_ADDRESS` are also set, and the ticket talks to a browser wallet; narratives stay on labelled sample data |
 | Watchdog                                | Done. Coverage gaps per class, source freshness, webhook alert                                                                 |
 | Export and `verify`                     | Done                                                                                                                           |
 | CMI, oracle contracts, market contracts | Not started (later stages)                                                                                                     |

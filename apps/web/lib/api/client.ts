@@ -1,4 +1,4 @@
-import { marketChainConfig, tokenDecimals } from "../chain";
+import { liveConfig, marketChainConfig, tokenDecimals } from "../chain";
 import { type ApiMarket, toMarket, wholeTokens } from "./marketMapping";
 import {
   METHODOLOGY_VERSION,
@@ -118,6 +118,12 @@ export async function getMarketDetail(
       { when: m.settleableFrom, what: "Settle callable" },
     ],
     factory: live.chain.factory,
+    live: {
+      config: liveConfig(live.chain, live.decimals, m.feeBps),
+      capBase: m.betCap,
+      yesPoolBase: m.yesPool,
+      noPoolBase: m.noPool,
+    },
   };
 }
 
