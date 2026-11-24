@@ -63,9 +63,19 @@ export const chains = {
       source: CONNECTING,
     },
     nativeSymbol: { value: "ETH", verified: true, source: CONNECTING },
-    // The contracts page lists 0x5fc5...d168 as USDG without naming a network, and the owner
-    // supplied a different address. Left empty until the owner settles it.
-    token: { symbol: "USDG", address: null, expectedDecimals: null },
+    token: {
+      symbol: "USDG",
+      address: {
+        value: "0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168",
+        // Listed on the Robinhood docs contracts page without a network label (page URL not recorded). Read from the verified
+        // mainnet RPC (chain 4663) on 2026-11-24: a contract named Global Dollar, symbol USDG,
+        // 6 decimals. The other address the owner named, 0xe343...491d, has no code on this chain.
+        verified: true,
+        source:
+          "https://rpc.mainnet.chain.robinhood.com (eth_call name, symbol, decimals)",
+      },
+      expectedDecimals: 6,
+    },
   },
 } as const satisfies Record<string, ChainConfig>;
 

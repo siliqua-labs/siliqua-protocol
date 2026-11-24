@@ -9,14 +9,18 @@ test("the testnet token is the one matched on the explorer", () => {
   );
 });
 
-test("mainnet has no token until the owner settles the address", () => {
-  assert.throws(() => verifiedToken("mainnet"), /no token address/);
+test("the mainnet token is the USDG contract read from the mainnet RPC", () => {
+  assert.equal(
+    verifiedToken("mainnet"),
+    "0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168",
+  );
 });
 
 test("decimals must match what was verified", () => {
   assertDecimals("testnet", 6);
   assert.throws(() => assertDecimals("testnet", 18), /expects 6/);
-  assert.throws(() => assertDecimals("mainnet", 6), /no expected/);
+  assertDecimals("mainnet", 6);
+  assert.throws(() => assertDecimals("mainnet", 18), /expects 6/);
 });
 
 test("chain ids are the ones from the official docs", () => {
