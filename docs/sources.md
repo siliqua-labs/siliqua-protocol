@@ -161,6 +161,47 @@ An aggregator is not independent of the providers it reads, and its terms often 
 - GPUPerHour: https://gpuperhour.com/terms . Its docs call the API free with no key, but its terms say "Any programmatic access to pricing data requires a commercial license agreement." The operator also runs a provider listed in the data, which is a conflict for an independence test.
 - GPUs.io: every page returned 403; unverified.
 
+## Social platforms (CMI)
+
+Read 2026-11-24 from official documentation. Costs are as the pages state them and none is approved. "Not stated" means the pages read do not address it; it does not mean permitted. Figures marked "arithmetic" are ours, not from the docs.
+
+| Platform | Reads by keyword | Cost as stated | Terms on storing, deriving, publishing | Status |
+| --- | --- | --- | --- | --- |
+| X | Recent search, filtered stream | Pay per usage, 0.005 USD per post read, cap 3 million reads per month | Redistribute Post IDs only; stored content must be kept current and deletions honored within 24h; training a foundation or frontier model is barred | Costed; ask owner |
+| Farcaster | Neynar `GET /v2/farcaster/cast/search`, or a self-run Snapchain node | Neynar Free 10M credits per month; Scale 249 USD per month, 60M credits; Snapchain needs 16 GB RAM, 4 cores, 2 TB disk | Neynar terms not readable (404); Farcaster pages state no licence | Terms unverified |
+| Bluesky | Not verified | Not stated | Terms of Service do not address third-party storage, derived data or scraping | Docs unreadable, unverified |
+| Telegram | Not clear for public channels | API free | Bars aggregating platform data to train AI models; bot terms bar collecting large datasets from public channels | Recommended not in v1 |
+
+### X
+
+- Docs: https://docs.x.com/x-api/getting-started/pricing , https://docs.x.com/x-api/fundamentals/rate-limits , https://docs.x.com/developer-terms/policy , https://docs.x.com/developer-terms/agreement , https://docs.x.com/developer-guidelines.md
+- Pricing: "The X API uses pay-per-usage pricing with no subscriptions." Post read 0.005 USD per resource, user read 0.010 USD. "Pay-per-usage plans are capped at 3 million Post reads per monthly billing cycle." The Developer Agreement (updated April 27, 2026) still speaks of a recurring monthly subscription fee; the two pages are not reconciled. The guidelines say free tier is non-commercial only; what a free tier can read is not stated.
+- Endpoints and limits: recent search 450 per 15 minutes per app, 100 results max per call; filtered stream 1 connection, 1000 rules, 250 posts per second; full-archive search 1 per second.
+- Policy: "If you provide X Content to third parties, including downloadable datasets or via an API, you may only distribute Post IDs, Direct Message IDs, and/or User IDs." "If you store X Content offline, you must keep it up to date with the current state of that content on X." Agreement III.A(k) bars using the API or X Content to "fine-tune or train a foundation or frontier model"; the guidelines table marks AI or ML training on X data as prohibited except by Grok.
+- Not stated: storing post text, derived labels and scores, aggregate statistics, a published index. Whether an index is a derivative work is our inference, not text. Display Requirements and the Restricted Use Cases page were not read.
+- Cost arithmetic: reads cost 0.005 USD each, so 1,000 posts per day is about 150 USD per month, 10,000 per day about 1,500 USD, 3M per month (the cap) 15,000 USD. The CMI volume is not set yet.
+
+### Farcaster
+
+- Docs: https://docs.neynar.com/reference/what-are-the-rate-limits-on-neynar-apis.md , https://docs.neynar.com/reference/compute-units.md , https://docs.neynar.com/reference/search-casts.md , https://snapchain.farcaster.xyz/getting-started , https://snapchain.farcaster.xyz/reference/httpapi/httpapi
+- Neynar plans: Free 10M credits per month at 600 requests per minute per endpoint; Scale 249 USD per month, 60M credits, 1200 per minute; Starter and Growth no longer offered to new customers. Search is 120 per minute on Free. The credit cost of search is not in the table read; hub `castsByFid` is 200 credits, channel feed 4 credits.
+- Snapchain: free software, "16 GB of RAM", "4 CPU cores or vCPUs", "2 TB of free storage", a public IP with ports 3381 to 3383 open. That is more than the Railway plan in use gives; a server would be a new cost.
+- Not read: Neynar terms of service (the page returned 404), the Neynar pricing page (different host), and any licence statement for Farcaster protocol data. Whether keyword search is on the Free plan is not stated.
+
+### Bluesky
+
+- Read: https://bsky.social/about/support/tos (updated 14 August 2025). The docs pages for rate limits, searchPosts and Jetstream returned redirects with empty bodies or 404, so access methods, limits and cost are unverified.
+- Terms of Service: they apply "only to social networking that happens on Bluesky"; third-party apps on the AT Protocol are governed by their own terms. They do not address third-party storage of posts, derived labels or scores, aggregate statistics, scraping, bulk collection or ML use. Deleted content: "complete deletion across the network may not always be possible."
+- Next: read the docs from their source repository, or call `app.bsky.feed.searchPosts` once with a test request and read the response and headers.
+
+### Telegram
+
+- Docs: https://core.telegram.org/api/terms , https://telegram.org/tos/bot-developers , https://core.telegram.org/api/obtaining_api_id , https://core.telegram.org/bots/faq
+- Cost: "We offer our API free of charge" (API terms 2.2). Read limits and MTProto flood-wait behaviour are not documented in the pages read.
+- Access: bots receive "All messages from channels where they are a member." Whether a bot can read a public channel it has not joined is not stated. The t.me web preview is not mentioned. Reading through a user account needs an api_id from my.telegram.org, one per phone number; accounts using unofficial clients "are automatically put under observation".
+- Terms: API terms 1.5 prohibit "using, accessing or aggregating data obtained from the Telegram platform to train, fine-tune" AI or ML models. Bot developer terms 4.3: "Always prohibited uses include any form of data collection aimed at creating large datasets, machine learning models and AI products, such as scraping public group or channel contents" (written for bots and Mini Apps; whether it covers user clients is not stated). The content licensing and AI scraping terms linked from 1.5 were not read.
+- Verdict: Telegram is optional in CLAUDE.md. The clauses above point at the very use CMI would make, so it stays off in v1 unless the owner takes the risk after asking Telegram.
+
 ## Open questions for the owner
 
 1. For each provider (Vast.ai, RunPod, Lambda, TensorDock, Hyperstack): send a short written request for permission to read its price API and publish an index derived from it. Vast.ai requires this explicitly.
