@@ -127,9 +127,24 @@ async function ensureChain(config: WalletChain): Promise<void> {
   }
 }
 
-/** A dapp cannot revoke a wallet's permission; this only makes the page forget the account. */
-export function forgetAccount() {
+/**
+ * Revokes this site's permission in the wallet (EIP-2255, MetaMask and most others), so the
+ * wallet itself shows it as disconnected. Returns false when the wallet lacks the method; the
+ * page still forgets the account, but the wallet keeps its permission.
+ */
+export async function disconnectWallet(): Promise<boolean> {
+  let revoked = true;
+  try {
+    await provider().request({
+      method: "wallet_revokePermissions",
+      params: [{ eth_accounts: {} }],
+    });
+  } catch (error) {
+    if ((error as { code?: number }).code === 4001) throw error;
+    revoked = false;
+  }
   setAccount(null);
+  return revoked;
 }
 
 export async function connectWallet(config: WalletChain): Promise<Address> {

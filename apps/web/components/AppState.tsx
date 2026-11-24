@@ -12,8 +12,8 @@ import {
 } from "react";
 import {
   connectWallet,
+  disconnectWallet,
   errorText,
-  forgetAccount,
   useAccount,
   type WalletChain,
 } from "../lib/wallet";
@@ -99,9 +99,17 @@ export function AppStateProvider({
     else connect();
   }, [connected, connect]);
   const disconnect = () => {
-    forgetAccount();
-    setStep("closed");
-    toast("Disconnected from this site");
+    disconnectWallet().then(
+      (revoked) => {
+        setStep("closed");
+        toast(
+          revoked
+            ? "Disconnected"
+            : "Forgotten here. Remove the site in your wallet to fully disconnect",
+        );
+      },
+      (error: unknown) => toast(errorText(error)),
+    );
   };
 
   const value = useMemo(
