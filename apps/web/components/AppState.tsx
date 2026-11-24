@@ -10,15 +10,21 @@ import {
   useRef,
   useState,
 } from "react";
+import {
+  connectWallet,
+  errorText,
+  forgetAccount,
+  useAccount,
+  type WalletChain,
+} from "../lib/wallet";
 import styles from "./AppState.module.css";
 import ui from "./ui.module.css";
 
 export type FxLevel = "Subtle" | "Default" | "Bold";
-type WalletStep = "closed" | "pick" | "busy" | "ok";
+type WalletStep = "closed" | "pick" | "busy" | "ok" | "error";
 
 type AppStateValue = {
-  // Mock only: no wallet provider is ever contacted. Real wagmi + viem lands with markets.
-  walletConnected: boolean;
+  account: string | null;
   openWallet: () => void;
   toast: (message: string) => void;
   fx: FxLevel;
@@ -33,16 +39,25 @@ export function useAppState(): AppStateValue {
   return v;
 }
 
-const PLACEHOLDER_ADDRESS = "0x0000…0000";
+export function shortAddress(address: string): string {
+  return `${address.slice(0, 6)}…${address.slice(-4)}`;
+}
 
-export function AppStateProvider({ children }: { children: ReactNode }) {
+export function AppStateProvider({
+  chain,
+  children,
+}: {
+  chain: WalletChain;
+  children: ReactNode;
+}) {
   const [step, setStep] = useState<WalletStep>("closed");
-  const [connected, setConnected] = useState(false);
+  const [failure, setFailure] = useState("");
+  const account = useAccount();
+  const connected = account !== null;
   const [message, setMessage] = useState<string | null>(null);
   const [fx, setFx] = useState<FxLevel>("Bold");
   const dialog = useRef<HTMLDialogElement>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
-  const busyTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   const toast = useCallback((m: string) => {
     setMessage(m);
@@ -63,7 +78,6 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   useEffect(
     () => () => {
       clearTimeout(toastTimer.current);
-      clearTimeout(busyTimer.current);
     },
     [],
   );
@@ -75,20 +89,29 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
 
   const connect = () => {
     setStep("busy");
-    busyTimer.current = setTimeout(() => {
-      setConnected(true);
-      setStep("ok");
-    }, 900);
+    connectWallet(chain).then(
+      () => setStep("ok"),
+      (error: unknown) => {
+        setFailure(errorText(error));
+        setStep("error");
+      },
+    );
   };
   const disconnect = () => {
-    setConnected(false);
+    forgetAccount();
     setStep("closed");
-    toast("Disconnected (mock)");
+    toast("Disconnected from this site");
   };
 
   const value = useMemo(
-    () => ({ walletConnected: connected, openWallet, toast, fx, setFx }),
-    [connected, openWallet, toast, fx],
+    () => ({
+      account,
+      openWallet,
+      toast,
+      fx,
+      setFx,
+    }),
+    [account, openWallet, toast, fx],
   );
 
   return (
@@ -106,7 +129,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
               Connect wallet
             </h3>
             <p className="label" style={{ margin: "8px 0" }}>
-              MOCK · NO WALLET IS CONTACTED
+              {chain.chainName.toUpperCase()} · CHAIN {chain.chainId}
             </p>
             <button
               type="button"
@@ -114,13 +137,6 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
               onClick={connect}
             >
               Browser wallet
-            </button>
-            <button
-              type="button"
-              className={`${ui.btn} ${styles.option}`}
-              onClick={connect}
-            >
-              WalletConnect-style QR
             </button>
             <button
               type="button"
@@ -137,7 +153,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
               Connecting…
             </h3>
             <p className={`${ui.btn} ${ui.loading}`} style={{ border: 0 }}>
-              Waiting for approval
+              Approve the request in your wallet
             </p>
           </>
         )}
@@ -146,11 +162,30 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
             <h3 id="wallet-title" style={{ fontSize: 20 }}>
               Connected
             </h3>
-            <p>
-              {PLACEHOLDER_ADDRESS} <span className="label">placeholder</span>
+            <p style={{ overflowWrap: "anywhere" }}>{account}</p>
+            <p className="label" style={{ margin: "8px 0" }}>
+              {chain.chainName.toUpperCase()}
             </p>
             <button type="button" className={ui.btn} onClick={disconnect}>
               Disconnect
+            </button>{" "}
+            <button
+              type="button"
+              className={`${ui.btn} ${ui.small}`}
+              onClick={() => setStep("closed")}
+            >
+              Close
+            </button>
+          </>
+        )}
+        {step === "error" && (
+          <>
+            <h3 id="wallet-title" style={{ fontSize: 20 }}>
+              Could not connect
+            </h3>
+            <p role="alert">{failure}</p>
+            <button type="button" className={ui.btn} onClick={connect}>
+              Try again
             </button>{" "}
             <button
               type="button"
@@ -173,5 +208,3 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     </Ctx.Provider>
   );
 }
-
-export { PLACEHOLDER_ADDRESS };

@@ -16,12 +16,15 @@ import { describeRevert } from "./tradeMath";
 
 // Everything the browser needs to talk to one verified chain and token. Built on the server from
 // @siliqua/chain, so a value reaches the wallet only if its flag was set.
-export type LiveConfig = {
+export type WalletChain = {
   chainId: number;
   chainName: string;
   rpcUrl: string;
   explorerUrl: string;
   nativeSymbol: string;
+};
+
+export type LiveConfig = WalletChain & {
   token: Address;
   tokenSymbol: string;
   decimals: number;
@@ -92,7 +95,7 @@ export function useAccount(): Address | null {
   );
 }
 
-async function ensureChain(config: LiveConfig): Promise<void> {
+async function ensureChain(config: WalletChain): Promise<void> {
   const p = provider();
   const wanted = `0x${config.chainId.toString(16)}`;
   const have = (await p.request({ method: "eth_chainId" })) as string;
@@ -124,7 +127,12 @@ async function ensureChain(config: LiveConfig): Promise<void> {
   }
 }
 
-export async function connectWallet(config: LiveConfig): Promise<Address> {
+/** A dapp cannot revoke a wallet's permission; this only makes the page forget the account. */
+export function forgetAccount() {
+  setAccount(null);
+}
+
+export async function connectWallet(config: WalletChain): Promise<Address> {
   const accounts = (await provider().request({
     method: "eth_requestAccounts",
   })) as string[];
@@ -137,7 +145,7 @@ export async function connectWallet(config: LiveConfig): Promise<Address> {
 }
 
 /** Clients bound to the wallet, after making sure it sits on the right chain. */
-export async function walletClients(config: LiveConfig) {
+export async function walletClients(config: WalletChain) {
   await ensureChain(config);
   const chain = defineChain({
     id: config.chainId,
@@ -157,7 +165,7 @@ export async function walletClients(config: LiveConfig) {
   };
 }
 
-export function explorerTx(config: LiveConfig, hash: string): string {
+export function explorerTx(config: WalletChain, hash: string): string {
   return `${config.explorerUrl}/tx/${hash}`;
 }
 

@@ -4,6 +4,7 @@ import { AppStateProvider } from "../components/AppState";
 import { CircuitBackground } from "../components/CircuitBackground";
 import { SiteFooter } from "../components/SiteFooter";
 import { SiteHeader } from "../components/SiteHeader";
+import { walletChain } from "../lib/chain";
 import "./globals.css";
 
 const head = Archivo({
@@ -38,7 +39,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${head.variable} ${mono.variable}`}>
       <body>
-        <AppStateProvider>
+        <AppStateProvider chain={walletChain()}>
           <CircuitBackground />
           <SiteHeader />
           <main>{children}</main>

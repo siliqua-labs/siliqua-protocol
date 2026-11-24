@@ -1,7 +1,7 @@
 "use client";
 
 import type { ChipStatus } from "../lib/api/types";
-import { PLACEHOLDER_ADDRESS, useAppState } from "./AppState";
+import { shortAddress, useAppState } from "./AppState";
 import { DataTable, SampleTag } from "./primitives";
 import { StatusChip } from "./StatusChip";
 import ui from "./ui.module.css";
@@ -49,10 +49,10 @@ const ROWS: {
   },
 ];
 
-// Sample positions behind a mock wallet. Real positions come from the indexer.
+// The rows are sample data; only the connected address is real. Real positions come from the indexer.
 export function PortfolioView() {
-  const { walletConnected, openWallet, toast } = useAppState();
-  if (!walletConnected) {
+  const { account, openWallet, toast } = useAppState();
+  if (!account) {
     return (
       <div className={ui.card} style={{ marginTop: 24 }}>
         <p>Connect a wallet to see your positions.</p>
@@ -69,7 +69,7 @@ export function PortfolioView() {
   return (
     <>
       <p className="label" style={{ marginTop: 16 }}>
-        {PLACEHOLDER_ADDRESS} · <SampleTag />
+        {shortAddress(account)} · <SampleTag />
       </p>
       <div style={{ marginTop: 20 }}>
         <DataTable caption="Positions (USDG)">

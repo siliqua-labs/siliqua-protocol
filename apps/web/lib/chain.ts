@@ -5,7 +5,7 @@ import {
   verifiedToken,
 } from "@siliqua/chain";
 import { createPublicClient, http, isAddress, parseAbi } from "viem";
-import type { LiveConfig } from "./wallet";
+import type { LiveConfig, WalletChain } from "./wallet";
 
 const factoryAbi = parseAbi([
   "function tokenDecimals() view returns (uint8)",
@@ -68,13 +68,20 @@ export async function tokenDecimals(
   return decimals;
 }
 
-/** What the browser needs; refuses any chain value that was not verified. */
-export function liveConfig(
-  config: MarketChainConfig,
-  decimals: number,
-  feeBps: number,
-): LiveConfig {
-  const chain = chains[config.chainEnv];
+/**
+ * The chain the header's wallet button switches to. CHAIN_ENV when set; before the first
+ * deployment it is the testnet, the only network in use. Refuses unverified chain values.
+ */
+export function walletChain(): WalletChain {
+  const env = process.env.CHAIN_ENV ?? "testnet";
+  if (env !== "testnet" && env !== "mainnet") {
+    throw new Error(`CHAIN_ENV must be testnet or mainnet, got ${env}`);
+  }
+  return verifiedChain(env);
+}
+
+function verifiedChain(chainEnv: ChainName): WalletChain {
+  const chain = chains[chainEnv];
   for (const field of [
     chain.chainId,
     chain.publicRpcUrl,
@@ -82,7 +89,7 @@ export function liveConfig(
     chain.nativeSymbol,
   ]) {
     if (!field.verified) {
-      throw new Error(`${config.chainEnv} chain configuration is not verified`);
+      throw new Error(`${chainEnv} chain configuration is not verified`);
     }
   }
   return {
@@ -91,8 +98,19 @@ export function liveConfig(
     rpcUrl: chain.publicRpcUrl.value,
     explorerUrl: chain.explorerUrl.value,
     nativeSymbol: chain.nativeSymbol.value,
+  };
+}
+
+/** What the browser needs; refuses any chain value that was not verified. */
+export function liveConfig(
+  config: MarketChainConfig,
+  decimals: number,
+  feeBps: number,
+): LiveConfig {
+  return {
+    ...verifiedChain(config.chainEnv),
     token: verifiedToken(config.chainEnv),
-    tokenSymbol: chain.token.symbol,
+    tokenSymbol: chains[config.chainEnv].token.symbol,
     decimals,
     feeBps,
   };
