@@ -98,6 +98,9 @@ function verifiedChain(chainEnv: ChainName): WalletChain {
     rpcUrl: chain.publicRpcUrl.value,
     explorerUrl: chain.explorerUrl.value,
     nativeSymbol: chain.nativeSymbol.value,
+    ...(chainEnv === "testnet" && {
+      testFaucetToken: verifiedToken("testnet"),
+    }),
   };
 }
 

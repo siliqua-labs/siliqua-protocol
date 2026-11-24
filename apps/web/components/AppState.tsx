@@ -11,9 +11,11 @@ import {
   useState,
 } from "react";
 import {
+  claimTestTokens,
   connectWallet,
   disconnectWallet,
   errorText,
+  explorerTx,
   useAccount,
   type WalletChain,
 } from "../lib/wallet";
@@ -52,6 +54,8 @@ export function AppStateProvider({
 }) {
   const [step, setStep] = useState<WalletStep>("closed");
   const [failure, setFailure] = useState("");
+  const [claiming, setClaiming] = useState(false);
+  const [claimHash, setClaimHash] = useState<string | null>(null);
   const account = useAccount();
   const connected = account !== null;
   const [message, setMessage] = useState<string | null>(null);
@@ -98,6 +102,21 @@ export function AppStateProvider({
     if (connected) setStep("ok");
     else connect();
   }, [connected, connect]);
+  const claim = () => {
+    if (!account) return;
+    setClaiming(true);
+    claimTestTokens(chain, account).then(
+      (hash) => {
+        setClaiming(false);
+        setClaimHash(hash);
+        toast("Received 1000 tUSDG");
+      },
+      (error: unknown) => {
+        setClaiming(false);
+        toast(errorText(error));
+      },
+    );
+  };
   const disconnect = () => {
     disconnectWallet().then(
       (revoked) => {
@@ -151,6 +170,32 @@ export function AppStateProvider({
             <p className="label" style={{ margin: "8px 0" }}>
               {chain.chainName.toUpperCase()}
             </p>
+            {chain.testFaucetToken && (
+              <p style={{ margin: "8px 0" }}>
+                <button
+                  type="button"
+                  className={`${ui.btn} ${ui.small}`}
+                  onClick={claim}
+                  disabled={claiming}
+                >
+                  {claiming
+                    ? "Waiting for the transaction…"
+                    : "Get 1000 test tUSDG"}
+                </button>
+                {claimHash && (
+                  <>
+                    {" "}
+                    <a
+                      href={explorerTx(chain, claimHash)}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      View transaction
+                    </a>
+                  </>
+                )}
+              </p>
+            )}
             <button type="button" className={ui.btn} onClick={disconnect}>
               Disconnect
             </button>{" "}
