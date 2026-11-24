@@ -3,7 +3,10 @@ import { readFileSync } from "node:fs";
 import { after, before, test } from "node:test";
 import pg from "pg";
 import type { Hex } from "viem";
-import type { IndexedLog, OracleEvent } from "./events.ts";
+import type { IndexedLog, MarketEvent, OracleEvent } from "./events.ts";
+
+type AnyEvent = OracleEvent | MarketEvent;
+
 import { type IndexerChain, type IndexerConfig, indexOnce } from "./indexer.ts";
 
 // Runs against a local Postgres in a private schema that is dropped afterwards:
@@ -34,6 +37,12 @@ before(async () => {
     "utf8",
   );
   await pool.query(migration);
+  await pool.query(
+    readFileSync(
+      new URL("../../../db/migrations/0004_market_events.sql", import.meta.url),
+      "utf8",
+    ),
+  );
 });
 
 after(async () => {
@@ -47,10 +56,10 @@ after(async () => {
 
 // A chain made of blocks; `fork` replaces everything from a height with new blocks.
 class FakeChain implements IndexerChain {
-  blocks: Array<{ hash: Hex; time: number; events: OracleEvent[] }> = [];
+  blocks: Array<{ hash: Hex; time: number; events: AnyEvent[] }> = [];
   tag = 0;
 
-  mine(events: OracleEvent[] = []): void {
+  mine(events: AnyEvent[] = []): void {
     const number = this.blocks.length;
     this.blocks.push({
       hash: this.hashOf(number),
@@ -59,7 +68,7 @@ class FakeChain implements IndexerChain {
     });
   }
 
-  fork(fromNumber: number, ...next: OracleEvent[][]): void {
+  fork(fromNumber: number, ...next: AnyEvent[][]): void {
     this.tag += 1;
     this.blocks.length = fromNumber;
     for (const events of next) this.mine(events);
@@ -134,7 +143,7 @@ async function count(table: string): Promise<number> {
 
 async function reset(): Promise<void> {
   await pool.query(
-    "truncate oracle_operator_values, oracle_rejections, oracle_slots, oracle_operator_changes, chain_blocks, indexer_state",
+    "truncate oracle_operator_values, oracle_rejections, oracle_slots, oracle_operator_changes, markets, market_bets, market_outcomes, market_payouts, chain_blocks, indexer_state",
   );
 }
 
@@ -317,4 +326,81 @@ test("a duplicate finalization for one slot is refused by the schema", {
     /unique|duplicate/i,
   );
   assert.equal(await count("oracle_slots"), 0, "the whole range rolled back");
+});
+
+const MARKET = `0x${"22".repeat(20)}` as Hex;
+const TRADER = `0x${"33".repeat(20)}` as Hex;
+const created = (): MarketEvent => ({
+  kind: "marketCreated",
+  market: MARKET,
+  indexId: INDEX_ID,
+  threshold: 3500000n,
+  closeTime: 1000n,
+  twapFrom: 87400n,
+  twapTo: 173800n,
+  feeBps: 200,
+  betCap: 100000000n,
+});
+
+test("stores the market lifecycle", { skip }, async () => {
+  await reset();
+  const chain = new FakeChain();
+  chain.mine([
+    created(),
+    { kind: "bought", market: MARKET, account: TRADER, yes: true, amount: 5n },
+  ]);
+  chain.mine([
+    { kind: "settled", market: MARKET, twapValue: 3600000n, yesWins: true },
+    {
+      kind: "paid",
+      market: MARKET,
+      payout: "claimed",
+      account: TRADER,
+      amount: 5n,
+    },
+    {
+      kind: "paid",
+      market: MARKET,
+      payout: "fees_swept",
+      account: null,
+      amount: 1n,
+    },
+  ]);
+  await indexOnce(pool, chain, config(), silent);
+  assert.equal(await count("markets"), 1);
+  assert.equal(await count("market_bets"), 1);
+  assert.equal(await count("market_outcomes"), 1);
+  assert.equal(await count("market_payouts"), 2);
+});
+
+test("a void outcome keeps its reason and has no winner", {
+  skip,
+}, async () => {
+  await reset();
+  const chain = new FakeChain();
+  chain.mine([created(), { kind: "voided", market: MARKET, reason: 1 }]);
+  await indexOnce(pool, chain, config(), silent);
+  const row = (await pool.query("select * from market_outcomes")).rows[0];
+  assert.equal(row.voided, true);
+  assert.equal(row.void_reason, 1);
+  assert.equal(row.yes_wins, null);
+});
+
+test("a reorg removes market rows of the abandoned blocks", {
+  skip,
+}, async () => {
+  await reset();
+  const chain = new FakeChain();
+  chain.mine();
+  chain.mine([created()]);
+  chain.mine([
+    { kind: "bought", market: MARKET, account: TRADER, yes: false, amount: 7n },
+  ]);
+  const cfg = config();
+  await indexOnce(pool, chain, cfg, silent);
+  chain.fork(2, []);
+  chain.mine();
+  await indexOnce(pool, chain, cfg, silent);
+  assert.equal(await count("markets"), 1);
+  assert.equal(await count("market_bets"), 0);
 });

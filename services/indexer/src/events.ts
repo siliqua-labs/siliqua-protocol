@@ -10,6 +10,50 @@ export const oracleEvents = parseAbi([
   "event OperatorRemoved(address operator)",
 ]);
 
+// Events of contracts/src/MarketFactory.sol and RangeMarket.sol.
+export const factoryEvents = parseAbi([
+  "event MarketCreated(address indexed market, bytes32 indexed indexId, uint256 threshold, uint64 closeTime, uint64 twapFrom, uint64 twapTo, uint16 feeBps, uint256 betCap)",
+]);
+
+export const marketEvents = parseAbi([
+  "event Bought(address indexed account, bool yes, uint256 amount)",
+  "event Settled(int256 twapValue, bool yesWins)",
+  "event Voided(uint8 reason)",
+  "event Claimed(address indexed account, uint256 amount)",
+  "event Refunded(address indexed account, uint256 amount)",
+  "event FeesSwept(uint256 amount)",
+]);
+
+export type MarketEvent =
+  | {
+      kind: "marketCreated";
+      market: Hex;
+      indexId: Hex;
+      threshold: bigint;
+      closeTime: bigint;
+      twapFrom: bigint;
+      twapTo: bigint;
+      feeBps: number;
+      betCap: bigint;
+    }
+  | { kind: "bought"; market: Hex; account: Hex; yes: boolean; amount: bigint }
+  | { kind: "settled"; market: Hex; twapValue: bigint; yesWins: boolean }
+  | { kind: "voided"; market: Hex; reason: number }
+  | {
+      kind: "paid";
+      market: Hex;
+      payout: "claimed" | "refunded";
+      account: Hex;
+      amount: bigint;
+    }
+  | {
+      kind: "paid";
+      market: Hex;
+      payout: "fees_swept";
+      account: null;
+      amount: bigint;
+    };
+
 export type OracleEvent =
   | {
       kind: "value";
@@ -45,5 +89,5 @@ export type IndexedLog = {
   blockHash: Hex;
   logIndex: number;
   txHash: Hex;
-  event: OracleEvent;
+  event: OracleEvent | MarketEvent;
 };

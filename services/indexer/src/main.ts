@@ -26,13 +26,29 @@ const pool = new pg.Pool({
   connectionString: requireEnv("DATABASE_URL"),
   max: 2,
 });
+const factory = process.env.FACTORY_ADDRESS;
+if (factory && !/^0x[0-9a-fA-F]{40}$/.test(factory))
+  throw new Error("FACTORY_ADDRESS is not an address");
 const chain = oracleLogs({
   rpcUrl: requireEnv("RPC_URL"),
   chainId,
   oracle: oracle as `0x${string}`,
+  market: factory
+    ? {
+        factory: factory as `0x${string}`,
+        known: async () =>
+          (
+            await pool.query<{ market: `0x${string}` }>(
+              "select market from markets",
+            )
+          ).rows.map((row) => row.market),
+      }
+    : undefined,
 });
 const config = {
-  name: `oracle:${chainId}:${oracle.toLowerCase()}`,
+  // The factory is part of the name: a cursor made without it has already passed the
+  // market events, so adding the factory later must start from a clean database.
+  name: `oracle:${chainId}:${oracle.toLowerCase()}${factory ? `:market:${factory.toLowerCase()}` : ""}`,
   // The block the oracle was deployed in. Starting earlier is harmless, later loses events.
   startBlock: integerEnv("INDEXER_START_BLOCK", "0"),
   confirmations: integerEnv("INDEXER_CONFIRMATIONS", "0"),

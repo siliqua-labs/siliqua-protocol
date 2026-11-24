@@ -39,6 +39,10 @@ const EVENT_TABLES = [
   "oracle_rejections",
   "oracle_slots",
   "oracle_operator_changes",
+  "markets",
+  "market_bets",
+  "market_outcomes",
+  "market_payouts",
 ] as const;
 
 async function withTransaction<T>(
@@ -272,6 +276,78 @@ async function insertEvent(
            (block_number, log_index, block_hash, block_time, operator, added)
          values ($1, $2, $3, $4, $5, $6)`,
         [...base, at, event.operator.toLowerCase(), event.added],
+      );
+      return;
+    case "marketCreated":
+      await client.query(
+        `insert into markets
+           (block_number, log_index, block_hash, block_time, market, index_id, threshold,
+            close_time, twap_from, twap_to, fee_bps, bet_cap)
+         values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
+        [
+          ...base,
+          at,
+          event.market.toLowerCase(),
+          event.indexId,
+          event.threshold.toString(),
+          event.closeTime.toString(),
+          event.twapFrom.toString(),
+          event.twapTo.toString(),
+          event.feeBps,
+          event.betCap.toString(),
+        ],
+      );
+      return;
+    case "bought":
+      await client.query(
+        `insert into market_bets
+           (block_number, log_index, block_hash, block_time, market, account, yes, amount)
+         values ($1, $2, $3, $4, $5, $6, $7, $8)`,
+        [
+          ...base,
+          at,
+          event.market.toLowerCase(),
+          event.account.toLowerCase(),
+          event.yes,
+          event.amount.toString(),
+        ],
+      );
+      return;
+    case "settled":
+      await client.query(
+        `insert into market_outcomes
+           (block_number, log_index, block_hash, block_time, market, voided, twap_value, yes_wins)
+         values ($1, $2, $3, $4, $5, false, $6, $7)`,
+        [
+          ...base,
+          at,
+          event.market.toLowerCase(),
+          event.twapValue.toString(),
+          event.yesWins,
+        ],
+      );
+      return;
+    case "voided":
+      await client.query(
+        `insert into market_outcomes
+           (block_number, log_index, block_hash, block_time, market, voided, void_reason)
+         values ($1, $2, $3, $4, $5, true, $6)`,
+        [...base, at, event.market.toLowerCase(), event.reason],
+      );
+      return;
+    case "paid":
+      await client.query(
+        `insert into market_payouts
+           (block_number, log_index, block_hash, block_time, market, kind, account, amount)
+         values ($1, $2, $3, $4, $5, $6, $7, $8)`,
+        [
+          ...base,
+          at,
+          event.market.toLowerCase(),
+          event.payout,
+          event.account?.toLowerCase() ?? null,
+          event.amount.toString(),
+        ],
       );
       return;
   }
