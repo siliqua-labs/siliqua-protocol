@@ -10,7 +10,6 @@ import {
   custom,
   defineChain,
   getAddress,
-  parseAbi,
   UserRejectedRequestError,
 } from "viem";
 import { describeRevert } from "./tradeMath";
@@ -23,8 +22,6 @@ export type WalletChain = {
   rpcUrl: string;
   explorerUrl: string;
   nativeSymbol: string;
-  // Set on the testnet only: the test token has a public faucet() and the header offers it.
-  testFaucetToken?: Address;
 };
 
 export type LiveConfig = WalletChain & {
@@ -181,29 +178,6 @@ export async function walletClients(config: WalletChain) {
     publicClient: createPublicClient({ chain, transport }),
     walletClient: createWalletClient({ chain, transport }),
   };
-}
-
-const faucetAbi = parseAbi(["function faucet()"]);
-
-/** Calls the test token's public faucet() from the connected account and waits for the receipt. */
-export async function claimTestTokens(
-  config: WalletChain,
-  account: Address,
-): Promise<string> {
-  const token = config.testFaucetToken;
-  if (!token) throw new Error("This network has no test token faucet.");
-  const { chain, publicClient, walletClient } = await walletClients(config);
-  const hash = await walletClient.writeContract({
-    address: token,
-    abi: faucetAbi,
-    functionName: "faucet",
-    account,
-    chain,
-  });
-  const receipt = await publicClient.waitForTransactionReceipt({ hash });
-  if (receipt.status !== "success")
-    throw new Error("The faucet transaction reverted.");
-  return hash;
 }
 
 export function explorerTx(config: WalletChain, hash: string): string {
