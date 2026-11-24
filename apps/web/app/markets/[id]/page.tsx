@@ -14,7 +14,7 @@ import {
 import { StatusChip } from "../../../components/StatusChip";
 import ui from "../../../components/ui.module.css";
 import { getMarketDetail, getMarkets } from "../../../lib/api/client";
-import { formatInt, formatUsd } from "../../../lib/format";
+import { formatInt, formatUsd, formatUtc } from "../../../lib/format";
 
 type Params = { id: string };
 
@@ -59,7 +59,8 @@ export default async function MarketPage({
         ← Markets
       </Link>
       <p className="label" style={{ marginTop: 20 }}>
-        <StatusChip status="NOT_LIVE" /> <SampleTag />
+        <StatusChip status={d.isSample ? "NOT_LIVE" : m.status} />{" "}
+        {d.isSample ? <SampleTag /> : null}
       </p>
       <h1 style={{ fontSize: "clamp(32px, 6vw, 68px)" }}>{m.question}</h1>
       <Notice>
@@ -84,13 +85,16 @@ export default async function MarketPage({
       <div
         className={ui.grid4}
         style={{
-          gridTemplateColumns: "repeat(5, minmax(120px, 1fr))",
+          gridTemplateColumns: `repeat(${d.timeline?.length ?? 5}, minmax(120px, 1fr))`,
           overflowX: "auto",
         }}
       >
-        {TIMELINE.map(([when, what]) => (
+        {(
+          d.timeline ??
+          TIMELINE.map(([when, what]) => ({ when: `${when} UTC`, what }))
+        ).map(({ when, what }) => (
           <div key={what}>
-            <span className="label">{when} UTC</span>
+            <span className="label">{d.timeline ? formatUtc(when) : when}</span>
             <br />
             {what}
           </div>
@@ -149,15 +153,24 @@ export default async function MarketPage({
           </tr>
         </thead>
         <tbody>
-          {["RangeMarket", "SiliquaOracle", "MarketFactory", "FeeRouter"].map(
-            (c) => (
-              <tr key={c}>
-                <td>{c}</td>
-                <td>not deployed</td>
-                <td>unverified</td>
-              </tr>
-            ),
-          )}
+          {(d.factory
+            ? [
+                ["RangeMarket", m.id],
+                ["MarketFactory", d.factory],
+              ]
+            : [
+                "RangeMarket",
+                "SiliquaOracle",
+                "MarketFactory",
+                "FeeRouter",
+              ].map((c) => [c, "not deployed"])
+          ).map(([c, address]) => (
+            <tr key={c}>
+              <td>{c}</td>
+              <td>{address}</td>
+              <td>unverified</td>
+            </tr>
+          ))}
         </tbody>
       </DataTable>
     </div>

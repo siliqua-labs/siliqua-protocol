@@ -106,6 +106,9 @@ export type MarketDetailResponse = {
   windowPoints: HistoryPoint[];
   windowEndAt: string;
   perAddressCapTokens: number;
+  // Real markets carry their own schedule; samples fall back to the page's fixed week.
+  timeline?: { when: string; what: string }[];
+  factory?: string;
 };
 
 export type OperatorRow = {

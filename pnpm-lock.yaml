@@ -190,6 +190,9 @@ importers:
       uplot:
         specifier: 1.6.32
         version: 1.6.32
+      viem:
+        specifier: 2.58.4
+        version: 2.58.4(typescript@7.0.2)
     devDependencies:
       '@types/node':
         specifier: 26.6.6

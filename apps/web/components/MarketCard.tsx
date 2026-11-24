@@ -5,7 +5,14 @@ import { ProbabilityBar, SampleTag, yesPercent } from "./primitives";
 import { StatusChip } from "./StatusChip";
 import ui from "./ui.module.css";
 
-export function MarketCard({ market: m }: { market: Market }) {
+export function MarketCard({
+  market: m,
+  // The home page and design sheet show forced NOT_LIVE previews, so sample is the default.
+  isSample = true,
+}: {
+  market: Market;
+  isSample?: boolean;
+}) {
   const yes = BigInt(m.yesPool);
   const no = BigInt(m.noPool);
   const pct = yesPercent(yes, no);
@@ -13,7 +20,7 @@ export function MarketCard({ market: m }: { market: Market }) {
     <article className={ui.card}>
       <p className="label">
         <StatusChip status={m.status} />
-        {m.winner ? <b> {m.winner}</b> : null} <SampleTag />
+        {m.winner ? <b> {m.winner}</b> : null} {isSample ? <SampleTag /> : null}
       </p>
       <h3 style={{ margin: "14px 0", fontSize: 18 }}>
         <Link href={`/markets/${m.id}`} style={{ textDecoration: "none" }}>

@@ -12,7 +12,13 @@ const TABS: [MarketGroup, string][] = [
   ["void", "Void"],
 ];
 
-export function MarketList({ markets }: { markets: Market[] }) {
+export function MarketList({
+  markets,
+  isSample,
+}: {
+  markets: Market[];
+  isSample: boolean;
+}) {
   const [group, setGroup] = useState<MarketGroup>("active");
   const shown = markets.filter((m) => m.group === group);
   return (
@@ -37,7 +43,9 @@ export function MarketList({ markets }: { markets: Market[] }) {
       </div>
       <div className={ui.grid2}>
         {shown.length ? (
-          shown.map((m) => <MarketCard key={m.id} market={m} />)
+          shown.map((m) => (
+            <MarketCard key={m.id} market={m} isSample={isSample} />
+          ))
         ) : (
           <div className={ui.card}>No markets in this state.</div>
         )}
