@@ -5,9 +5,10 @@ script = "script"
 out = "out"
 libs = ["lib"]
 solc_version = "0.8.28"
-# Paris: no PUSH0 and no transient storage. The EVM level of Robinhood Chain is not matched
-# against official docs yet (docs/ROADMAP.md 6.1), so the conservative target is used.
-evm_version = "paris"
+# Shanghai: PUSH0 but no transient storage or MCOPY. The testnet runs the TestUSDG token, which is
+# compiled with PUSH0, so Shanghai is proven there. Mainnet is not checked yet (docs/ROADMAP.md 6.1),
+# and a change to this setting means a new deployment.
+evm_version = "shanghai"
 optimizer = true
 optimizer_runs = 200
 bytecode_hash = "none"
