@@ -2,6 +2,7 @@ import rateLimit from "@fastify/rate-limit";
 import Fastify, { type FastifyInstance } from "fastify";
 import type { Pool } from "pg";
 import { type ReportBoardConfig, registerReportBoard } from "./board.ts";
+import { findMarket, listMarkets } from "./marketView.ts";
 import { isoSeconds, medianMicro } from "./money.ts";
 import { indexLabels, loadOracleView } from "./oracleView.ts";
 import {
@@ -174,6 +175,45 @@ export async function buildApp(
     const labels = indexLabels(classes.map((c) => `GRI-${c.id.toUpperCase()}`));
     return loadOracleView(pool, toleranceBps, labels);
   });
+
+  const marketLabels = async () =>
+    indexLabels(
+      (await listGpuClasses(pool)).map((c) => `GRI-${c.id.toUpperCase()}`),
+    );
+  const unixNow = () => Math.floor(Date.now() / 1000);
+
+  app.get("/v1/markets", async () => ({
+    markets: await listMarkets(pool, await marketLabels(), unixNow()),
+  }));
+
+  app.get<{ Params: { address: string } }>(
+    "/v1/markets/:address",
+    async (request, reply) => {
+      const { address } = request.params;
+      if (!/^0x[0-9a-fA-F]{40}$/.test(address)) {
+        return reply
+          .code(400)
+          .send(
+            errorBody(
+              "bad_address",
+              "Market address must be 0x and 40 hex digits",
+            ),
+          );
+      }
+      const market = await findMarket(
+        pool,
+        address,
+        await marketLabels(),
+        unixNow(),
+      );
+      if (!market) {
+        return reply
+          .code(404)
+          .send(errorBody("market_not_found", `No market at ${address}`));
+      }
+      return market;
+    },
+  );
 
   return app;
 }
