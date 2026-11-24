@@ -8,9 +8,10 @@ import {SiliquaOracle} from "../src/SiliquaOracle.sol";
 import {FeeRouter} from "../src/FeeRouter.sol";
 import {MarketFactory} from "../src/MarketFactory.sol";
 
-/// Testnet only. The broadcaster becomes oracle admin, guardian and factory owner: a single EOA
-/// stands in for the multisig and timelock that mainnet requires. All addresses come from the
-/// environment; no key is read here (pass --account or --ledger to forge).
+/// Testnet only. The broadcaster deploys and configures, then hands oracle admin, guardian and
+/// factory owner to ADMIN: a single EOA stands in for the multisig and timelock that mainnet
+/// requires. The hand-over is one step with no acceptance, so ADMIN is checked before anything is
+/// sent. All addresses come from the environment; no key is read here (pass --account to forge).
 contract DeployTestnet is Script {
     uint256 internal constant TESTNET_CHAIN_ID = 46630;
     uint32 internal constant METHODOLOGY_V1 = 10_000;
@@ -27,15 +28,18 @@ contract DeployTestnet is Script {
 
         address[3] memory operators =
             [vm.envAddress("OPERATOR_1"), vm.envAddress("OPERATOR_2"), vm.envAddress("OPERATOR_3")];
+        address admin = vm.envAddress("ADMIN");
+        require(admin != address(0), "ADMIN is not set");
         address keeper = vm.envAddress("KEEPER");
         address buyback = vm.envAddress("FEE_BUYBACK");
         address treasury = vm.envAddress("FEE_TREASURY");
         address operatorsShare = vm.envAddress("FEE_OPERATORS");
 
         vm.startBroadcast();
-        address admin = msg.sender;
+        address deployer = msg.sender;
+        require(admin != deployer, "ADMIN must differ from the deploying wallet, or drop the hand-over");
 
-        SiliquaOracle oracle = new SiliquaOracle(admin, admin, 2, METHODOLOGY_V1);
+        SiliquaOracle oracle = new SiliquaOracle(deployer, deployer, 2, METHODOLOGY_V1);
         for (uint256 i = 0; i < operators.length; ++i) {
             oracle.addOperator(operators[i]);
         }
@@ -48,8 +52,8 @@ contract DeployTestnet is Script {
         MarketFactory factory = new MarketFactory(
             token,
             ISiliquaOracle(address(oracle)),
-            admin,
-            admin,
+            deployer,
+            deployer,
             MarketFactory.Template({
                 feeRouter: address(router),
                 feeBps: 200,
@@ -60,8 +64,17 @@ contract DeployTestnet is Script {
             })
         );
         factory.setKeeper(keeper, true);
+
+        oracle.setGuardian(admin);
+        oracle.transferAdmin(admin);
+        factory.setGuardian(admin);
+        factory.transferOwnership(admin);
         vm.stopBroadcast();
 
+        require(oracle.admin() == admin && oracle.guardian() == admin, "oracle hand-over failed");
+        require(factory.owner() == admin && factory.guardian() == admin, "factory hand-over failed");
+
+        console.log("deployer:", deployer);
         console.log("admin / guardian / owner:", admin);
         console.log("SiliquaOracle:", address(oracle));
         console.log("FeeRouter:", address(router));
