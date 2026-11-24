@@ -51,7 +51,8 @@ export function reportBoardFromEnv(): ReportBoardConfig | undefined {
 
 export function toleranceFromEnv(): number | undefined {
   const raw = process.env.ORACLE_TOLERANCE_BPS;
-  if (raw === undefined) return undefined;
+  // An empty line in .env means unset, not zero.
+  if (!raw) return undefined;
   const value = Number(raw);
   if (!Number.isInteger(value) || value < 0 || value > 10_000) {
     throw new Error(
