@@ -21,7 +21,7 @@ import styles from "./AppState.module.css";
 import ui from "./ui.module.css";
 
 export type FxLevel = "Subtle" | "Default" | "Bold";
-type WalletStep = "closed" | "pick" | "busy" | "ok" | "error";
+type WalletStep = "closed" | "busy" | "ok" | "error";
 
 type AppStateValue = {
   account: string | null;
@@ -82,12 +82,7 @@ export function AppStateProvider({
     [],
   );
 
-  const openWallet = useCallback(
-    () => setStep(connected ? "ok" : "pick"),
-    [connected],
-  );
-
-  const connect = () => {
+  const connect = useCallback(() => {
     setStep("busy");
     connectWallet(chain).then(
       () => setStep("ok"),
@@ -96,7 +91,13 @@ export function AppStateProvider({
         setStep("error");
       },
     );
-  };
+  }, [chain]);
+
+  // No chooser: there is one wallet source, so the click goes straight to the wallet prompt.
+  const openWallet = useCallback(() => {
+    if (connected) setStep("ok");
+    else connect();
+  }, [connected, connect]);
   const disconnect = () => {
     forgetAccount();
     setStep("closed");
@@ -123,30 +124,6 @@ export function AppStateProvider({
         aria-labelledby="wallet-title"
         onClose={() => setStep("closed")}
       >
-        {step === "pick" && (
-          <>
-            <h3 id="wallet-title" style={{ fontSize: 20 }}>
-              Connect wallet
-            </h3>
-            <p className="label" style={{ margin: "8px 0" }}>
-              {chain.chainName.toUpperCase()} · CHAIN {chain.chainId}
-            </p>
-            <button
-              type="button"
-              className={`${ui.btn} ${styles.option}`}
-              onClick={connect}
-            >
-              Browser wallet
-            </button>
-            <button
-              type="button"
-              className={`${ui.btn} ${ui.small}`}
-              onClick={() => setStep("closed")}
-            >
-              Cancel
-            </button>
-          </>
-        )}
         {step === "busy" && (
           <>
             <h3 id="wallet-title" style={{ fontSize: 20 }}>
