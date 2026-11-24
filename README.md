@@ -65,7 +65,7 @@ packages/siliqua-index    Pure index functions, shared by engine and oracle node
 workers/price-collectors  Provider collectors
 workers/index-engine      Hourly computation, monthly export, verify
 workers/watchdog          Coverage and freshness alerts
-db/migrations             Plain SQL migrations
+db/migrations             Plain SQL migrations; `pnpm --filter @siliqua/db migrate [VAR]` applies the pending ones to the database in `VAR` (default `SUPABASE_DATABASE_URL`)
 test-vectors              Golden vectors shared by every consumer
 docs                      Brief, plan, roadmap, sources, methodology
 ```
