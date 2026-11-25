@@ -4,8 +4,8 @@ import { NarrativeExplorer } from "../../components/NarrativeExplorer";
 import { DataTable, Notice, SampleTag } from "../../components/primitives";
 import ui from "../../components/ui.module.css";
 import { getNarratives } from "../../lib/api/client";
-import { NARRATIVES } from "../../lib/api/types";
 import { formatBpsPercent } from "../../lib/format";
+import { narrativeNames } from "../../lib/narrativeNames";
 
 export const metadata: Metadata = { title: "Narratives" };
 
@@ -13,6 +13,7 @@ export default async function NarrativesPage() {
   const { days, posts, isSample } = await getNarratives();
   const sample = isSample ? <SampleTag /> : null;
   const recent = days.slice(-7).reverse();
+  const names = narrativeNames(days.find((d) => d.bps)?.bps ?? {});
   return (
     <div className={ui.page}>
       <div className={`label ${ui.sectionHead}`}>
@@ -42,7 +43,7 @@ export default async function NarrativesPage() {
             <thead>
               <tr>
                 <th scope="col">Date (UTC)</th>
-                {NARRATIVES.map((n) => (
+                {names.map((n) => (
                   <th key={n} scope="col">
                     {n}
                   </th>
@@ -54,9 +55,9 @@ export default async function NarrativesPage() {
                 <tr key={d.date}>
                   <td>{d.date}</td>
                   {d.bps ? (
-                    NARRATIVES.map((n) => <td key={n}>{d.bps?.[n]}</td>)
+                    names.map((n) => <td key={n}>{d.bps?.[n]}</td>)
                   ) : (
-                    <td colSpan={NARRATIVES.length}>▲ stale, not published</td>
+                    <td colSpan={names.length}>▲ stale, not published</td>
                   )}
                 </tr>
               ))}

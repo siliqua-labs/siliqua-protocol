@@ -1,27 +1,28 @@
-import type { SourceRow } from "../lib/api/types";
-import {
-  NARRATIVES,
-  type Narrative,
-  type NarrativeDay,
-} from "../lib/api/types";
+import type { Narrative, NarrativeDay, SourceRow } from "../lib/api/types";
 import { at } from "../lib/at";
 import { formatInt, formatUsd } from "../lib/format";
+import { narrativeNames } from "../lib/narrativeNames";
 
-export const NARRATIVE_COLORS: Record<Narrative, string> = {
-  AGENTS: "#6D001A",
-  DEPIN: "#0A0A0A",
-  INFER: "#6B6767",
-  ZKPROVE: "#A9A4A4",
-  OTHER: "#D6D1D1",
-};
+// The api decides which narratives exist. Colours go by position, OTHER is always the lightest.
+const PALETTE: { bg: string; text: string }[] = [
+  { bg: "#6D001A", text: "#FFFFFF" },
+  { bg: "#0A0A0A", text: "#FFFFFF" },
+  { bg: "#6B6767", text: "#FFFFFF" },
+  { bg: "#A9A4A4", text: "#0A0A0A" },
+  { bg: "#9B3B52", text: "#FFFFFF" },
+  { bg: "#3A3636", text: "#FFFFFF" },
+  { bg: "#C9A0AA", text: "#0A0A0A" },
+];
+const OTHER_STYLE = { bg: "#D6D1D1", text: "#0A0A0A" };
 
-const NARRATIVE_TEXT: Record<Narrative, string> = {
-  AGENTS: "#FFFFFF",
-  DEPIN: "#FFFFFF",
-  INFER: "#FFFFFF",
-  ZKPROVE: "#0A0A0A",
-  OTHER: "#0A0A0A",
-};
+function share(bps: Record<Narrative, number>, name: Narrative): number {
+  return bps[name] ?? 0;
+}
+
+function narrativeStyle(names: Narrative[], name: Narrative) {
+  if (name === "OTHER") return OTHER_STYLE;
+  return at(PALETTE, names.indexOf(name) % PALETTE.length);
+}
 
 export function Sparkline({
   values,
@@ -117,20 +118,21 @@ export function SourceSpread({
 }
 
 export function NarrativeBar({ bps }: { bps: Record<Narrative, number> }) {
+  const NARRATIVES = narrativeNames(bps);
   return (
     <div
       data-bar
       role="img"
-      aria-label={`CMI shares: ${NARRATIVES.map((n) => `${n} ${bps[n]} bps`).join(", ")}`}
+      aria-label={`CMI shares: ${NARRATIVES.map((n) => `${n} ${share(bps, n)} bps`).join(", ")}`}
       style={{ display: "flex", height: 64, border: "1px solid var(--ln)" }}
     >
       {NARRATIVES.map((n) => (
         <div
           key={n}
           style={{
-            width: `${bps[n] / 100}%`,
-            background: NARRATIVE_COLORS[n],
-            color: NARRATIVE_TEXT[n],
+            width: `${share(bps, n) / 100}%`,
+            background: narrativeStyle(NARRATIVES, n).bg,
+            color: narrativeStyle(NARRATIVES, n).text,
             display: "flex",
             flexDirection: "column",
             justifyContent: "center",
@@ -142,7 +144,7 @@ export function NarrativeBar({ bps }: { bps: Record<Narrative, number> }) {
           }}
         >
           <span>{n}</span>
-          <span>{formatInt(bps[n])}</span>
+          <span>{formatInt(share(bps, n))}</span>
         </div>
       ))}
     </div>
@@ -150,13 +152,14 @@ export function NarrativeBar({ bps }: { bps: Record<Narrative, number> }) {
 }
 
 export function NarrativeTreemap({ bps }: { bps: Record<Narrative, number> }) {
-  const order = [...NARRATIVES].sort((a, b) => bps[b] - bps[a]);
-  const rows = [order.slice(0, 2), order.slice(2)];
-  const sum = (r: Narrative[]) => r.reduce((a, n) => a + bps[n], 0);
+  const NARRATIVES = narrativeNames(bps);
+  const order = [...NARRATIVES].sort((a, b) => share(bps, b) - share(bps, a));
+  const rows = [order.slice(0, 2), order.slice(2)].filter((r) => r.length > 0);
+  const sum = (r: Narrative[]) => r.reduce((a, n) => a + share(bps, n), 0);
   return (
     <div
       role="img"
-      aria-label={NARRATIVES.map((n) => `${n} ${bps[n]} bps`).join(", ")}
+      aria-label={NARRATIVES.map((n) => `${n} ${share(bps, n)} bps`).join(", ")}
     >
       {rows.map((r) => (
         <div key={r[0]} style={{ display: "flex", height: sum(r) / 45 }}>
@@ -164,9 +167,9 @@ export function NarrativeTreemap({ bps }: { bps: Record<Narrative, number> }) {
             <div
               key={n}
               style={{
-                flex: `${bps[n]} 1 0`,
-                background: NARRATIVE_COLORS[n],
-                color: NARRATIVE_TEXT[n],
+                flex: `${share(bps, n)} 1 0`,
+                background: narrativeStyle(NARRATIVES, n).bg,
+                color: narrativeStyle(NARRATIVES, n).text,
                 padding: 10,
                 minWidth: 0,
                 border: "1px solid var(--bg)",
@@ -174,13 +177,13 @@ export function NarrativeTreemap({ bps }: { bps: Record<Narrative, number> }) {
             >
               <b>{n}</b>
               <br />
-              {formatInt(bps[n])} bps
+              {formatInt(share(bps, n))} bps
             </div>
           ))}
         </div>
       ))}
       <p className="label" style={{ marginTop: 8 }}>
-        Total {formatInt(NARRATIVES.reduce((a, n) => a + bps[n], 0))} bps
+        Total {formatInt(NARRATIVES.reduce((a, n) => a + share(bps, n), 0))} bps
       </p>
     </div>
   );
@@ -189,14 +192,22 @@ export function NarrativeTreemap({ bps }: { bps: Record<Narrative, number> }) {
 export function NarrativeArea({ days }: { days: NarrativeDay[] }) {
   const W = 800;
   const H = 240;
+  const first = days.find((d) => d.bps)?.bps;
+  if (!first) return null;
+  // The x axis divides by days - 1, so a single day cannot draw an area.
+  if (days.length < 2)
+    return <p className="label">A trend needs at least two days.</p>;
+  const NARRATIVES = narrativeNames(first);
   // A stale day has no value; carry the previous day so the area stays continuous.
-  let prev = days.find((d) => d.bps)?.bps as Record<Narrative, number>;
+  let prev = first;
   const filled = days.map((d) => {
     if (d.bps) prev = d.bps;
     return prev;
   });
   const acc = NARRATIVES.map((_, j) =>
-    filled.map((b) => NARRATIVES.slice(0, j + 1).reduce((s, n) => s + b[n], 0)),
+    filled.map((b) =>
+      NARRATIVES.slice(0, j + 1).reduce((s, n) => s + (b[n] ?? 0), 0),
+    ),
   );
   const px = (i: number) => ((i / (days.length - 1)) * W).toFixed(0);
   const py = (v: number) => (H - (v / 10000) * H).toFixed(1);
@@ -219,7 +230,7 @@ export function NarrativeArea({ days }: { days: NarrativeDay[] }) {
           <polygon
             key={name}
             points={[...top, ...bottom].join(" ")}
-            fill={NARRATIVE_COLORS[name]}
+            fill={narrativeStyle(NARRATIVES, name).bg}
           />
         );
       })}

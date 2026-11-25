@@ -217,7 +217,8 @@ export default async function Home() {
             Where compute attention goes<span className={styles.em}>.</span>
           </h2>
           <p className="label">
-            CMI · {latest.date} UTC · TOTAL 10,000 BPS <SampleTag />
+            CMI · {latest.date} UTC · TOTAL 10,000 BPS{" "}
+            {narratives.isSample && <SampleTag />}
           </p>
           <NarrativeBar bps={latest.bps} />
           <p style={{ marginTop: 20 }}>

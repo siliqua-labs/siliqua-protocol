@@ -53,6 +53,7 @@ export type IndexDetailResponse = {
   twap24hMicroUsd: string | null;
 };
 
+// Narrative names come from the api. This list only feeds the sample data.
 export const NARRATIVES = [
   "AGENTS",
   "DEPIN",
@@ -60,7 +61,7 @@ export const NARRATIVES = [
   "ZKPROVE",
   "OTHER",
 ] as const;
-export type Narrative = (typeof NARRATIVES)[number];
+export type Narrative = string;
 
 export type NarrativeDay = {
   date: string;
