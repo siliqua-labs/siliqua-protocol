@@ -168,8 +168,8 @@ Read 2026-11-24 from official documentation. Costs are as the pages state them a
 | Platform | Reads by keyword | Cost as stated | Terms on storing, deriving, publishing | Status |
 | --- | --- | --- | --- | --- |
 | X | Recent search, filtered stream | Pay per usage, 0.005 USD per post read, cap 3 million reads per month | Redistribute Post IDs only; stored content must be kept current and deletions honored within 24h; training a foundation or frontier model is barred | Costed; ask owner |
-| Farcaster | Neynar `GET /v2/farcaster/cast/search`, or a self-run Snapchain node | Neynar Free 10M credits per month; Scale 249 USD per month, 60M credits; Snapchain needs 16 GB RAM, 4 cores, 2 TB disk | Neynar terms not readable (404); Farcaster pages state no licence | Terms unverified |
-| Bluesky | Not verified | Not stated | Terms of Service do not address third-party storage, derived data or scraping | Docs unreadable, unverified |
+| Farcaster | Neynar `GET /v2/farcaster/cast/search`, or a self-run Snapchain node | Neynar Free 10M credits per month (confirmed on the plans page); Scale 249 USD per month, 60M credits; measured 50 credits per search call; Snapchain needs 16 GB RAM, 4 cores, 2 TB disk | Neynar terms not readable (404); Farcaster pages state no licence | Live-tested 2026-11-25; terms unverified |
+| Bluesky | `app.bsky.feed.searchPosts` on the PDS, authenticated with an app password session | No charge seen in live calls; no pricing page read | Terms of Service do not address third-party storage, derived data or scraping | Live-tested 2026-11-25; terms unverified |
 | Telegram | Not clear for public channels | API free | Bars aggregating platform data to train AI models; bot terms bar collecting large datasets from public channels | Recommended not in v1 |
 
 ### X
@@ -186,11 +186,24 @@ Read 2026-11-24 from official documentation. Costs are as the pages state them a
 - Docs: https://docs.neynar.com/reference/what-are-the-rate-limits-on-neynar-apis.md , https://docs.neynar.com/reference/compute-units.md , https://docs.neynar.com/reference/search-casts.md , https://snapchain.farcaster.xyz/getting-started , https://snapchain.farcaster.xyz/reference/httpapi/httpapi
 - Neynar plans: Free 10M credits per month at 600 requests per minute per endpoint; Scale 249 USD per month, 60M credits, 1200 per minute; Starter and Growth no longer offered to new customers. Search is 120 per minute on Free. The credit cost of search is not in the table read; hub `castsByFid` is 200 credits, channel feed 4 credits.
 - Snapchain: free software, "16 GB of RAM", "4 CPU cores or vCPUs", "2 TB of free storage", a public IP with ports 3381 to 3383 open. That is more than the Railway plan in use gives; a server would be a new cost.
+- Live test 2026-11-25 (read-only, query "gpu compute", `limit=5`, Free plan "Beginner", 10M credits, "Your plan" on the plans page):
+  - `GET /v2/farcaster/cast/search` returns 200 with `result.casts` and `result.next.cursor`. Cast fields: `hash`, `timestamp`, `author`, `reactions`, `replies`, `channel`, `text`, `parent_hash`, `thread_hash`, `embeds`.
+  - Credit cost: 12 calls in total (2 + 10) showed 600 credits on the dashboard, so 50 credits per search call at `limit=5`. Whether `limit` changes the cost is not tested.
+  - Budget arithmetic: 10M credits at 50 per call is 200,000 search calls per month, about 6,600 per day. Credits, not the rate limit, are the binding cap.
+  - Response header `X-RateLimit-Limit: 300`; the docs say 120 per minute for search on Free. The two are not reconciled.
+  - The dashboard "API Requests" chart read 36 while about 12 calls were made from this project; the difference is unexplained.
+  - The account page showed "0 credits limit" on the Free plan; the plans page and the calls show 10M credits, so treat the label as a display quirk.
 - Not read: Neynar terms of service (the page returned 404), the Neynar pricing page (different host), and any licence statement for Farcaster protocol data. Whether keyword search is on the Free plan is not stated.
 
 ### Bluesky
 
-- Read: https://bsky.social/about/support/tos (updated 14 August 2025). The docs pages for rate limits, searchPosts and Jetstream returned redirects with empty bodies or 404, so access methods, limits and cost are unverified.
+- Read: https://bsky.social/about/support/tos (updated 14 August 2025). The docs pages for rate limits, searchPosts and Jetstream returned redirects with empty bodies or 404, so the figures below come from live calls on 2026-11-25, not from docs.
+- Live test (dedicated project account, app password, read-only calls, query "gpu compute", limit 5):
+  - `public.api.bsky.app` searchPosts without a token: 403, and still 403 with a token. Search is not available there.
+  - `com.atproto.server.createSession` on `bsky.social`: 200. Header `RateLimit-Policy: 10;w=86400`, so 10 logins per 86,400 s window. A collector must keep the session and renew it with the refresh token, not log in per run.
+  - `app.bsky.feed.searchPosts` on `bsky.social` with the access token: 200, 5 posts, cursor present, `hitsTotal` 8237. Header `RateLimit-Policy: 3000;w=300`, so 3000 requests per 300 s.
+  - Post fields: `uri`, `cid`, `author`, `indexedAt`, `likeCount`, `repostCount`, `replyCount`, `quoteCount`, `bookmarkCount`, `labels`, `record` (`text`, `createdAt`, `langs`, `facets`).
+  - No cost was observed. An app password has no read-only scope; keep the account dedicated and revoke the password if it leaks.
 - Terms of Service: they apply "only to social networking that happens on Bluesky"; third-party apps on the AT Protocol are governed by their own terms. They do not address third-party storage of posts, derived labels or scores, aggregate statistics, scraping, bulk collection or ML use. Deleted content: "complete deletion across the network may not always be possible."
 - Next: read the docs from their source repository, or call `app.bsky.feed.searchPosts` once with a test request and read the response and headers.
 
