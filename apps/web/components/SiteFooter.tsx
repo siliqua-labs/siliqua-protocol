@@ -38,7 +38,6 @@ export function SiteFooter() {
             investment, legal or tax advice. Markets may be restricted in your
             jurisdiction. Data may be delayed or stale.
           </p>
-          <XLink className={styles.social} />
         </div>
         {columns.map(([title, items]) => (
           <div key={title}>
@@ -62,13 +61,14 @@ export function SiteFooter() {
               <PlaceholderLink>Stigmer</PlaceholderLink>
             </li>
           </ul>
+          <h4 className={styles.follow}>Follow on</h4>
+          <XLink />
         </div>
       </div>
       <div className={styles.bottom}>
         <span>© 2026 Siliqua</span>
         <Link href="/privacy">Privacy</Link>
         <Link href="/terms">Terms</Link>
-        <PlaceholderLink>Farcaster</PlaceholderLink>
       </div>
     </footer>
   );
