@@ -16,6 +16,7 @@ COPY packages packages
 COPY workers workers
 RUN uv sync --frozen --no-dev --package oracle-node
 
-RUN useradd --system --no-create-home operator
-USER operator
+# Not "operator": Debian already ships a system group with that name.
+RUN useradd --system --no-create-home oraclenode
+USER oraclenode
 CMD ["python", "-m", "oracle_node"]
