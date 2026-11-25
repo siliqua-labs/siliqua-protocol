@@ -77,7 +77,7 @@ https://explorer.testnet.chain.robinhood.com
 
 Source verification:
 
-- SiliquaOracle: verified on Blockscout (partial match, because the build uses bytecode hash none). Not verified on Sourcify.
+- SiliquaOracle: verified on Sourcify (creation and runtime code match) and on Blockscout (partial match, because the build uses bytecode hash none).
 - FeeRouter and MarketFactory: verified on Sourcify (creation and runtime code match). The Blockscout verifier timed out on both (they hold immutable values), so they are not shown as verified on the Blockscout explorer yet.
 - Sourcify: https://repo.sourcify.dev/46630/<address>
 
