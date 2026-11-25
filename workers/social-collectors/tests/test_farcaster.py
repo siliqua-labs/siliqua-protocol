@@ -60,3 +60,21 @@ def test_fetch_raises_on_payment_required():
     transport = httpx.MockTransport(lambda request: httpx.Response(402))
     with httpx.Client(transport=transport) as client, pytest.raises(httpx.HTTPStatusError):
         farcaster.fetch(client, "k", "gpu", 1)
+
+
+def cast_with_score(score: str) -> bytes:
+    return (
+        '{"result": {"casts": [{"hash": "0x1", "text": "t", "timestamp": "2026-11-25T08:28:07+00:00",'
+        f' "author": {{"fid": 1, "score": {score}}}}}], "next": {{}}}}}}'
+    ).encode()
+
+
+def test_integer_score_is_read_as_decimal():
+    # Neynar sends 0 and 1 without a decimal point; this once crashed the worker.
+    assert farcaster.parse(cast_with_score("1"))[0][0].quality_score == Decimal(1)
+    assert farcaster.parse(cast_with_score("0"))[0][0].quality_score == Decimal(0)
+
+
+def test_non_numeric_score_is_an_error():
+    with pytest.raises(TypeError, match="not a number"):
+        farcaster.parse(cast_with_score("true"))

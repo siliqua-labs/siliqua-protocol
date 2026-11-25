@@ -43,9 +43,19 @@ def parse(payload: bytes) -> tuple[list[SocialPost], str | None]:
                 author_id=str(author["fid"]),
                 created_at=datetime.fromisoformat(cast["timestamp"]),
                 author_created_at=datetime.fromisoformat(registered_at) if registered_at else None,
-                quality_score=author.get("score"),
+                quality_score=_score(author.get("score")),
                 text=cast["text"],
             )
         )
     next_page = result.get("next") or {}
     return posts, next_page.get("cursor")
+
+
+def _score(raw: object) -> Decimal | None:
+    # parse_float=Decimal leaves JSON integers as int, and Neynar sends a score of exactly 0 or 1
+    # as an integer, which crashed the worker. Booleans are rejected, Decimal(True) is 1.
+    if raw is None:
+        return None
+    if isinstance(raw, bool) or not isinstance(raw, int | Decimal):
+        raise TypeError(f"neynar score is not a number: {raw!r}")
+    return Decimal(raw)
