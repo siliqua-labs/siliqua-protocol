@@ -44,9 +44,9 @@ Vercel: `CHAIN_ENV`, `RPC_URL`, `FACTORY_ADDRESS` (markets stop showing sample d
 | --- | --- |
 | `relayer` | `DATABASE_URL`, `RPC_URL`, `CHAIN_ID`, `ORACLE_ADDRESS`, `ORACLE_OPERATORS`, `RELAYER_PRIVATE_KEY` |
 | `indexer` | `DATABASE_URL`, `RPC_URL`, `CHAIN_ID`, `ORACLE_ADDRESS`, `FACTORY_ADDRESS`; optional `INDEXER_START_BLOCK` (set it to the deploy block) |
-| `market-keeper` | `RPC_URL`, `CHAIN_ID`, `ORACLE_ADDRESS`, `FACTORY_ADDRESS`, `KEEPER_PRIVATE_KEY`, `MARKET_INDEX_ID`, `MARKET_CLOSE_ANCHOR` |
+| `market-keeper` | `RPC_URL`, `CHAIN_ID`, `ORACLE_ADDRESS`, `FACTORY_ADDRESS`, `KEEPER_PRIVATE_KEY`, `MARKET_INDEX_IDS`, `MARKET_CLOSE_ANCHOR` |
 
-`MARKET_INDEX_ID` is `keccak256` of the label, for example `cast keccak GRI-H100`. `MARKET_CLOSE_ANCHOR` is the unix time of one weekly close; later closes are this plus whole weeks. The relayer and keeper keys are the only secrets here; use wallets that hold nothing else.
+`MARKET_INDEX_IDS` is a comma separated list of `keccak256` of the labels, for example `cast keccak GRI-H100`; the keeper opens one weekly market per index. Leave out an index that does not publish yet (GRI-H200 has fewer than 5 sources), or it logs a failed `createMarket` on every pass. The older single `MARKET_INDEX_ID` is still read when `MARKET_INDEX_IDS` is unset. `MARKET_CLOSE_ANCHOR` is the unix time of one weekly close; later closes are this plus whole weeks. The relayer and keeper keys are the only secrets here; use wallets that hold nothing else.
 
 ## 6. Railway: operators
 

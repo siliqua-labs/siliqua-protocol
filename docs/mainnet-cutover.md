@@ -33,7 +33,7 @@ Do all three contracts, then the first market, on Sourcify. Blockscout failed on
 | Railway `api` | `ORACLE_OPERATORS` | the three new operator addresses |
 | Railway `api` | `INDEXER_START_BLOCK` | the mainnet oracle deploy block |
 | Railway `api` | `RELAYER_PRIVATE_KEY`, `KEEPER_PRIVATE_KEY` | new keys, funded with a little ETH for gas |
-| Railway `api` | `MARKET_INDEX_ID`, `MARKET_CLOSE_ANCHOR` | review the anchor for the first mainnet week |
+| Railway `api` | `MARKET_INDEX_IDS`, `MARKET_CLOSE_ANCHOR` | review the anchor for the first mainnet week |
 | Each operator service | `CHAIN_ID=4663`, `ORACLE_ADDRESS`, `SIGNING_KEY` | new values; the node logs its address at start and it must match the allowlist |
 
 The oracle address on the web is read from the factory, so there is no `ORACLE_ADDRESS` on Vercel.

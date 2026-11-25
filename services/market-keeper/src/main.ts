@@ -29,13 +29,27 @@ const keeperKey = requireEnv("KEEPER_PRIVATE_KEY");
 if (!/^0x[0-9a-fA-F]{64}$/.test(keeperKey)) {
   throw new Error("KEEPER_PRIVATE_KEY must be 32 bytes of hex");
 }
-const indexId = requireEnv("MARKET_INDEX_ID");
-if (!isHex(indexId, { strict: true }) || indexId.length !== 66) {
-  throw new Error("MARKET_INDEX_ID must be a 32-byte hex string");
+// MARKET_INDEX_ID, a single id, is still read so an existing deployment keeps working.
+const rawIndexIds =
+  process.env.MARKET_INDEX_IDS ?? requireEnv("MARKET_INDEX_ID");
+const indexIds = rawIndexIds
+  .split(",")
+  .map((id) => id.trim())
+  .filter((id) => id !== "");
+if (indexIds.length === 0) {
+  throw new Error("MARKET_INDEX_IDS needs at least one index id");
+}
+for (const id of indexIds) {
+  if (!isHex(id, { strict: true }) || id.length !== 66) {
+    throw new Error(`index id must be a 32-byte hex string, got ${id}`);
+  }
+}
+if (new Set(indexIds).size !== indexIds.length) {
+  throw new Error("MARKET_INDEX_IDS has a duplicate id");
 }
 
 const config = {
-  indexId: indexId as Hex,
+  indexIds: indexIds as Hex[],
   closeAnchor: requireInteger("MARKET_CLOSE_ANCHOR"),
 };
 const chain = keeperChain({

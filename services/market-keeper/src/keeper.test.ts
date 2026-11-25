@@ -19,7 +19,8 @@ const MARKET = `0x${"01".repeat(20)}` as Address;
 const TX = `0x${"cd".repeat(32)}` as Hex;
 const NOW = 1_800_000_000;
 const ANCHOR = NOW - 10 * WEEK_SECONDS;
-const config = { indexId: INDEX_ID, closeAnchor: ANCHOR };
+const config = { indexIds: [INDEX_ID], closeAnchor: ANCHOR };
+const OTHER_INDEX = `0x${"ef".repeat(32)}` as Hex;
 
 function market(overrides: Partial<MarketState> = {}): MarketState {
   return {
@@ -40,8 +41,10 @@ function fakeChain(markets: MarketState[], failing: string[] = []) {
     blockTime: async () => NOW,
     listMarkets: async () => markets,
     latestValue: async () => 3_500_000n,
-    async createMarket(_index, threshold, closeTime) {
-      calls.push(`create:${threshold}:${closeTime}`);
+    async createMarket(index, threshold, closeTime) {
+      calls.push(
+        `create:${index === INDEX_ID ? "" : `${index.slice(2, 4)}:`}${threshold}:${closeTime}`,
+      );
       return TX;
     },
     async settle(address) {
@@ -142,4 +145,42 @@ test("alerts on a market that expired unsettled and does not try to settle it", 
   await keepOnce(chain, config, log);
   assert.ok(errors.includes("market expired unsettled; stakers must refund"));
   assert.ok(!calls.some((c) => c.startsWith("settle")));
+});
+
+test("creates one market per configured index", async () => {
+  const { chain, calls } = fakeChain([
+    market({ status: STATUS_SETTLED, feeUnswept: 0n }),
+  ]);
+  const multi = { indexIds: [INDEX_ID, OTHER_INDEX], closeAnchor: ANCHOR };
+  await keepOnce(chain, multi, recorder().log);
+  const created = calls.filter((c) => c.startsWith("create:"));
+  assert.equal(created.length, 2);
+  assert.ok(created.some((c) => c.startsWith("create:ef:")));
+});
+
+test("an index that already has its market is skipped, the other is created", async () => {
+  const close = nextCloseTime(NOW, ANCHOR);
+  const { chain, calls } = fakeChain([
+    market({ closeTime: close, status: STATUS_SETTLED }),
+  ]);
+  const multi = { indexIds: [INDEX_ID, OTHER_INDEX], closeAnchor: ANCHOR };
+  await keepOnce(chain, multi, recorder().log);
+  const created = calls.filter((c) => c.startsWith("create:"));
+  assert.equal(created.length, 1);
+  assert.ok(created[0]?.startsWith("create:ef:"));
+});
+
+test("an index without a finalized value does not stop the others", async () => {
+  const { chain, calls } = fakeChain([]);
+  const noValue: KeeperChain = {
+    ...chain,
+    latestValue: async (index) => {
+      if (index === INDEX_ID) throw new Error("no value yet");
+      return 4_000_000n;
+    },
+  };
+  const rec = recorder();
+  const multi = { indexIds: [INDEX_ID, OTHER_INDEX], closeAnchor: ANCHOR };
+  await keepOnce(noValue, multi, rec.log);
+  assert.equal(calls.filter((c) => c.startsWith("create:")).length, 1);
 });

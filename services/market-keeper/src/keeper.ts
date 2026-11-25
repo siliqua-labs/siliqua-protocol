@@ -35,7 +35,8 @@ export type KeeperChain = {
 };
 
 export type KeeperConfig = {
-  indexId: Hex;
+  // One weekly market per index, all on the same close times.
+  indexIds: Hex[];
   // Any past or future close time of the weekly series; later ones are anchor + k weeks.
   closeAnchor: number;
 };
@@ -99,15 +100,18 @@ export async function keepOnce(
   }
 
   const closeTime = nextCloseTime(now, config.closeAnchor);
-  const exists = markets.some(
-    (m) => m.indexId === config.indexId && m.closeTime === closeTime,
-  );
-  if (!exists) {
-    await attempt(log, "createMarket", String(closeTime), async () => {
+  for (const indexId of config.indexIds) {
+    const exists = markets.some(
+      (m) => m.indexId === indexId && m.closeTime === closeTime,
+    );
+    if (exists) continue;
+    // An index without a finalized value yet fails here and is retried on the next pass; the
+    // other indexes are not held back.
+    await attempt(log, "createMarket", `${indexId}@${closeTime}`, async () => {
       // Default policy: threshold is the latest finalized value, so the question is "higher
       // or not than now". Pending owner confirmation (plan open question).
-      const threshold = await chain.latestValue(config.indexId);
-      return chain.createMarket(config.indexId, threshold, closeTime);
+      const threshold = await chain.latestValue(indexId);
+      return chain.createMarket(indexId, threshold, closeTime);
     });
   }
 }
