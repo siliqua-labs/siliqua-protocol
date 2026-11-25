@@ -1,7 +1,13 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { changeBps, meanHalfUp, medianMicro, numericToMicro } from "./money.ts";
-import { buildSeries, HOUR_MS, type HourRow, twap24h } from "./series.ts";
+import {
+  buildSeries,
+  HOUR_MS,
+  type HourRow,
+  trend7d,
+  twap24h,
+} from "./series.ts";
 
 const T0 = Date.UTC(2027, 0, 1);
 
@@ -65,4 +71,20 @@ test("twap skips stale hours and voids above 6 stale", () => {
   const live17 = live.slice(1);
   const stale7 = [...stale6, { value: 100n, stale: true }];
   assert.equal(twap24h([...live17, ...stale7]), null);
+});
+
+test("trend ends at the latest value and steps back 12 hours at a time", () => {
+  const points = Array.from({ length: 30 }, (_, i) => ({
+    value: BigInt(i),
+    stale: false,
+  }));
+  assert.deepEqual(trend7d(points), ["5", "17", "29"]);
+  const week = Array.from({ length: 200 }, (_, i) => ({
+    value: BigInt(i),
+    stale: false,
+  }));
+  const trend = trend7d(week);
+  assert.equal(trend.length, 14);
+  assert.equal(trend.at(-1), "199");
+  assert.equal(trend[0], "43");
 });

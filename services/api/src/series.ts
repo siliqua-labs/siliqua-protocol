@@ -62,12 +62,16 @@ function changeOver(points: Point[], hours: number): number | null {
   return changeBps(latest.value, earlier.value);
 }
 
-// Same shape as the prototype: the last 168 hours, one point every 12 hours.
-function trend7d(points: Point[]): string[] {
-  return points
-    .slice(-168)
-    .filter((_, index) => index % 12 === 11)
-    .map((point) => String(point.value));
+// The last 168 hours, one point every 12 hours, counted back from the latest point so the line
+// always ends at the current value. Counting from the start of a short history left the last
+// sample hours behind, and the line could slope down while the 24 hour change was up.
+export function trend7d(points: Point[]): string[] {
+  const window = points.slice(-168);
+  const sampled: string[] = [];
+  for (let index = window.length - 1; index >= 0; index -= 12) {
+    sampled.push(String((window[index] as Point).value));
+  }
+  return sampled.reverse();
 }
 
 export function buildSnapshot(args: {
