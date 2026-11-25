@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { DataTable, Notice } from "../../components/primitives";
 import { StatusChip } from "../../components/StatusChip";
 import ui from "../../components/ui.module.css";
+import { getIndexes } from "../../lib/api/client";
 import { METHODOLOGY_VERSION } from "../../lib/api/mock";
 
 export const metadata: Metadata = { title: "Methodology" };
@@ -33,7 +34,8 @@ function Steps({ items }: { items: [string, string][] }) {
   );
 }
 
-export default function MethodologyPage() {
+export default async function MethodologyPage() {
+  const { isSample } = await getIndexes();
   return (
     <div className={ui.page}>
       <p className="label">
@@ -43,7 +45,7 @@ export default function MethodologyPage() {
         Built to be recomputed<span style={{ color: "var(--em)" }}>.</span>
       </h1>
       <p style={{ marginTop: 20 }}>
-        <StatusChip status="NOT_LIVE" /> &nbsp;{" "}
+        <StatusChip status={isSample ? "NOT_LIVE" : "RUNNING"} /> &nbsp;{" "}
         <span className={ui.tag}>v{METHODOLOGY_VERSION} DRAFT</span>{" "}
         &nbsp;Published rules, sources and weights. Anyone can recompute an
         index from the inputs.
