@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="docs/assets/banner.svg" alt="Siliqua: the price of a GPU hour, recomputable by anyone" width="100%">
+<img src="docs/assets/banner.png" alt="Siliqua: the price of a GPU hour, recomputable by anyone" width="100%">
 
 # SILIQUA
 
