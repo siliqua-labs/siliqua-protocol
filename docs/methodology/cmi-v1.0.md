@@ -12,7 +12,7 @@ CMI is the share of weighted social attention each compute narrative received ov
 
 ## 2. Narratives and keywords
 
-The narrative list and the keyword list are inputs to the function, not constants. The vectors use placeholder names (`INFRA`, `AGENTS`, `TOKENS`) that are not the product list. **Open: owner decision A10.** The final lists are published with the 500-post test report (PLAN 2.7).
+The narrative list and the keyword list are inputs to the function, not constants. The vectors use placeholder names (`INFRA`, `AGENTS`, `TOKENS`) that are not the product list. **Open: owner decision A10.** A proposed list is in `cmi-narratives-v1.0-draft.md`. The final lists are published with the 500-post test report (PLAN 2.7).
 
 `OTHER` is reserved and always present.
 
