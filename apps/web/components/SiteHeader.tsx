@@ -1,15 +1,16 @@
 import Link from "next/link";
+import { siteStrip } from "../lib/siteStrip";
 import { Logo } from "./Logo";
 import { NavLinks } from "./NavLinks";
 import styles from "./SiteHeader.module.css";
 import { WalletButton } from "./WalletButton";
 import { XLink } from "./XLink";
 
-// Sample-data strip stays until the real API replaces the fixtures (ROADMAP 2.9).
 export function SiteHeader() {
+  const strip = siteStrip(process.env);
   return (
     <>
-      <div className={styles.strip}>SAMPLE DATA · MARKETS NOT LIVE</div>
+      {strip ? <div className={styles.strip}>{strip}</div> : null}
       <header className={styles.header}>
         <Link href="/" className={styles.mark} aria-label="Siliqua home">
           <Logo height={28} />
