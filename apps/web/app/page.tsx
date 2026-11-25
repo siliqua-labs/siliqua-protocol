@@ -33,6 +33,8 @@ const STEPS = [
   ["Settle", "Markets read the 24-hour TWAP."],
 ] as const;
 
+const HOME_MARKETS = 4;
+
 const ROADMAP = [
   ["data", "Data", "Gate: 30 days of data, no gap over 6 hours"],
   [
@@ -79,14 +81,17 @@ export default async function Home() {
     markets: !marketsAreSample,
   };
   const lead = at(indexes, 0);
-  const market = markets.find((m) => m.status === "OPEN");
-  const poolTotal = market
-    ? BigInt(market.yesPool) + BigInt(market.noPool)
-    : 0n;
+  // One card per open market (one per index); the pools scene sums all of them.
+  const openMarkets = markets
+    .filter((m) => m.status === "OPEN")
+    .slice(0, HOME_MARKETS);
+  const yesTotal = openMarkets.reduce((sum, m) => sum + BigInt(m.yesPool), 0n);
+  const poolTotal = openMarkets.reduce(
+    (sum, m) => sum + BigInt(m.yesPool) + BigInt(m.noPool),
+    0n,
+  );
   const yesShare =
-    market && poolTotal > 0n
-      ? Number((BigInt(market.yesPool) * 100n) / poolTotal) / 100
-      : 0.5;
+    poolTotal > 0n ? Number((yesTotal * 100n) / poolTotal) / 100 : 0.5;
   return (
     <>
       <section className={`${ui.page} ${ui.plain} ${styles.heroSection}`}>
@@ -258,22 +263,29 @@ export default async function Home() {
         </Reveal>
       )}
 
-      {market && (
+      {openMarkets.length > 0 && (
         <Reveal className={`${ui.page} ${ui.tinted}`} id="weekly-markets">
           <div className={`label ${ui.sectionHead}`}>WEEKLY MARKETS</div>
           <h2>
-            One question a week<span className={styles.em}>.</span>
+            One question a week, per index<span className={styles.em}>.</span>
           </h2>
           <div
             className={ui.grid2}
             style={{ marginTop: 28, alignItems: "start" }}
           >
-            <MarketCard
-              market={
-                marketsAreSample ? { ...market, status: "NOT_LIVE" } : market
-              }
-              isSample={marketsAreSample}
-            />
+            <div style={{ display: "grid", gap: 20 }}>
+              {openMarkets.map((market) => (
+                <MarketCard
+                  key={market.id}
+                  market={
+                    marketsAreSample
+                      ? { ...market, status: "NOT_LIVE" }
+                      : market
+                  }
+                  isSample={marketsAreSample}
+                />
+              ))}
+            </div>
             <div>
               <p>
                 Pools are parimutuel: YES and NO stakes in USDG. The losing pool
