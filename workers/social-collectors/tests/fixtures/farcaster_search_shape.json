@@ -1,0 +1,23 @@
+{
+  "result": {
+    "casts": [
+      {
+        "object": "cast",
+        "hash": "0xaaaa000000000000000000000000000000000001",
+        "author": {"object": "user", "fid": 1001, "username": "example-a", "registered_at": "2024-03-01T10:00:00.000Z", "score": 0.93},
+        "text": "synthetic cast about gpu supply",
+        "timestamp": "2026-11-25T08:28:07.000Z",
+        "channel": null
+      },
+      {
+        "object": "cast",
+        "hash": "0xbbbb000000000000000000000000000000000002",
+        "author": {"object": "user", "fid": 1002, "username": "example-b"},
+        "text": "synthetic cast without account fields",
+        "timestamp": "2026-11-25T08:30:00.000Z",
+        "channel": null
+      }
+    ],
+    "next": {"cursor": "cursor-page-2"}
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "posts": [
+    {
+      "uri": "at://did:plc:example1/app.bsky.feed.post/3kaaaaaaaaaaa",
+      "cid": "bafyexample1",
+      "author": {"did": "did:plc:example1", "handle": "a.example.social", "createdAt": "2024-05-02T09:00:00.000Z"},
+      "record": {"text": "synthetic post about inference cost", "createdAt": "2026-11-25T08:45:40.723Z"},
+      "indexedAt": "2026-11-25T08:45:42.045Z"
+    },
+    {
+      "uri": "at://did:plc:example2/app.bsky.feed.post/3kbbbbbbbbbbb",
+      "cid": "bafyexample2",
+      "author": {"did": "did:plc:example2", "handle": "b.example.social"},
+      "record": {"text": "synthetic post without account date", "createdAt": "2026-11-25T08:50:00.000Z"},
+      "indexedAt": "2026-11-25T08:50:01.000Z"
+    }
+  ],
+  "cursor": "cursor-page-2",
+  "hitsTotal": 2
+}
