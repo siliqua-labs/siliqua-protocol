@@ -168,7 +168,7 @@ Read 2026-11-24 from official documentation. Costs are as the pages state them a
 | Platform | Reads by keyword | Cost as stated | Terms on storing, deriving, publishing | Status |
 | --- | --- | --- | --- | --- |
 | X | Recent search, filtered stream | Pay per usage, 0.005 USD per post read, cap 3 million reads per month | Redistribute Post IDs only; stored content must be kept current and deletions honored within 24h; training a foundation or frontier model is barred | Costed; ask owner |
-| Farcaster | Neynar `GET /v2/farcaster/cast/search`, or a self-run Snapchain node | Neynar Free 10M credits per month (confirmed on the plans page); Scale 249 USD per month, 60M credits; measured 50 credits per search call; Snapchain needs 16 GB RAM, 4 cores, 2 TB disk | Neynar terms not readable (404); Farcaster pages state no licence | Live-tested 2026-11-25; terms unverified |
+| Farcaster | Neynar `GET /v2/farcaster/cast/search`, or a self-run Snapchain node | Neynar Free 10M credits per month (confirmed on the plans page); Scale 249 USD per month, 60M credits; measured 10 credits per cast returned by search; Snapchain needs 16 GB RAM, 4 cores, 2 TB disk | Neynar terms not readable (404); Farcaster pages state no licence | Live-tested 2026-11-25; terms unverified |
 | Bluesky | `app.bsky.feed.searchPosts` on the PDS, authenticated with an app password session | No charge seen in live calls; no pricing page read | Terms of Service do not address third-party storage, derived data or scraping | Live-tested 2026-11-25; terms unverified |
 | Telegram | Not clear for public channels | API free | Bars aggregating platform data to train AI models; bot terms bar collecting large datasets from public channels | Recommended not in v1 |
 
@@ -188,10 +188,10 @@ Read 2026-11-24 from official documentation. Costs are as the pages state them a
 - Snapchain: free software, "16 GB of RAM", "4 CPU cores or vCPUs", "2 TB of free storage", a public IP with ports 3381 to 3383 open. That is more than the Railway plan in use gives; a server would be a new cost.
 - Live test 2026-11-25 (read-only, query "gpu compute", `limit=5`, Free plan "Beginner", 10M credits, "Your plan" on the plans page):
   - `GET /v2/farcaster/cast/search` returns 200 with `result.casts` and `result.next.cursor`. Cast fields: `hash`, `timestamp`, `author`, `reactions`, `replies`, `channel`, `text`, `parent_hash`, `thread_hash`, `embeds`.
-  - Credit cost: 12 calls in total (2 + 10) showed 600 credits on the dashboard, so 50 credits per search call at `limit=5`. Whether `limit` changes the cost is not tested.
-  - Budget arithmetic: 10M credits at 50 per call is 200,000 search calls per month, about 6,600 per day. Credits, not the rate limit, are the binding cap.
+  - Credit cost: 12 calls at `limit=5` showed 600 credits (50 per call); a later single call at `limit=1` on a new app showed 10 credits. That fits 10 credits per cast returned, matching the "page limit" multiplier the docs list for feeds. Only `limit=1` and `limit=5` were tested; `limit=100` is expected to cost 1,000 credits per call but is not verified.
+  - Budget arithmetic (from the 10 credits per cast reading): 10M credits is about 1,000,000 casts per month, about 33,000 per day. Credits, not the rate limit, are the binding cap.
   - Response header `X-RateLimit-Limit: 300`; the docs say 120 per minute for search on Free. The two are not reconciled.
-  - The dashboard "API Requests" chart read 36 while about 12 calls were made from this project; the difference is unexplained.
+  - The dashboard "API Requests" chart read 36 while about 12 calls were made from this project, and a new app showed 2 requests after 1 call. The extra requests carried no credits (credits matched our calls exactly), so they are not billed; their source is unexplained.
   - The account page showed "0 credits limit" on the Free plan; the plans page and the calls show 10M credits, so treat the label as a display quirk.
 - Not read: Neynar terms of service (the page returned 404), the Neynar pricing page (different host), and any licence statement for Farcaster protocol data. Whether keyword search is on the Free plan is not stated.
 
