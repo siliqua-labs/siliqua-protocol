@@ -1,7 +1,8 @@
 #!/bin/bash
-# The api runs in front. The indexer and relayer are optional helpers in the same container, each
-# restarted on its own when it stops, so a failure there never takes the api down. If the api
-# itself exits the container exits and the platform restarts it (the helpers die with it).
+# The api runs in front. The indexer, relayer and market keeper are optional helpers in the same
+# container, each restarted on its own when it stops, so a failure there never takes the api down.
+# If the api itself exits the container exits and the platform restarts it (the helpers die with
+# it).
 set -u
 
 RESTART_DELAY_SECONDS=10
@@ -20,6 +21,9 @@ if [ "${RUN_INDEXER:-}" = "true" ]; then
 fi
 if [ "${RUN_RELAYER:-}" = "true" ]; then
   supervise relayer /app/services/api relayer-main.ts &
+fi
+if [ "${RUN_KEEPER:-}" = "true" ]; then
+  supervise market-keeper /app/services/market-keeper main.ts &
 fi
 
 cd /app/services/api
