@@ -32,6 +32,7 @@ test("an open market is active with pools in whole tokens", () => {
   assert.equal(m.yesPool, "2");
   assert.equal(m.noPool, "7");
   assert.equal(m.winner, undefined);
+  assert.equal(m.indexLabel, "GRI-H100");
 });
 
 test("a closed market becomes settling once its settle time passed", () => {

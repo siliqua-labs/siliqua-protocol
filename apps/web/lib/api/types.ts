@@ -89,6 +89,8 @@ export type MarketGroup = "active" | "upcoming" | "settled" | "void";
 
 export type Market = {
   id: string;
+  // Present for real markets, e.g. GRI-H100; the portfolio uses it as a short name.
+  indexLabel?: string;
   question: string;
   thresholdMicroUsd: string;
   yesPool: string;

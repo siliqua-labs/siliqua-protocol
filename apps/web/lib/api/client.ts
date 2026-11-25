@@ -1,4 +1,5 @@
 import { liveConfig, marketChainConfig, tokenDecimals } from "../chain";
+import type { LiveConfig } from "../wallet";
 import { type ApiMarket, toMarket, wholeTokens } from "./marketMapping";
 import {
   METHODOLOGY_VERSION,
@@ -12,6 +13,7 @@ import {
 import type {
   IndexDetailResponse,
   IndexListResponse,
+  Market,
   MarketDetailResponse,
   MarketsResponse,
   NarrativesResponse,
@@ -93,6 +95,24 @@ export async function getMarkets(): Promise<MarketsResponse> {
   return {
     isSample: false,
     markets: body.markets.map((m) => toMarket(m, live.decimals, now)),
+  };
+}
+
+/** Real markets plus the chain settings the portfolio needs, or sample when markets are not live. */
+export async function getPortfolioData(): Promise<
+  | { isSample: true }
+  | { isSample: false; markets: Market[]; config: LiveConfig }
+> {
+  const live = await liveMarkets();
+  if (!live) return { isSample: true };
+  const body = await fetchApi<{ markets: ApiMarket[] }>("/v1/markets");
+  if (!body) throw new Error("GET /v1/markets returned 404");
+  const now = new Date();
+  return {
+    isSample: false,
+    markets: body.markets.map((m) => toMarket(m, live.decimals, now)),
+    // The portfolio never uses the fee; it comes from the first market only to fill the type.
+    config: liveConfig(live.chain, live.decimals, body.markets[0]?.feeBps ?? 0),
   };
 }
 

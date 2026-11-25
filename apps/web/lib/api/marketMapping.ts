@@ -41,6 +41,7 @@ export function toMarket(m: ApiMarket, decimals: number, now: Date): Market {
     m.status === "closed" && now.getTime() >= Date.parse(m.settleableFrom);
   return {
     id: m.address,
+    indexLabel: m.indexLabel,
     question: `Will the 24h TWAP of ${m.indexLabel} from ${utc(m.twapFrom)} to ${utc(m.twapTo)} be above the threshold?`,
     thresholdMicroUsd: m.thresholdMicroUsd,
     yesPool: wholeTokens(m.yesPool, decimals),
