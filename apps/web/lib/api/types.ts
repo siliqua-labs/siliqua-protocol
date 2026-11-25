@@ -9,7 +9,8 @@ export type MarketStatus =
   | "SETTLED"
   | "VOID"
   | "NOT_LIVE";
-export type ChipStatus = IndexStatus | MarketStatus;
+// RUNNING is a roadmap phase that works on the testnet but has not passed its gate yet.
+export type ChipStatus = IndexStatus | MarketStatus | "RUNNING";
 
 export type IndexSnapshot = {
   indexId: string;

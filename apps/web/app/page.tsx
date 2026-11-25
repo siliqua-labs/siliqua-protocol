@@ -9,7 +9,12 @@ import { Tape } from "../components/Tape";
 import { CoinFallback } from "../components/three/CoinFallback";
 import { ThreeScene } from "../components/three/ThreeScene";
 import ui from "../components/ui.module.css";
-import { getIndexes, getMarkets, getNarratives } from "../lib/api/client";
+import {
+  getIndexes,
+  getMarkets,
+  getNarratives,
+  getOracle,
+} from "../lib/api/client";
 import { at } from "../lib/at";
 import { changeTone, formatChange, formatUsd, formatUtc } from "../lib/format";
 import styles from "./page.module.css";
@@ -29,10 +34,18 @@ const STEPS = [
 ] as const;
 
 const ROADMAP = [
-  ["Data", "Gate: 30 days of data, no gap over 6 hours"],
-  ["On-chain oracle", "Gate: 14 days of operator spread under tolerance"],
-  ["Compute Mindshare Index", "Gate: 500-post labeled test set documented"],
-  ["Markets", "Gate: legal review and contract audit"],
+  ["data", "Data", "Gate: 30 days of data, no gap over 6 hours"],
+  [
+    "oracle",
+    "On-chain oracle",
+    "Gate: 14 days of operator spread under tolerance",
+  ],
+  [
+    "cmi",
+    "Compute Mindshare Index",
+    "Gate: 500-post labeled test set documented",
+  ],
+  ["markets", "Markets", "Gate: legal review and contract audit"],
 ] as const;
 
 function Layer({ index }: { index: number }) {
@@ -46,10 +59,26 @@ function Layer({ index }: { index: number }) {
 }
 
 export default async function Home() {
-  const [{ indexes, methodologyVersion, isSample }, narratives, { markets }] =
-    await Promise.all([getIndexes(), getNarratives(), getMarkets()]);
-  const lead = at(indexes, 0);
+  const [
+    { indexes, methodologyVersion, isSample },
+    narratives,
+    { markets, isSample: marketsAreSample },
+    oracle,
+  ] = await Promise.all([
+    getIndexes(),
+    getNarratives(),
+    getMarkets(),
+    getOracle(),
+  ]);
   const latest = [...narratives.days].reverse().find((d) => d.bps);
+  // A phase is running only when its page shows real data; the gate is a separate, later step.
+  const running = {
+    data: !isSample,
+    oracle: oracle !== null && !oracle.isSample,
+    cmi: !narratives.isSample && latest !== undefined,
+    markets: !marketsAreSample,
+  };
+  const lead = at(indexes, 0);
   const market = markets.find((m) => m.status === "OPEN");
   const poolTotal = market
     ? BigInt(market.yesPool) + BigInt(market.noPool)
@@ -239,7 +268,12 @@ export default async function Home() {
             className={ui.grid2}
             style={{ marginTop: 28, alignItems: "start" }}
           >
-            <MarketCard market={{ ...market, status: "NOT_LIVE" }} />
+            <MarketCard
+              market={
+                marketsAreSample ? { ...market, status: "NOT_LIVE" } : market
+              }
+              isSample={marketsAreSample}
+            />
             <div>
               <p>
                 Pools are parimutuel: YES and NO stakes in USDG. The losing pool
@@ -291,11 +325,11 @@ export default async function Home() {
           Four phases<span className={styles.em}>.</span>
         </h2>
         <div className={ui.grid4} data-cells style={{ marginTop: 28 }}>
-          {ROADMAP.map(([title, gate]) => (
+          {ROADMAP.map(([phase, title, gate]) => (
             <div key={title}>
               <h3 style={{ fontSize: 17 }}>{title}</h3>
               <p style={{ margin: "12px 0" }}>
-                <StatusChip status="NOT_LIVE" />
+                <StatusChip status={running[phase] ? "RUNNING" : "NOT_LIVE"} />
               </p>
               <p style={{ fontSize: 13 }}>{gate}</p>
             </div>

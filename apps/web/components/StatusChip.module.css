@@ -18,7 +18,8 @@
 }
 
 .STALE,
-.SETTLING {
+.SETTLING,
+.RUNNING {
   color: var(--em);
 }
 

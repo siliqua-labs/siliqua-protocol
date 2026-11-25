@@ -31,6 +31,11 @@ const chips: Record<ChipStatus, { mark: string; label: string; hint: string }> =
     },
     SETTLED: { mark: "●", label: "Settled", hint: "Paid out." },
     VOID: { mark: "■", label: "Void", hint: "Cancelled. Funds refundable." },
+    RUNNING: {
+      mark: "◐",
+      label: "Running on testnet",
+      hint: "Works on the test network. The gate below is not passed yet.",
+    },
     NOT_LIVE: {
       mark: "○",
       label: "Not live",
