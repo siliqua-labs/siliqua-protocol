@@ -17,6 +17,7 @@ import {
   useAccount,
   walletClients,
 } from "../lib/wallet";
+import { StatusText } from "./StatusText";
 import ui from "./ui.module.css";
 
 type Holding = {
@@ -146,7 +147,7 @@ export function LivePosition({
           Connect wallet
         </button>
         <p className="label" role="status">
-          {status}
+          <StatusText status={status} />
         </p>
       </div>
     );
@@ -205,7 +206,7 @@ export function LivePosition({
       )}
       <p className="label" role="status">
         {failed ? "■ " : ""}
-        {status}
+        <StatusText status={status} />
       </p>
     </div>
   );

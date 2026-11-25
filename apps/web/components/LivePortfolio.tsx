@@ -23,6 +23,7 @@ import {
 } from "../lib/wallet";
 import { DataTable } from "./primitives";
 import { StatusChip } from "./StatusChip";
+import { StatusText } from "./StatusText";
 import ui from "./ui.module.css";
 
 type Row = { market: Market; holding: Holding };
@@ -127,7 +128,7 @@ export function LivePortfolio({
         </button>
         <p className="label" role="status">
           {failed ? "■ " : ""}
-          {status}
+          <StatusText status={status} />
         </p>
       </div>
     );
@@ -217,7 +218,7 @@ export function LivePortfolio({
       )}
       <p className="label" role="status">
         {failed ? "■ " : ""}
-        {status}
+        <StatusText status={status} />
       </p>
     </>
   );

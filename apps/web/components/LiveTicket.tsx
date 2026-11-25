@@ -17,6 +17,7 @@ import {
   useAccount,
   walletClients,
 } from "../lib/wallet";
+import { StatusText } from "./StatusText";
 import ui from "./ui.module.css";
 
 type Side = "YES" | "NO";
@@ -262,7 +263,7 @@ export function LiveTicket({
       )}
       <p className="label" style={{ marginTop: 10 }} role="status">
         {failed ? "■ " : ""}
-        {status}
+        <StatusText status={status} />
       </p>
     </div>
   );
