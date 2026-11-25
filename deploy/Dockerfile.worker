@@ -1,4 +1,4 @@
-# Price collector, index engine and watchdog in one container, to fit one small Railway service.
+# Price collector, social collector, index engine and watchdog in one container, to fit one small Railway service.
 # Build context is the repository root (leave Root Directory empty on the Railway service).
 FROM python:3.13-slim-bookworm
 

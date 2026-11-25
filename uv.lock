@@ -9,6 +9,7 @@ members = [
     "siliqua",
     "siliqua-index",
     "siliqua-watchdog",
+    "social-collectors",
 ]
 
 [[package]]
@@ -388,6 +389,21 @@ requires-dist = [
     { name = "httpx" },
     { name = "price-collectors", editable = "workers/price-collectors" },
     { name = "psycopg", extras = ["binary"] },
+]
+
+[[package]]
+name = "social-collectors"
+version = "0.0.0"
+source = { editable = "workers/social-collectors" }
+dependencies = [
+    { name = "httpx" },
+    { name = "siliqua-index" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "httpx" },
+    { name = "siliqua-index", editable = "packages/siliqua-index" },
 ]
 
 [[package]]
