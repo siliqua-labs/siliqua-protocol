@@ -75,7 +75,13 @@ https://rpc.testnet.chain.robinhood.com
 Robinhood Chain Testnet Block Explorer:
 https://explorer.testnet.chain.robinhood.com
 
-Source verification: not done yet on Blockscout. Build settings to submit: Solidity 0.8.28, EVM shanghai, optimizer 200 runs, bytecode hash none, license UNLICENSED.
+Source verification:
+
+- SiliquaOracle: verified on Blockscout (partial match, because the build uses bytecode hash none). Not verified on Sourcify.
+- FeeRouter and MarketFactory: verified on Sourcify (creation and runtime code match). The Blockscout verifier timed out on both (they hold immutable values), so they are not shown as verified on the Blockscout explorer yet.
+- Sourcify: https://repo.sourcify.dev/46630/<address>
+
+Build settings: Solidity 0.8.28, EVM shanghai, optimizer 200 runs, bytecode hash none.
 
 ## MAINNET
 
