@@ -2,12 +2,12 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ChartPanel } from "../../../components/ChartPanel";
+import { ContractTable } from "../../../components/ContractTable";
 import { LivePosition } from "../../../components/LivePosition";
 import { LiveTicket } from "../../../components/LiveTicket";
 import { MarketTicket } from "../../../components/MarketTicket";
 import { PositionCards } from "../../../components/PositionCards";
 import {
-  DataTable,
   Notice,
   ProbabilityBar,
   SampleTag,
@@ -16,6 +16,7 @@ import {
 import { StatusChip } from "../../../components/StatusChip";
 import ui from "../../../components/ui.module.css";
 import { getMarketDetail, getMarkets } from "../../../lib/api/client";
+import { marketChainConfig } from "../../../lib/chain";
 import { formatInt, formatUsd, formatUtc } from "../../../lib/format";
 
 type Params = { id: string };
@@ -50,6 +51,7 @@ export default async function MarketPage({
 }) {
   const { id } = await params;
   const d = await getMarketDetail(id);
+  const chainEnv = marketChainConfig()?.chainEnv ?? null;
   if (!d) notFound();
   const { market: m } = d;
   const yes = BigInt(m.yesPool);
@@ -169,35 +171,23 @@ export default async function MarketPage({
         guarantees. Multiple wallets can bypass the cap, and region restriction
         is enforced in the frontend and API only.
       </p>
-      <DataTable caption="On-chain">
-        <thead>
-          <tr>
-            <th scope="col">Contract</th>
-            <th scope="col">Address</th>
-            <th scope="col">Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {(d.factory
+      <ContractTable
+        caption="On-chain"
+        chainEnv={chainEnv}
+        rows={
+          d.factory
             ? [
-                ["RangeMarket", m.id],
-                ["MarketFactory", d.factory],
+                { name: "RangeMarket", address: m.id },
+                { name: "MarketFactory", address: d.factory },
               ]
             : [
                 "RangeMarket",
                 "SiliquaOracle",
                 "MarketFactory",
                 "FeeRouter",
-              ].map((c) => [c, "not deployed"])
-          ).map(([c, address]) => (
-            <tr key={c}>
-              <td>{c}</td>
-              <td>{address}</td>
-              <td>unverified</td>
-            </tr>
-          ))}
-        </tbody>
-      </DataTable>
+              ].map((name) => ({ name, address: null }))
+        }
+      />
     </div>
   );
 }

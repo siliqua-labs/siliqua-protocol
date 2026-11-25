@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
+import { ContractTable } from "../../components/ContractTable";
 import { DataTable, Notice, SampleTag } from "../../components/primitives";
 import { StatusChip } from "../../components/StatusChip";
 import ui from "../../components/ui.module.css";
 import { getOracle } from "../../lib/api/client";
 import type { OracleResponse } from "../../lib/api/types";
+import { factoryOracle, marketChainConfig } from "../../lib/chain";
 import { formatBpsPercent, formatUsd, formatUtc } from "../../lib/format";
 
 export const metadata: Metadata = { title: "Oracle" };
@@ -17,6 +19,8 @@ const short = (address: string) =>
 
 export default async function OraclePage() {
   const o = await getOracle();
+  const chain = marketChainConfig();
+  const oracleAddress = chain ? await factoryOracle(chain) : null;
   return (
     <div className={ui.page}>
       <p className="label">
@@ -46,22 +50,11 @@ export default async function OraclePage() {
         </ul>
       </Notice>
       {o ? <OracleData o={o} /> : <NotConfigured />}
-      <DataTable caption="Contract">
-        <thead>
-          <tr>
-            <th scope="col">Contract</th>
-            <th scope="col">Address</th>
-            <th scope="col">Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>SiliquaOracle</td>
-            <td>not deployed</td>
-            <td>unverified</td>
-          </tr>
-        </tbody>
-      </DataTable>
+      <ContractTable
+        caption="Contract"
+        chainEnv={chain?.chainEnv ?? null}
+        rows={[{ name: "SiliquaOracle", address: oracleAddress }]}
+      />
       <p style={{ marginTop: 16 }}>
         Reports are signed with EIP-712 typed data. Each report carries the
         index, timestamp, value, sources, methodology version and a nonce. The

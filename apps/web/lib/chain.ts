@@ -115,3 +115,15 @@ export function liveConfig(
     feeBps,
   };
 }
+
+/** The oracle the factory pins; markets created from it use this same oracle. */
+export async function factoryOracle(
+  config: MarketChainConfig,
+): Promise<`0x${string}`> {
+  const client = createPublicClient({ transport: http(config.rpcUrl) });
+  return client.readContract({
+    address: config.factory,
+    abi: parseAbi(["function oracle() view returns (address)"]),
+    functionName: "oracle",
+  });
+}
