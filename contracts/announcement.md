@@ -79,6 +79,7 @@ Source verification:
 
 - SiliquaOracle: verified on Sourcify (creation and runtime code match) and on Blockscout (partial match, because the build uses bytecode hash none).
 - FeeRouter and MarketFactory: verified on Sourcify (creation and runtime code match). The Blockscout verifier timed out on both (they hold immutable values), so they are not shown as verified on the Blockscout explorer yet.
+- RangeMarket markets are created by the factory, so each one is verified separately on Sourcify with constructor arguments read from its public immutables. The first market, 0x0860540ba32c30faa693121e6086a99aece6a7a8, is verified (creation and runtime code match). Later markets are not verified automatically yet.
 - Sourcify: https://repo.sourcify.dev/46630/<address>
 
 Build settings: Solidity 0.8.28, EVM shanghai, optimizer 200 runs, bytecode hash none.
