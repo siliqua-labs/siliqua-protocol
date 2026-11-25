@@ -17,6 +17,7 @@ DECAY_SCALE = 10**12
 
 @dataclass(frozen=True)
 class Methodology:
+    narratives: tuple[str, ...]
     lookback_seconds: int
     half_life_seconds: int
     min_platforms: int
@@ -27,6 +28,8 @@ class Methodology:
 
 METHODOLOGIES = {
     "1.0": Methodology(
+        # Proposed list, docs/methodology/cmi-narratives-v1.0-draft.md. Order is the tie-break order.
+        narratives=("GPU_SUPPLY", "DEPIN_COMPUTE", "AI_INFERENCE", "AI_AGENTS", "DATACENTER_POWER"),
         lookback_seconds=7 * DAY_SECONDS,
         half_life_seconds=48 * 3600,
         min_platforms=2,

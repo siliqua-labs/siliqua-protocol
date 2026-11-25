@@ -50,3 +50,9 @@ def test_every_keyword_and_label_is_in_the_published_draft():
         assert narrative.lower() in draft
         for keyword in keywords:
             assert keyword in draft, keyword
+
+
+def test_narrative_order_matches_the_methodology():
+    from siliqua_index.cmi import METHODOLOGIES
+
+    assert tuple(classifier.NARRATIVES) == METHODOLOGIES["1.0"].narratives

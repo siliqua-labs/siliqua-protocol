@@ -97,7 +97,7 @@ def test_posts_past_retention_are_deleted(conn):
         "insert into social_posts (platform, post_id, author_id, created_at, label,"
         " bot_score_bps, credibility_bps, model_hash) values"
         " ('bluesky', 'old', 'a', %s, 'OTHER', 0, 0, 'h')",
-        (NOW - timedelta(days=9),),
+        (NOW - timedelta(days=11),),
     )
     session = bluesky.BlueskySession(
         httpx.Client(transport=httpx.MockTransport(lambda r: httpx.Response(500))), "h", "p"

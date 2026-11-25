@@ -64,11 +64,13 @@ Owner decisions open:
 6. Telegram: recommended off in v1.
 7. X: monthly budget and index-derivative status, only if X is enabled later.
 
-Decision 2026-11-25: keep only the posts inside the 7-day lookback plus one day (delete older), to stay inside the Supabase size limit. Per-post labels are therefore not auditable after 8 days; daily values stay in `cmi_daily`.
+Decision 2026-11-25: keep only recent posts and delete older ones, to stay inside the Supabase size limit. Retention is 10 days: the 7-day lookback plus 3 days of tolerance for a late daily job. Per-post labels are therefore not auditable after 10 days; daily values stay in `cmi_daily`.
 
 Built: `workers/social-collectors` (Farcaster and Bluesky readers, keyword classifier, scoring, store, worker with `--once`), tables in migration 0006. Tested end to end against the local database on 2026-11-25 with a 50-cast budget. Not deployed: no Railway service exists for it yet. To run it: `COLLECTOR_FARCASTER_ENABLED`, `COLLECTOR_BLUESKY_ENABLED`, `NEYNAR_API_KEY`, `BSKY_HANDLE`, `BSKY_APP_PASSWORD`, optional `FARCASTER_DAILY_CAST_BUDGET` (default 20,000 casts per day) and `CMI_ENTRY_THRESHOLD_BPS`.
 
-Next: the daily CMI job in `index-engine` (reads `social_posts` and `social_platform_days`, writes `cmi_daily`), then a Railway service for the collector.
+Built: the daily CMI job in `index-engine` (`cmi_daily.py`, runs after the GRI step; reads `social_posts` and `social_platform_days`, writes `cmi_daily` and `cmi_daily_values`, never rewrites a day, leaves a day without a value if more than 3 days late).
+
+Next: a Railway service for the collector, then the 500-post test.
 
 ## Other open items
 

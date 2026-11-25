@@ -6,9 +6,10 @@ import psycopg
 from social_collectors.classifier import MODEL_HASH
 from social_collectors.scoring import ScoredPost
 
-# Posts older than the 7-day lookback plus one day of margin no longer affect any day's CMI, so
-# they are deleted (owner decision 2026-11-25, to stay inside the database size limit).
-RETENTION = timedelta(days=8)
+# A day's CMI reads the 7 days before its end, and index-engine may compute a day up to 3 days
+# late (COMPUTABLE_DAYS in index-engine). Older posts affect no computable day, so they are
+# deleted to stay inside the database size limit (owner decision 2026-11-25).
+RETENTION = timedelta(days=10)
 
 
 def last_created_at(conn: psycopg.Connection, platform: str) -> datetime | None:

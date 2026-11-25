@@ -7,6 +7,7 @@ from pathlib import Path
 
 import psycopg
 
+from index_engine.cmi_daily import process_cmi
 from index_engine.compute import compute_hour, index_id_for
 from index_engine.config import load_settings
 from index_engine.store import (
@@ -75,7 +76,9 @@ def main(argv: Sequence[str]) -> None:
     with psycopg.connect(settings.database_url) as conn:
         while True:
             started = time.monotonic()
-            process(conn, datetime.now(UTC))
+            now = datetime.now(UTC)
+            process(conn, now)
+            process_cmi(conn, now)
             conn.commit()
             if once:
                 return
