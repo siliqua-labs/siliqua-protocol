@@ -25,6 +25,7 @@ None of the first-party candidates has a clear written permission to store price
 | io.net | Yes, CaaS hardware list | Required | Not found | Not found | Price unit unknown |
 | Texel | `GET /gpus` lists open GPU ids only, no prices; prices only on the marketplace web page | Not needed for `/gpus` | Not found | No terms page found | No price API; scraping needs owner decision |
 | Verda | Yes, `GET /v1/instance-types`, public without a key | Not needed | 500/min per project (authenticated); none stated for open endpoints | Clauses 1 to 8.4 do not bar automated reads or index use; clause 3.3 makes the pricing page their IP; AUP summary bars malicious scrapers and derivative works | Ask; internal testing only |
+| Nebius | Spot prices only (`/billing/v1alpha1/spot-price`, open); on-demand only on the public price page | Not needed | Not found | No clause on scraping or price data; clause 2.8 bars derivative works of the Platform | Ask; internal testing only |
 | Vultr | Not read | Unknown | Unknown | Not read | Unverified, site refused automated reads |
 | getdeploying.com | Yes, aggregator | Bearer, paid | 3,000 per day | Derived products allowed, redistribution of raw data prohibited | Aggregator, not independent |
 | GPUPerHour | Yes, aggregator | Documented as none | Not stated | Programmatic access requires a license | Aggregator, owner conflict of interest |
@@ -156,6 +157,14 @@ The index is USD per GPU-hour. Providers differ, so the collector must normalize
 - Terms: https://verda.com/terms-and-conditions (last updated October 30, 2026), clauses 1 to 8.4 read verbatim. No clause on scraping, republishing prices or indexes. Clause 3.3 makes the pricing page ("Service Description") their intellectual property. Schedule 1 (acceptable use) was seen only as a model summary: bars malicious scrapers and bots, derivative works of the Service, and a competing product. Verify the wording on the live page before relying on it.
 - Live call 2026-11-25 (one GET, no key, HTTP 200, 84 instance types): each type has `location_prices` (FIN-01 to FIN-03) with `price_per_hour` as a string, `currency` `usd`, `gpu.number_of_gpus` and `name`. Single-GPU on-demand: B200 SXM6 180GB 9.844 / 9.844 / 9.508, H200 SXM5 141GB 7.184 / 6.701 / 6.701, H100 SXM5 80GB 5.241, A100 SXM4 80GB 2.386. Third-party blogs list far lower B200 prices; the API is the source.
 - Collector (`verda`): single-GPU instances of the four SXM models only, median across locations, `CC` variants and other memory sizes ignored. Availability is a separate endpoint and is not read, so a listed price may have no stock. Off unless `COLLECTOR_VERDA_ENABLED=true`. Internal testing until Verda confirms index use in writing.
+
+## Nebius
+
+- Page: https://nebius.com/prices, section "NVIDIA GPU Instances". Read 2026-11-25. `robots.txt` is `User-agent: *` and `Allow: /`.
+- Terms: https://docs.nebius.com/legal/terms-of-use (March 31, 2025), clause 2.8 bars copying or creating a derivative work of the Platform and services, and reselling or distributing them. AUP (effective June 26, 2026) clauses 5.1, 6.1 and 10.1 cover spam bots, host scanning and reverse engineering. Nothing on scraping, republishing prices or indexes. Service Terms (incorporated by clause 1.2) were not read.
+- API: no on-demand catalog. The spot-price REST API needs no key but gives preemptible prices only, which do not fit v1 (on-demand only).
+- Live read 2026-11-25 (one GET, HTTP 200, server-rendered, 280 KB): the table has the cells Item, vCPUs, RAM, Preemptible, On-demand per row. On-demand per GPU-hour: HGX B200 8.50, HGX H200 5.40, HGX H100 4.50. Rows with "Contact us" or "from $x" are not exact prices. No A100 is listed.
+- Collector (`nebius`): reads the table by its header and the three rows above, and fails on a layout change instead of guessing. Off unless `COLLECTOR_NEBIUS_ENABLED=true`. Internal testing until Nebius confirms index use in writing. The test fixture is the real table section of the page.
 
 ## Vultr
 
