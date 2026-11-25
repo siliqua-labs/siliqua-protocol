@@ -1,0 +1,92 @@
+{
+  "spec": "docs/methodology/cmi-v1.0.md",
+  "methodology_version": "1.0",
+  "narratives": ["INFRA", "AGENTS", "TOKENS"],
+  "classify": [
+    {"name": "clear argmax", "scores": {"INFRA": 7000, "AGENTS": 2000}, "entry_threshold_bps": 4000, "expected": "INFRA"},
+    {"name": "best score below entry threshold is OTHER", "scores": {"INFRA": 3999, "AGENTS": 1000}, "entry_threshold_bps": 4000, "expected": "OTHER"},
+    {"name": "best score exactly at threshold enters", "scores": {"AGENTS": 4000}, "entry_threshold_bps": 4000, "expected": "AGENTS"},
+    {"name": "tie goes to the earlier narrative", "scores": {"TOKENS": 6000, "INFRA": 6000}, "entry_threshold_bps": 4000, "expected": "INFRA"},
+    {"name": "no scores is OTHER", "scores": {}, "entry_threshold_bps": 0, "expected": "OTHER"},
+    {"name": "all zero is OTHER even with threshold 0", "scores": {"INFRA": 0}, "entry_threshold_bps": 0, "expected": "OTHER"}
+  ],
+  "credibility": [
+    {"name": "new human account hits the floor", "age_days": 0, "bot_bps": 0, "listed": false, "expected": 1000},
+    {"name": "year-old human account", "age_days": 365, "bot_bps": 0, "listed": false, "expected": 10000},
+    {"name": "age is capped", "age_days": 3650, "bot_bps": 0, "listed": false, "expected": 10000},
+    {"name": "half bot, listed, doubles", "age_days": 730, "bot_bps": 5000, "listed": true, "expected": 10000},
+    {"name": "full bot weighs nothing", "age_days": 100, "bot_bps": 10000, "listed": false, "expected": 0}
+  ],
+  "decay": [
+    {"age_seconds": 0, "expected": 1000000000000},
+    {"age_seconds": 86400, "expected": 707106781187},
+    {"age_seconds": 172800, "expected": 500000000000},
+    {"age_seconds": 345600, "expected": 250000000000}
+  ],
+  "largest_remainder": [
+    {"name": "three equal shares, first gets the extra unit", "raw": {"INFRA": 1, "AGENTS": 1, "TOKENS": 1, "OTHER": 0}, "expected": {"INFRA": 3334, "AGENTS": 3333, "TOKENS": 3333, "OTHER": 0}},
+    {"name": "exact split needs no extra", "raw": {"INFRA": 1, "AGENTS": 3, "TOKENS": 0, "OTHER": 1}, "expected": {"INFRA": 2000, "AGENTS": 6000, "TOKENS": 0, "OTHER": 2000}},
+    {"name": "largest remainder wins over order", "raw": {"INFRA": 1, "AGENTS": 2, "TOKENS": 0, "OTHER": 0}, "expected": {"INFRA": 3333, "AGENTS": 6667, "TOKENS": 0, "OTHER": 0}}
+  ],
+  "cmi": [
+    {
+      "name": "two equal fresh posts split evenly",
+      "day_end": 1000000000, "platforms_with_data": 3,
+      "posts": [
+        {"id": "a", "platform": "farcaster", "created_at": 1000000000, "credibility_bps": 10000, "label": "INFRA"},
+        {"id": "b", "platform": "bluesky", "created_at": 1000000000, "credibility_bps": 10000, "label": "AGENTS"}
+      ],
+      "expected": {"values": {"INFRA": 5000, "AGENTS": 5000, "TOKENS": 0, "OTHER": 0}, "stale_reason": null, "posts_used": 2}
+    },
+    {
+      "name": "a post 48 hours old counts half",
+      "day_end": 1000000000, "platforms_with_data": 2,
+      "posts": [
+        {"id": "a", "platform": "farcaster", "created_at": 999827200, "credibility_bps": 10000, "label": "INFRA"},
+        {"id": "b", "platform": "bluesky", "created_at": 1000000000, "credibility_bps": 10000, "label": "AGENTS"}
+      ],
+      "expected": {"values": {"INFRA": 3333, "AGENTS": 6667, "TOKENS": 0, "OTHER": 0}, "stale_reason": null, "posts_used": 2}
+    },
+    {
+      "name": "OTHER takes its share",
+      "day_end": 1000000000, "platforms_with_data": 3,
+      "posts": [
+        {"id": "a", "platform": "x", "created_at": 1000000000, "credibility_bps": 10000, "label": "TOKENS"},
+        {"id": "b", "platform": "x", "created_at": 1000000000, "credibility_bps": 30000, "label": "OTHER"}
+      ],
+      "expected": {"values": {"INFRA": 0, "AGENTS": 0, "TOKENS": 2500, "OTHER": 7500}, "stale_reason": null, "posts_used": 2}
+    },
+    {
+      "name": "one platform is not enough",
+      "day_end": 1000000000, "platforms_with_data": 1,
+      "posts": [
+        {"id": "a", "platform": "farcaster", "created_at": 1000000000, "credibility_bps": 10000, "label": "INFRA"}
+      ],
+      "expected": {"values": null, "stale_reason": "platforms", "posts_used": 0}
+    },
+    {
+      "name": "no posts is a stale day",
+      "day_end": 1000000000, "platforms_with_data": 3,
+      "posts": [],
+      "expected": {"values": null, "stale_reason": "zero_total", "posts_used": 0}
+    },
+    {
+      "name": "posts outside the lookback or after day end are ignored",
+      "day_end": 1000000000, "platforms_with_data": 3,
+      "posts": [
+        {"id": "old", "platform": "x", "created_at": 999395199, "credibility_bps": 10000, "label": "INFRA"},
+        {"id": "future", "platform": "x", "created_at": 1000000001, "credibility_bps": 10000, "label": "INFRA"},
+        {"id": "edge", "platform": "x", "created_at": 999395200, "credibility_bps": 10000, "label": "AGENTS"}
+      ],
+      "expected": {"values": {"INFRA": 0, "AGENTS": 10000, "TOKENS": 0, "OTHER": 0}, "stale_reason": null, "posts_used": 1}
+    },
+    {
+      "name": "only zero-credibility posts is a stale day",
+      "day_end": 1000000000, "platforms_with_data": 3,
+      "posts": [
+        {"id": "bot", "platform": "x", "created_at": 1000000000, "credibility_bps": 0, "label": "INFRA"}
+      ],
+      "expected": {"values": null, "stale_reason": "zero_total", "posts_used": 1}
+    }
+  ]
+}
