@@ -24,6 +24,7 @@ None of the first-party candidates has a clear written permission to store price
 | Akash | No price API; public web table (not hourly); `/v1/providers` has capacity only | Not applicable | Not found | No license stated | Disabled in v1 unless owner approves scraping |
 | io.net | Yes, CaaS hardware list | Required | Not found | Not found | Price unit unknown |
 | Texel | `GET /gpus` lists open GPU ids only, no prices; prices only on the marketplace web page | Not needed for `/gpus` | Not found | No terms page found | No price API; scraping needs owner decision |
+| Verda | Yes, `GET /v1/instance-types`, public without a key | Not needed | 500/min per project (authenticated); none stated for open endpoints | Clauses 1 to 8.4 do not bar automated reads or index use; clause 3.3 makes the pricing page their IP; AUP summary bars malicious scrapers and derivative works | Ask; internal testing only |
 | Vultr | Not read | Unknown | Unknown | Not read | Unverified, site refused automated reads |
 | getdeploying.com | Yes, aggregator | Bearer, paid | 3,000 per day | Derived products allowed, redistribution of raw data prohibited | Aggregator, not independent |
 | GPUPerHour | Yes, aggregator | Documented as none | Not stated | Programmatic access requires a license | Aggregator, owner conflict of interest |
@@ -148,6 +149,13 @@ The index is USD per GPU-hour. Providers differ, so the collector must normalize
 - Two prices per GPU: "Listed" (for example H100 SXM 3.99) and "on Texel" (2.79). The second looks like a launch discount of about 30%. The collector uses the listed price so the series does not jump when the discount ends. Owner to confirm.
 - Independence: the listed prices equal RunPod Secure for H200 (5.29), B200 (7.99) and RTX 4090 (0.89), and differ for H100 and A100. Texel may resell capacity at another provider's list prices. Until that is clarified, do not count it as an independent source toward the 5-source minimum.
 - Verdict: no price API; the collector (`texel`) scrapes the page and is off by default. Terms are not found, so ask Texel in writing about index use. `/gpus` can serve only as an availability signal.
+
+## Verda
+
+- Docs: https://api.verda.com/v1/docs (OpenAPI at `/v1/openapi.json`), changelog entry 2026-03-19 states that `/v1/instance-types` and a few other endpoints are public. Read 2026-11-25.
+- Terms: https://verda.com/terms-and-conditions (last updated October 30, 2026), clauses 1 to 8.4 read verbatim. No clause on scraping, republishing prices or indexes. Clause 3.3 makes the pricing page ("Service Description") their intellectual property. Schedule 1 (acceptable use) was seen only as a model summary: bars malicious scrapers and bots, derivative works of the Service, and a competing product. Verify the wording on the live page before relying on it.
+- Live call 2026-11-25 (one GET, no key, HTTP 200, 84 instance types): each type has `location_prices` (FIN-01 to FIN-03) with `price_per_hour` as a string, `currency` `usd`, `gpu.number_of_gpus` and `name`. Single-GPU on-demand: B200 SXM6 180GB 9.844 / 9.844 / 9.508, H200 SXM5 141GB 7.184 / 6.701 / 6.701, H100 SXM5 80GB 5.241, A100 SXM4 80GB 2.386. Third-party blogs list far lower B200 prices; the API is the source.
+- Collector (`verda`): single-GPU instances of the four SXM models only, median across locations, `CC` variants and other memory sizes ignored. Availability is a separate endpoint and is not read, so a listed price may have no stock. Off unless `COLLECTOR_VERDA_ENABLED=true`. Internal testing until Verda confirms index use in writing.
 
 ## Vultr
 
