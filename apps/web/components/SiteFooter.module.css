@@ -75,3 +75,9 @@
 .grid h4.follow {
   margin-top: 28px;
 }
+
+.chain {
+  margin-left: auto;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}

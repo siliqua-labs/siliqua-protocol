@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { chainLabel } from "../lib/chainLabel";
 import { Logo } from "./Logo";
 import { PlaceholderLink } from "./PlaceholderLink";
 import styles from "./SiteFooter.module.css";
@@ -25,6 +26,7 @@ const columns = [
 ] as const;
 
 export function SiteFooter() {
+  const chain = chainLabel(process.env);
   return (
     <footer className={styles.footer}>
       <div className={styles.grid}>
@@ -69,6 +71,7 @@ export function SiteFooter() {
         <span>© 2026 Siliqua</span>
         <Link href="/privacy">Privacy</Link>
         <Link href="/terms">Terms</Link>
+        {chain ? <span className={styles.chain}>{chain}</span> : null}
       </div>
     </footer>
   );
