@@ -1,0 +1,25 @@
+# Relayer, indexer and market-keeper share one image; the SERVICE variable picks which one runs
+# (relayer, indexer or market-keeper). Make one Railway service per role.
+# Build context is the repository root (leave Root Directory empty on the Railway service).
+# Set RAILWAY_DOCKERFILE_PATH=deploy/Dockerfile.chain on each service.
+FROM node:24-slim
+
+ENV NODE_ENV=production
+WORKDIR /app
+RUN corepack enable
+
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY services/api/package.json services/api/
+COPY services/indexer/package.json services/indexer/
+COPY services/market-keeper/package.json services/market-keeper/
+COPY packages/chain/package.json packages/chain/
+COPY apps/web/package.json apps/web/
+RUN pnpm install --frozen-lockfile --prod \
+    --filter @siliqua/api... --filter @siliqua/indexer... --filter @siliqua/market-keeper...
+
+COPY services services
+COPY packages packages
+COPY deploy/chain-service.sh deploy/chain-service.sh
+
+USER node
+CMD ["bash", "deploy/chain-service.sh"]

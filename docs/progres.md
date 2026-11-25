@@ -42,7 +42,7 @@ Before deploying:
 3. Code freeze and tag (ROADMAP 6.2). A contract change after deploy means a new deployment.
 4. Owner runs the script (`forge script ... --account <keystore> --broadcast`); the transfer to ADMIN has no acceptance step, so check the ADMIN address twice.
 
-After deploy: set `CHAIN_ENV`, `RPC_URL`, `FACTORY_ADDRESS` on Vercel and Railway; deploy indexer, market-keeper and relayer on Railway; operator-node waits for approval of the `eth-account` dependency; create a test market.
+After deploy: set `CHAIN_ENV`, `RPC_URL`, `FACTORY_ADDRESS` on Vercel and Railway; deploy indexer, market-keeper and relayer on Railway; `oracle-node` is written (`workers/oracle-node`, `eth-account` approved 2026-11-25); the full order is in `docs/testnet-deploy.md`; create a test market.
 
 ## Mainnet admin (later)
 
