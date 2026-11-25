@@ -172,6 +172,8 @@ export function NarrativeTreemap({ bps }: { bps: Record<Narrative, number> }) {
                 color: narrativeStyle(NARRATIVES, n).text,
                 padding: 10,
                 minWidth: 0,
+                overflow: "hidden",
+                overflowWrap: "anywhere",
                 border: "1px solid var(--bg)",
               }}
             >

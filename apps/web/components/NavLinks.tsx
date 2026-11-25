@@ -4,11 +4,14 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import styles from "./SiteHeader.module.css";
+import { WalletButton } from "./WalletButton";
+import { XLink } from "./XLink";
 
 const links = [
   ["/", "Indexes"],
   ["/narratives", "Narratives"],
   ["/markets", "Markets"],
+  ["/portfolio", "Portfolio"],
   ["/methodology", "Methodology"],
   ["/oracle", "Oracle"],
   ["/data", "Data & API"],
@@ -49,6 +52,10 @@ export function NavLinks() {
             </Link>
           );
         })}
+        <div className={styles.extras}>
+          <WalletButton />
+          <XLink />
+        </div>
       </nav>
     </>
   );

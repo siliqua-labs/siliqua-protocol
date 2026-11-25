@@ -69,7 +69,7 @@
   border-color: var(--em);
 }
 
-@media (max-width: 860px) {
+@media (max-width: 1040px) {
   .toggle {
     display: block;
   }
@@ -91,13 +91,26 @@
   }
 }
 
-@media (max-width: 860px) {
-  .social {
+.extras {
+  display: none;
+}
+
+@media (max-width: 1040px) {
+  .header > .social,
+  .header > .wallet {
     display: none;
   }
 
-  .wallet {
-    display: none;
+  .nav .extras {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-top: 12px;
+  }
+
+  .nav .extras a {
+    padding: 0;
+    border: 1px solid var(--ln);
   }
 }
 

@@ -14,7 +14,9 @@ function Formula({ label, children }: { label: string; children: ReactNode }) {
       <p className="label" style={{ margin: "0 0 8px" }}>
         {label}
       </p>
-      <math display="block">{children}</math>
+      <div style={{ overflowX: "auto" }}>
+        <math display="block">{children}</math>
+      </div>
     </div>
   );
 }
