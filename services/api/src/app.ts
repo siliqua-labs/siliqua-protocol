@@ -4,6 +4,7 @@ import type { Pool } from "pg";
 import { type ReportBoardConfig, registerReportBoard } from "./board.ts";
 import { findMarket, listMarkets } from "./marketView.ts";
 import { isoSeconds, medianMicro } from "./money.ts";
+import { loadNarratives } from "./narrativesView.ts";
 import { indexLabels, loadOracleView } from "./oracleView.ts";
 import {
   buildSeries,
@@ -156,6 +157,8 @@ export async function buildApp(
       return body;
     },
   );
+
+  app.get("/v1/narratives", () => loadNarratives(pool));
 
   registerReportBoard(app, pool, options.reportBoard);
 

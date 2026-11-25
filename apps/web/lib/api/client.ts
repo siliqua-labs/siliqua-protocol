@@ -20,7 +20,7 @@ import type {
 
 // Single seam the pages read through. Index data comes from `api` when
 // API_BASE_URL is set; without it the pages show sample data and say so.
-// Narratives stay on samples until their service exists. Markets read /v1/markets once RPC_URL and FACTORY_ADDRESS are set. The oracle page reads
+// Narratives read /v1/narratives and are empty until the first CMI day is computed. Markets read /v1/markets once RPC_URL and FACTORY_ADDRESS are set. The oracle page reads
 // /v1/oracle, which answers 503 until the oracle is configured on that deployment.
 const REVALIDATE_SECONDS = 60;
 
@@ -66,7 +66,14 @@ export async function getIndexDetail(
 }
 
 export async function getNarratives(): Promise<NarrativesResponse> {
-  return mockNarratives();
+  if (!process.env.API_BASE_URL) return mockNarratives();
+  const body = await fetchApi<
+    Omit<NarrativesResponse, "methodologyVersion"> & {
+      methodologyVersion: string | null;
+    }
+  >("/v1/narratives");
+  if (!body) throw new Error("GET /v1/narratives returned 404");
+  return { ...body, methodologyVersion: body.methodologyVersion ?? "1.0" };
 }
 
 // Markets are real only when the API and the chain are both configured; otherwise the page shows

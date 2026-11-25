@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { NarrativeArea } from "../../components/charts";
 import { NarrativeExplorer } from "../../components/NarrativeExplorer";
-import { DataTable, SampleTag } from "../../components/primitives";
+import { DataTable, Notice, SampleTag } from "../../components/primitives";
 import ui from "../../components/ui.module.css";
 import { getNarratives } from "../../lib/api/client";
 import { NARRATIVES } from "../../lib/api/types";
@@ -10,7 +10,8 @@ import { formatBpsPercent } from "../../lib/format";
 export const metadata: Metadata = { title: "Narratives" };
 
 export default async function NarrativesPage() {
-  const { days, posts } = await getNarratives();
+  const { days, posts, isSample } = await getNarratives();
+  const sample = isSample ? <SampleTag /> : null;
   const recent = days.slice(-7).reverse();
   return (
     <div className={ui.page}>
@@ -21,25 +22,23 @@ export default async function NarrativesPage() {
         Where attention goes<span style={{ color: "var(--em)" }}>.</span>
       </h1>
       <p style={{ marginTop: 20 }}>
-        Daily shares of compute narratives. Always 10,000 bps in total.{" "}
-        <SampleTag /> There is no CMI market in v1.
+        Daily shares of compute narratives. Always 10,000 bps in total. {sample}{" "}
+        There is no CMI market in v1.
       </p>
-      <NarrativeExplorer days={days} />
+      {days.length === 0 ? (
+        <Notice>No CMI day has been computed yet.</Notice>
+      ) : (
+        <NarrativeExplorer days={days} />
+      )}
 
       <h3 className={ui.h3} style={{ marginTop: 48 }}>
         30 days
       </h3>
-      <NarrativeArea days={days} />
+      {days.length > 0 && <NarrativeArea days={days} />}
       <details style={{ marginTop: 10 }}>
         <summary className={`${ui.btn} ${ui.small}`}>View as table</summary>
         <div style={{ marginTop: 10 }}>
-          <DataTable
-            caption={
-              <>
-                CMI by day, bps <SampleTag />
-              </>
-            }
-          >
+          <DataTable caption={<>CMI by day, bps {sample}</>}>
             <thead>
               <tr>
                 <th scope="col">Date (UTC)</th>
@@ -79,7 +78,7 @@ export default async function NarrativesPage() {
           <DataTable
             caption={
               <>
-                {g.narrative} · highest-weighted posts <SampleTag />
+                {g.narrative} · highest-weighted posts {sample}
               </>
             }
           >
