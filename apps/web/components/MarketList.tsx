@@ -21,6 +21,8 @@ export function MarketList({
 }) {
   const [group, setGroup] = useState<MarketGroup>("active");
   const shown = markets.filter((m) => m.group === group);
+  // Live markets open as soon as the keeper creates them, so none is ever upcoming.
+  const tabs = isSample ? TABS : TABS.filter(([g]) => g !== "upcoming");
   return (
     <div>
       <div
@@ -29,7 +31,7 @@ export function MarketList({
         aria-label="Market state"
         style={{ marginTop: 32 }}
       >
-        {TABS.map(([g, label]) => (
+        {tabs.map(([g, label]) => (
           <button
             key={g}
             type="button"
