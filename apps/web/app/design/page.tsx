@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { FxControls, RetryButton } from "../../components/DesignControls";
 import { MarketCard } from "../../components/MarketCard";
 import {
@@ -12,7 +13,8 @@ import ui from "../../components/ui.module.css";
 import { getMarkets } from "../../lib/api/client";
 import type { ChipStatus } from "../../lib/api/types";
 
-// Internal reference page for the design system. Not linked from the nav, not indexed.
+// Internal reference page for the design system. Not linked from the nav, not indexed, and
+// not served in production.
 export const metadata: Metadata = {
   title: "Design system",
   robots: { index: false, follow: false },
@@ -42,6 +44,8 @@ const CHIPS: ChipStatus[] = [
 const heading = { margin: "48px 0 16px" } as const;
 
 export default async function DesignPage() {
+  // Internal reference sheet: development only, production answers 404.
+  if (process.env.NODE_ENV === "production") notFound();
   const { markets } = await getMarkets();
   const open = markets.find((m) => m.status === "OPEN");
   return (

@@ -11,7 +11,6 @@ import { getIndexDetail, getIndexes } from "../../../lib/api/client";
 import {
   changeTone,
   formatChange,
-  formatMicro,
   formatUsd,
   formatUtc,
 } from "../../../lib/format";
@@ -39,17 +38,16 @@ export default async function GpuPage({ params }: { params: Promise<Params> }) {
   if (!d) notFound();
   const { index: i } = d;
   const published = i.status !== "INSUFFICIENT_SOURCES";
-  const api = `GET /v1/index/${i.indexId}
+  const api = `GET /v1/indexes/${i.slug}
 
 ${JSON.stringify(
   {
-    id: i.indexId,
-    value: formatMicro(i.valueMicroUsd),
-    unit: "USD per GPU-hour",
+    indexId: i.indexId,
+    valueMicroUsd: i.valueMicroUsd,
     status: i.status,
-    valid_sources: i.validSources,
-    updated_at: i.updatedAt,
-    methodology: `v${d.methodologyVersion}-draft`,
+    validSources: i.validSources,
+    updatedAt: i.updatedAt,
+    methodologyVersion: d.methodologyVersion,
   },
   null,
   2,
@@ -116,6 +114,7 @@ ${JSON.stringify(
         indexId={i.indexId}
         points={d.history.points}
         endAt={d.history.endAt}
+        isSample={d.isSample}
       />
 
       <h3 className={ui.h3}>Spread across sources</h3>
@@ -169,13 +168,7 @@ ${JSON.stringify(
       </div>
 
       <div style={{ marginTop: 24 }}>
-        <DataTable
-          caption={
-            <>
-              Sources <SampleTag />
-            </>
-          }
-        >
+        <DataTable caption={<>Sources {d.isSample ? <SampleTag /> : null}</>}>
           <thead>
             <tr>
               <th scope="col">Source</th>

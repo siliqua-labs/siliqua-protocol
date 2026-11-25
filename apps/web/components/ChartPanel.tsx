@@ -21,6 +21,7 @@ type Props = {
   caption: string;
   summary: string;
   thresholdMicroUsd?: string;
+  isSample: boolean;
 };
 
 // Plot geometry may use floats; labels and table values come from the integer strings.
@@ -30,6 +31,7 @@ export function ChartPanel({
   caption,
   summary,
   thresholdMicroUsd,
+  isSample,
 }: Props) {
   const [active, setActive] = useState<number | null>(null);
   const [showTable, setShowTable] = useState(false);
@@ -189,7 +191,7 @@ export function ChartPanel({
         hidden={!showTable}
         caption={
           <>
-            {caption} · latest 48 hours <SampleTag />
+            {caption} · latest 48 hours {isSample ? <SampleTag /> : null}
           </>
         }
       >

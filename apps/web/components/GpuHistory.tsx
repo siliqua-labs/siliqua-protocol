@@ -18,10 +18,12 @@ export function GpuHistory({
   indexId,
   points,
   endAt,
+  isSample,
 }: {
   indexId: string;
   points: HistoryPoint[];
   endAt: string | null;
+  isSample: boolean;
 }) {
   const [range, setRange] = useState<(typeof RANGES)[number][0]>("7D");
   if (endAt === null || points.length === 0) {
@@ -54,6 +56,7 @@ export function GpuHistory({
         endAt={endAt}
         caption={`${indexId} · ${range}`}
         summary={summary}
+        isSample={isSample}
       />
     </div>
   );

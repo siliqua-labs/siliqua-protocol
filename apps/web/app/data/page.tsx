@@ -2,53 +2,76 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { CopyButton } from "../../components/CopyButton";
 import { DataTable, SampleTag } from "../../components/primitives";
-import { StatusChip } from "../../components/StatusChip";
 import ui from "../../components/ui.module.css";
+import { getIndexDetail, getIndexes } from "../../lib/api/client";
+import { formatUtc } from "../../lib/format";
 
 export const metadata: Metadata = { title: "Data & API" };
 
-const ENDPOINTS = [
+const ROUTES = [
+  ["GET /v1/indexes", "Every index with its latest value, changes and status."],
   [
-    "GET /v1/index",
-    `{
-  "methodologyVersion": "1.0",
-  "indexes": [{ "id": "GRI-H100", "value": "2.410000", "status": "LIVE" }]
-}`,
+    "GET /v1/indexes/{slug}",
+    "One index: hourly history, the sources behind the latest hour, median and 24-hour TWAP.",
   ],
-  [
-    "GET /v1/index/GRI-H100/history?from=2026-11-20T00:00:00Z&to=2026-11-21T00:00:00Z&interval=1h",
-    `{
-  "methodologyVersion": "1.0",
-  "id": "GRI-H100",
-  "points": [{ "t": "2026-11-20T00:00:00Z", "value": "2.398000", "stale": false }]
-}`,
-  ],
-  [
-    "GET /v1/index/GRI-H100/sources?at=2026-11-21T08:00:00Z",
-    `{
-  "methodologyVersion": "1.0",
-  "sources": [{ "name": "Source 01", "price": "2.41", "included": true }]
-}`,
-  ],
-  [
-    "GET /v1/methodology",
-    `{
-  "version": "1.0"
-}`,
-  ],
+  ["GET /v1/narratives", "Daily CMI shares and the top posts by credibility."],
+  ["GET /v1/markets", "Markets read from the factory contract."],
+  ["GET /v1/markets/{address}", "One market by contract address."],
+  ["GET /v1/oracle", "Operators, recent slots and rejected reports."],
 ] as const;
 
-const SOURCE_CLASSES = [
-  "H100, H200",
-  "H100, A100",
-  "H100, H200, B200",
-  "H100, H200, A100",
-  "H200, B200",
-  "A100, RTX 4090",
-  "RTX 4090",
-];
+export default async function DataPage() {
+  const list = await getIndexes();
+  const details = await Promise.all(
+    list.indexes.map((i) => getIndexDetail(i.slug)),
+  );
+  const first = details.find((d) => d !== null);
 
-export default function DataPage() {
+  const providers = new Map<string, { classes: string[]; fetchedAt: string }>();
+  for (const detail of details) {
+    if (!detail) continue;
+    for (const source of detail.sources) {
+      const entry = providers.get(source.name) ?? {
+        classes: [],
+        fetchedAt: source.fetchedAt,
+      };
+      entry.classes.push(detail.index.indexId);
+      if (source.fetchedAt > entry.fetchedAt)
+        entry.fetchedAt = source.fetchedAt;
+      providers.set(source.name, entry);
+    }
+  }
+
+  const listExample = `GET /v1/indexes\n\n${JSON.stringify(
+    {
+      methodologyVersion: list.methodologyVersion,
+      isSample: list.isSample,
+      indexes: list.indexes.slice(0, 1),
+    },
+    null,
+    2,
+  )}`;
+  const detailExample = first
+    ? `GET /v1/indexes/${first.index.slug}\n\n${JSON.stringify(
+        {
+          methodologyVersion: first.methodologyVersion,
+          isSample: first.isSample,
+          index: first.index,
+          history: {
+            endAt: first.history.endAt,
+            points: first.history.points.slice(-2),
+          },
+          reportingSources: first.reportingSources,
+          sources: first.sources.slice(0, 2),
+          medianMicroUsd: first.medianMicroUsd,
+          twap24hMicroUsd: first.twap24hMicroUsd,
+        },
+        null,
+        2,
+      )}`
+    : null;
+  const base = process.env.API_BASE_URL;
+
   return (
     <div className={ui.page}>
       <p className="label">
@@ -58,55 +81,69 @@ export default function DataPage() {
         Data and API<span style={{ color: "var(--em)" }}>.</span>
       </h1>
       <p style={{ marginTop: 20 }}>
-        Read-only v1 endpoints. Responses below are <SampleTag /> Cursor
-        pagination, errors as <code>{'{"error":{"code","message"}}'}</code>, 60
-        requests per minute per IP.
+        Read-only v1 endpoints, open to any origin. Errors come as{" "}
+        <code>{'{"error":{"code","message"}}'}</code>, 60 requests per minute
+        per IP. Prices are integer micro-USD strings: 1,000,000 is one US
+        dollar. {list.isSample ? <SampleTag /> : null}
       </p>
-      {ENDPOINTS.map(([title, body]) => {
-        const text = `${title}\n\n${body}`;
-        return (
-          <div key={title}>
-            <h3
-              style={{
-                margin: "36px 0 10px",
-                fontSize: 15,
-                wordBreak: "break-all",
-              }}
-            >
-              {title}
+      {base ? (
+        <p>
+          Base URL: <code>{base}</code>
+        </p>
+      ) : null}
+
+      <div style={{ marginTop: 32 }}>
+        <DataTable caption="Endpoints">
+          <thead>
+            <tr>
+              <th scope="col">Route</th>
+              <th scope="col">Returns</th>
+            </tr>
+          </thead>
+          <tbody>
+            {ROUTES.map(([route, text]) => (
+              <tr key={route}>
+                <td>{route}</td>
+                <td>{text}</td>
+              </tr>
+            ))}
+          </tbody>
+        </DataTable>
+      </div>
+
+      {[listExample, detailExample].map((text) =>
+        text ? (
+          <div key={text.split("\n")[0]}>
+            <h3 style={{ margin: "36px 0 10px", fontSize: 15 }}>
+              {text.split("\n")[0]}
             </h3>
             <pre className={ui.code}>
               <code>{text}</code>
             </pre>
             <CopyButton text={text} />
           </div>
-        );
-      })}
+        ) : null,
+      )}
+
       <div style={{ marginTop: 40 }}>
         <DataTable
-          caption={
-            <>
-              Sources <SampleTag />
-            </>
-          }
+          caption={<>Sources {first?.isSample ? <SampleTag /> : null}</>}
         >
           <thead>
             <tr>
               <th scope="col">Source</th>
-              <th scope="col">GPU classes</th>
+              <th scope="col">Indexes</th>
+              <th scope="col">Last fetched</th>
               <th scope="col">Redistribution</th>
-              <th scope="col">Status</th>
             </tr>
           </thead>
           <tbody>
-            {SOURCE_CLASSES.map((g, i) => (
-              <tr key={g + String(i)}>
-                <td>Source 0{i + 1}</td>
-                <td>{g}</td>
-                <td>to be verified</td>
-                <td>
-                  <StatusChip status={i === 6 ? "STALE" : "LIVE"} />
-                </td>
+            {[...providers.entries()].sort().map(([name, entry]) => (
+              <tr key={name}>
+                <td>{name}</td>
+                <td>{entry.classes.join(", ")}</td>
+                <td>{formatUtc(entry.fetchedAt)}</td>
+                <td>terms not confirmed</td>
               </tr>
             ))}
           </tbody>

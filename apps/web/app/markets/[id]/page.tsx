@@ -136,8 +136,17 @@ export default async function MarketPage({
         points={d.windowPoints}
         endAt={d.windowEndAt}
         thresholdMicroUsd={m.thresholdMicroUsd}
-        caption="GRI-H100 hourly prints, TWAP window sample"
-        summary="Sample hourly prints inside a TWAP window, with the threshold."
+        caption={
+          d.isSample
+            ? "GRI-H100 hourly prints, TWAP window sample"
+            : "Hourly prints in the TWAP window"
+        }
+        summary={
+          d.isSample
+            ? "Sample hourly prints inside a TWAP window, with the threshold."
+            : "Hourly prints inside the TWAP window, with the threshold."
+        }
+        isSample={d.isSample}
       />
 
       <h3 className={ui.h3}>Your position</h3>
