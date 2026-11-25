@@ -3,8 +3,8 @@
 import { useAppState } from "./AppState";
 import styles from "./XLink.module.css";
 
-// Set NEXT_PUBLIC_X_URL to the profile URL once the account exists.
-const X_URL = process.env.NEXT_PUBLIC_X_URL;
+// The profile URL is public. NEXT_PUBLIC_X_URL overrides it, for example on a preview deployment.
+const X_URL = process.env.NEXT_PUBLIC_X_URL ?? "https://x.com/SiliquaCompute";
 
 export function XLink({ className }: { className?: string }) {
   const { toast } = useAppState();
