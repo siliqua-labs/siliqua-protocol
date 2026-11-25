@@ -30,6 +30,8 @@ export const erc20Abi = parseAbi([
   "function balanceOf(address) view returns (uint256)",
   "function allowance(address owner, address spender) view returns (uint256)",
   "function approve(address spender, uint256 amount) returns (bool)",
+  // Only the testnet test token has it; the mainnet USDG does not.
+  "function faucet()",
 ]);
 
 export const pauseAbi = parseAbi(["function paused() view returns (bool)"]);

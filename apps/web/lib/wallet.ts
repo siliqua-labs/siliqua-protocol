@@ -29,6 +29,8 @@ export type LiveConfig = WalletChain & {
   tokenSymbol: string;
   decimals: number;
   feeBps: number;
+  // True only for the open test token on the testnet, so the ticket may offer free tokens.
+  testFaucet: boolean;
 };
 
 type Eip1193 = {

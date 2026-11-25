@@ -113,6 +113,7 @@ export function liveConfig(
     tokenSymbol: chains[config.chainEnv].token.symbol,
     decimals,
     feeBps,
+    testFaucet: config.chainEnv === "testnet",
   };
 }
 

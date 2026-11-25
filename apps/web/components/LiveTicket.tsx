@@ -179,6 +179,33 @@ export function LiveTicket({
     }
   }
 
+  async function getTestTokens() {
+    if (!account) return;
+    setBusy(true);
+    setFailed(false);
+    try {
+      const { publicClient, walletClient, chain } = await walletClients(config);
+      const { request } = await publicClient.simulateContract({
+        account,
+        address: config.token,
+        abi: erc20Abi,
+        functionName: "faucet",
+      });
+      setStatus("Confirm in your wallet to receive free test tokens.");
+      const hash = await walletClient.writeContract({ ...request, chain });
+      setStatus("Waiting for the tokens…");
+      const receipt = await publicClient.waitForTransactionReceipt({ hash });
+      if (receipt.status !== "success") throw new Error("Faucet reverted.");
+      setStatus(`Test tokens received: ${explorerTx(config, hash)}`);
+      await refresh();
+    } catch (error) {
+      setFailed(true);
+      setStatus(errorText(error));
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function connect() {
     setBusy(true);
     setFailed(false);
@@ -249,6 +276,19 @@ export function LiveTicket({
           </button>
           {blocker ? (
             <p style={{ fontSize: 12, marginTop: 8 }}>{blocker}</p>
+          ) : null}
+          {config.testFaucet ? (
+            <p style={{ fontSize: 12, marginTop: 8 }}>
+              Testnet only: no test {symbol}?{" "}
+              <button
+                type="button"
+                className={`${ui.btn} ${ui.small}`}
+                disabled={busy}
+                onClick={getTestTokens}
+              >
+                Get free test {symbol}
+              </button>
+            </p>
           ) : null}
         </>
       ) : (
