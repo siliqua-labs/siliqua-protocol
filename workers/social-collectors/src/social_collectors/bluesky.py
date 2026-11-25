@@ -46,12 +46,16 @@ class BlueskySession:
         self._access_jwt = body["accessJwt"]
         self._refresh_jwt = body["refreshJwt"]
 
-    def search(self, query: str, limit: int, cursor: str | None = None) -> bytes:
+    def search(
+        self, query: str, limit: int, cursor: str | None = None, since: str | None = None
+    ) -> bytes:
         if not self._access_jwt:
             self.login()
         params: dict[str, str | int] = {"q": query, "limit": limit}
         if cursor:
             params["cursor"] = cursor
+        if since:
+            params["since"] = since
         response = self._search_request(params)
         if response.status_code == 400 and response.json().get("error") == "ExpiredToken":
             self._refresh()
