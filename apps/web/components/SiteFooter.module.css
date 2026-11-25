@@ -39,6 +39,9 @@
 }
 
 .mark {
+  display: inline-flex;
+  gap: 10px;
+  align-items: center;
   font:
     900 18px var(--font-head),
     sans-serif;

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Logo } from "./Logo";
 import { PlaceholderLink } from "./PlaceholderLink";
 import styles from "./SiteFooter.module.css";
 import { XLink } from "./XLink";
@@ -28,7 +29,8 @@ export function SiteFooter() {
     <footer className={styles.footer}>
       <div className={styles.grid}>
         <div>
-          <Link href="/" className={styles.mark}>
+          <Link href="/" className={styles.mark} aria-label="Siliqua home">
+            <Logo height={30} />
             SILIQUA
           </Link>
           <p className={styles.legal}>
