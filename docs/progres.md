@@ -50,18 +50,21 @@ Admin must be a multisig plus a timelock. Plan: three EOA signers on different d
 
 ## Stage 4: CMI
 
-Done: 4.2 terms and costs are in `docs/sources.md` ("Social platforms (CMI)"). Nothing built.
+Done: 4.2 terms and costs are in `docs/sources.md` ("Social platforms (CMI)"), with live read-only tests on 2026-11-25: Farcaster through Neynar Free works (10 credits per cast returned), Bluesky works with an app-password session, X returns 402 until credits exist. 4.1 spec `docs/methodology/cmi-v1.0.md` and 4.5 pure functions in `siliqua-index` with golden vectors `test-vectors/cmi-v1.0.json` (commit `b08a7c8`).
+
+Decision 2026-11-25: build CMI without X. X stays a separate collector, off by configuration (`X_BEARER_TOKEN` is not set on Railway) until credits exist. With X off, both Farcaster and Bluesky must return data for a day to publish (2 of 3 rule).
 
 Owner decisions open:
 
-1. X monthly budget. Reads cost 0.005 USD each (arithmetic: 1,000 posts per day about 150 USD per month, 10,000 per day about 1,500 USD).
-2. Farcaster through Neynar Free as a start. Neynar terms were not readable and the search credit cost is not in the table read.
-3. Bluesky: docs were not readable; read the docs source repository or make one test call of `app.bsky.feed.searchPosts`.
-4. Telegram: recommended off in v1. The API terms bar aggregating platform data for AI training and the bot terms bar scraping public channels into datasets.
-5. Whether post text may be stored for classifier work. X allows sharing IDs only; storage of text is not addressed.
-6. Keyword list and account (KOL) list; one or two people to label the 500 posts (A10); target precision and recall.
+1. Narrative list, keyword list and account (KOL) list; one or two people to label the 500 posts (A10); target precision and recall; entry threshold for OTHER. These block the collectors' queries and the classifier.
+2. Proposed credibility parameters in the spec (age floor 10%, cap 365 days, listed account x2).
+3. Neynar commercial use and derived data: ask Neynar Support (terms page unreadable).
+4. Bluesky: storage of posts, labels and scores is not addressed by the terms.
+5. Whether post text may be stored for classifier work.
+6. Telegram: recommended off in v1.
+7. X: monthly budget and index-derivative status, only if X is enabled later.
 
-Can start without owner input: 4.1 CMI v1 spec and 4.5 pure functions in `siliqua-index` with golden vectors.
+Next, after decision 1: social collectors for Farcaster and Bluesky (store IDs, labels, scores, model hash, not text), then the classifier, then the daily job in `index-engine`. The Bluesky collector must reuse its session (10 logins per day).
 
 ## Other open items
 
