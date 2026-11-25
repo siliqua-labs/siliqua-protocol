@@ -17,14 +17,14 @@ Robinhood Chain testnet (46630). One EOA (`ADMIN`) stands in for the multisig an
 From `contracts/`, with the variables above exported (`forge` reads `.env` only from its own directory):
 
 ```
-forge script script/DeployTestnet.s.sol --rpc-url https://rpc.testnet.chain.robinhood.com --account deployer
+forge script script/DeployTestnet.s.sol --rpc-url https://rpc.testnet.chain.robinhood.com --account deployer --sender <deployer address>
 ```
 
-Expect the three contract addresses and no revert.
+`--sender` must be the address of the keystore account: the script reads `msg.sender` as the deployer, and without the flag forge fails with a `msg.sender` error. On Windows PowerShell, put the Foundry `bin` folder (`%USERPROFILE%\.foundry\bin`) on PATH first. Expect the three contract addresses and no revert.
 
 ## 3. Deploy
 
-Same command with `--broadcast`. Keep the three printed addresses. The script registers the three operators, the five GRI indexes (`GRI-4090`, `-A100`, `-B200`, `-H100`, `-H200`, hourly, 6 decimals, 5 sources, 1% tolerance), one `FeeRouter`, one `MarketFactory` with the template (fee 2%, cap 1,000 tokens, 24h close, 24h TWAP, 6h stale limit), and registers the keeper.
+Same command with `--broadcast` added. Keep the three printed addresses. The script registers the three operators, the five GRI indexes (`GRI-4090`, `-A100`, `-B200`, `-H100`, `-H200`, hourly, 6 decimals, 5 sources, 1% tolerance), one `FeeRouter`, one `MarketFactory` with the template (fee 2%, cap 1,000 tokens, 24h close, 24h TWAP, 6h stale limit), and registers the keeper.
 
 Blockscout verification: `--verify --verifier blockscout --verifier-url https://explorer.testnet.chain.robinhood.com/api/`. The `/api/` path is the Blockscout convention and has not been matched against the chain docs.
 
@@ -36,7 +36,9 @@ Vercel: `CHAIN_ENV`, `RPC_URL`, `FACTORY_ADDRESS` (markets stop showing sample d
 
 ## 5. Railway: chain services
 
-Same project as `api`. Each is one service with `RAILWAY_DOCKERFILE_PATH=deploy/Dockerfile.chain` and a `SERVICE` value:
+**Small plan (current choice): inside `api`.** `deploy/api.sh` starts the indexer and relayer beside the api when `RUN_INDEXER=true` and `RUN_RELAYER=true`, each restarted on its own if it stops. Set on the `api` service: `RUN_INDEXER`, `RUN_RELAYER`, `INDEXER_START_BLOCK` (the deploy block), `RELAYER_PRIVATE_KEY`; `DATABASE_URL`, `RPC_URL`, `CHAIN_ID`, `ORACLE_ADDRESS`, `FACTORY_ADDRESS` and `ORACLE_OPERATORS` are already there from step 4. The market-keeper still needs its own service (below), or the same trick later.
+
+**Roomier plan: separate services.** Same project as `api`. Each is one service with `RAILWAY_DOCKERFILE_PATH=deploy/Dockerfile.chain` and a `SERVICE` value:
 
 | `SERVICE` | Variables |
 | --- | --- |

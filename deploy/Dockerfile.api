@@ -1,5 +1,7 @@
 # Build context is the repository root (leave Root Directory empty on the Railway service).
 # Node runs the TypeScript source directly, so nothing is compiled.
+# The image also carries the indexer; deploy/api.sh starts it, and the relayer, beside the api
+# when RUN_INDEXER and RUN_RELAYER are "true" (one service instead of three on a small plan).
 FROM node:24-slim
 
 ENV NODE_ENV=production
@@ -12,10 +14,12 @@ COPY services/indexer/package.json services/indexer/
 COPY services/market-keeper/package.json services/market-keeper/
 COPY packages/chain/package.json packages/chain/
 COPY apps/web/package.json apps/web/
-RUN pnpm install --frozen-lockfile --prod --filter @siliqua/api...
+RUN pnpm install --frozen-lockfile --prod --filter @siliqua/api... --filter @siliqua/indexer...
 
 COPY services/api services/api
+COPY services/indexer services/indexer
+COPY deploy/api.sh deploy/api.sh
 
 USER node
-WORKDIR /app/services/api
-CMD ["node", "src/main.ts"]
+WORKDIR /app
+CMD ["bash", "deploy/api.sh"]
