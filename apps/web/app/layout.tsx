@@ -28,8 +28,7 @@ const sans = Inter_Tight({
   variable: "--font-sans",
 });
 
-// shortcut: the Vercel domain stands in until a custom domain exists; then set SITE_URL.
-const SITE_URL = process.env.SITE_URL ?? "https://siliqua-compute.vercel.app";
+const SITE_URL = process.env.SITE_URL ?? "https://siliqua.tech";
 const TITLE = "Siliqua · The coin of compute";
 const DESCRIPTION =
   "Open, recomputable indexes of GPU rent and compute narratives.";
