@@ -1,7 +1,5 @@
 import Link from "next/link";
-import { chainLabel } from "../lib/chainLabel";
 import { Logo } from "./Logo";
-import { PlaceholderLink } from "./PlaceholderLink";
 import styles from "./SiteFooter.module.css";
 import { XLink } from "./XLink";
 
@@ -9,67 +7,64 @@ const columns = [
   [
     "Product",
     [
-      ["/", "Indexes"],
-      ["/narratives", "Narratives"],
-      ["/markets", "Markets"],
-      ["/portfolio", "Portfolio"],
+      ["Index", "/"],
+      ["Narrative", "/narratives"],
+      ["Markets", "/markets"],
+      ["Portfolio", "/portfolio"],
     ],
   ],
   [
-    "Transparency",
+    "Infrastructure",
     [
-      ["/methodology", "Methodology"],
-      ["/oracle", "Oracle"],
-      ["/data", "Data & API"],
+      ["Methodology", "/methodology"],
+      ["Oracles", "/oracle"],
+      ["Data Feed", "/data"],
+    ],
+  ],
+  [
+    "Resources",
+    [
+      ["Docs", "/docs"],
+      ["Whitepaper", "/whitepaper"],
+      ["FAQ", "/faq"],
     ],
   ],
 ] as const;
 
 export function SiteFooter() {
-  const chain = chainLabel(process.env);
   return (
     <footer className={styles.footer}>
       <div className={styles.grid}>
-        <div>
+        <div className={styles.brand}>
           <Link href="/" className={styles.mark} aria-label="Siliqua home">
-            <Logo height={30} />
+            <Logo height={40} />
             SILIQUA
           </Link>
-          {chain ? <p className={styles.chain}>{chain}</p> : null}
+          <p className={styles.tagline}>Onchain Wealth. With Discipline.</p>
           <XLink className={styles.social} />
         </div>
         {columns.map(([title, items]) => (
           <div key={title}>
             <h4>{title}</h4>
             <ul>
-              {items.map(([href, label]) => (
-                <li key={href}>
+              {items.map(([label, href]) => (
+                <li key={label}>
                   <Link href={href}>{label}</Link>
                 </li>
               ))}
             </ul>
           </div>
         ))}
-        <div>
-          <h4>Ecosystem</h4>
-          <ul>
-            <li>
-              <PlaceholderLink>Velamen</PlaceholderLink>
-            </li>
-            <li>
-              <PlaceholderLink>Stigmer</PlaceholderLink>
-            </li>
-          </ul>
-        </div>
       </div>
       <p className={styles.legal}>
-        Siliqua publishes index data only. Not a broker or adviser, and not
-        investment, legal or tax advice. Markets may be restricted in your
-        jurisdiction. Data may be delayed or stale.
+        Siliqua is a thematic onchain asset protocol. This site is for
+        informational purposes only and not financial advice.
       </p>
       <div className={styles.bottom}>
         <span>© 2026 Siliqua</span>
+        <span aria-hidden="true">·</span>
         <Link href="/privacy">Privacy</Link>
+        <span aria-hidden="true">·</span>
         <Link href="/terms">Terms</Link>
       </div>
     </footer>
