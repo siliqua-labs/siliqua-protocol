@@ -126,7 +126,8 @@ export function NarrativeBar({ bps }: { bps: Record<Narrative, number> }) {
       aria-label={`CMI shares: ${NARRATIVES.map((n) => `${n} ${share(bps, n)} bps`).join(", ")}`}
       style={{
         display: "flex",
-        height: 72,
+        // Segments never get narrower than their label, so small screens wrap them into rows.
+        flexWrap: "wrap",
         borderRadius: 6,
         overflow: "hidden",
         boxShadow: "var(--shadow)",
@@ -136,7 +137,9 @@ export function NarrativeBar({ bps }: { bps: Record<Narrative, number> }) {
         <div
           key={n}
           style={{
-            width: `${share(bps, n) / 100}%`,
+            flex: `${share(bps, n)} 1 0`,
+            minWidth: "max-content",
+            minHeight: 72,
             background: narrativeStyle(NARRATIVES, n).bg,
             color: narrativeStyle(NARRATIVES, n).text,
             display: "flex",

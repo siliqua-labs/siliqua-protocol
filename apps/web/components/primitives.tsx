@@ -32,7 +32,9 @@ export function DataTable({
   return (
     <div className={ui.tableWrap} hidden={hidden} id={id}>
       <table>
-        <caption>{caption}</caption>
+        <caption>
+          <span>{caption}</span>
+        </caption>
         {children}
       </table>
     </div>

@@ -184,7 +184,7 @@ twap(indexId, from, to)         // (value, usedSlots, staleSlots)`}</code>
       </p>
 
       <h3 id="source">Source documents</h3>
-      <ul className={ui.list}>
+      <ul className={`${ui.list} ${ui.links}`}>
         <li>
           <Link href="/whitepaper">Whitepaper</Link> and{" "}
           <Link href="/faq">FAQ</Link>

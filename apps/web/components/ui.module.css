@@ -262,6 +262,15 @@
   text-transform: uppercase;
 }
 
+/* The caption is as wide as the table; keep its text inside the visible part while it scrolls. */
+.tableWrap caption span {
+  display: block;
+  position: sticky;
+  left: 18px;
+  width: max-content;
+  max-width: calc(100vw - 2 * var(--pad) - 40px);
+}
+
 .tableWrap th {
   font:
     500 10.5px var(--font-mono),
@@ -460,6 +469,14 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
+  }
+
+  .links a,
+  .tableWrap td a {
+    display: inline-flex;
+    align-items: center;
+    min-width: 44px;
+    min-height: 44px;
   }
 
   .grid2,
