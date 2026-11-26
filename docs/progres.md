@@ -13,7 +13,7 @@ State on 2026-11-24. Last pushed commit: 8b0a0e1. Local only: b4625fe (social pl
 
 GRI at 2026-11-24 07:00 UTC: GRI-4090 and GRI-A100 live with 5 valid sources. GRI-B200, H100, H200 not published (hour 06:00 had 4, 3, 2 valid sources because three providers were switched on at 06:56). Check again after 08:05 UTC: expected H100 6 valid, B200 5 valid, H200 stays at 4 raw sources and cannot publish without a fifth provider.
 
-Vast.ai and RunPod terms bar index use without written agreement. Hyperstack clause 6.4 bars derivative works. Internal testing only; no value from them goes to a real market or a public index.
+Vast.ai and RunPod terms bar index use without written agreement. Hyperstack clause 6.4 bars derivative works. Verda and Nebius have not confirmed index use in writing. On 2026-11-26 this risk was accepted for the testnet only: their prices are in the public testnet index and markets. No value from them goes to a mainnet market or index without a separate decision.
 
 ## Chain configuration
 
