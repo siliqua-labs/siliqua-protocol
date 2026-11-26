@@ -14,6 +14,7 @@ import {
   connectWallet,
   disconnectWallet,
   errorText,
+  isRejection,
   useAccount,
   type WalletChain,
 } from "../lib/wallet";
@@ -87,6 +88,11 @@ export function AppStateProvider({
     connectWallet(chain).then(
       () => setStep("ok"),
       (error: unknown) => {
+        // The user closed the wallet prompt; there is nothing to report.
+        if (isRejection(error)) {
+          setStep("closed");
+          return;
+        }
         setFailure(errorText(error));
         setStep("error");
       },

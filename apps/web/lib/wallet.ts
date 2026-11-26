@@ -3,16 +3,15 @@
 import { useSyncExternalStore } from "react";
 import {
   type Address,
-  BaseError,
-  ContractFunctionRevertedError,
   createPublicClient,
   createWalletClient,
   custom,
   defineChain,
   getAddress,
-  UserRejectedRequestError,
 } from "viem";
-import { describeRevert } from "./tradeMath";
+import { isRejection, UserError } from "./walletError";
+
+export { errorText, isRejection, UserError } from "./walletError";
 
 // Everything the browser needs to talk to one verified chain and token. Built on the server from
 // @siliqua/chain, so a value reaches the wallet only if its flag was set.
@@ -46,7 +45,7 @@ declare global {
 
 function provider(): Eip1193 {
   if (!window.ethereum) {
-    throw new Error(
+    throw new UserError(
       "No browser wallet found. Install a wallet extension and reload.",
     );
   }
@@ -98,6 +97,18 @@ export function useAccount(): Address | null {
 }
 
 async function ensureChain(config: WalletChain): Promise<void> {
+  try {
+    await switchChain(config);
+  } catch (error) {
+    // Saying no here leaves the user on another network, so explain what is needed.
+    if (!isRejection(error)) throw error;
+    throw new UserError(
+      `Wrong network. Switch your wallet to ${config.chainName} to continue.`,
+    );
+  }
+}
+
+async function switchChain(config: WalletChain): Promise<void> {
   const p = provider();
   const wanted = `0x${config.chainId.toString(16)}`;
   const have = (await p.request({ method: "eth_chainId" })) as string;
@@ -154,7 +165,7 @@ export async function connectWallet(config: WalletChain): Promise<Address> {
     method: "eth_requestAccounts",
   })) as string[];
   const first = accounts[0];
-  if (!first) throw new Error("The wallet returned no account.");
+  if (!first) throw new UserError("The wallet returned no account.");
   await ensureChain(config);
   const account = getAddress(first);
   setAccount(account);
@@ -184,22 +195,4 @@ export async function walletClients(config: WalletChain) {
 
 export function explorerTx(config: WalletChain, hash: string): string {
   return `${config.explorerUrl}/tx/${hash}`;
-}
-
-/** A sentence for the user: a decoded contract error, a rejected prompt, or the raw message. */
-export function errorText(error: unknown): string {
-  if (error instanceof BaseError) {
-    if (error.walk((e) => e instanceof UserRejectedRequestError)) {
-      return "You rejected the request in the wallet.";
-    }
-    const reverted = error.walk(
-      (e) => e instanceof ContractFunctionRevertedError,
-    );
-    if (reverted instanceof ContractFunctionRevertedError) {
-      const known = describeRevert(reverted.data?.errorName);
-      if (known) return known;
-    }
-    return error.shortMessage;
-  }
-  return error instanceof Error ? error.message : String(error);
 }

@@ -13,7 +13,9 @@ import {
   connectWallet,
   errorText,
   explorerTx,
+  isRejection,
   type LiveConfig,
+  UserError,
   useAccount,
   walletClients,
 } from "../lib/wallet";
@@ -107,7 +109,7 @@ export function LiveTicket({
 
   useEffect(() => {
     refresh().catch((error) => {
-      setFailed(true);
+      setFailed(!isRejection(error));
       setStatus(errorText(error));
     });
   }, [refresh]);
@@ -129,7 +131,7 @@ export function LiveTicket({
     else if (stake > room) {
       blocker = `Over your remaining cap of ${formatUnitsText(room, config.decimals)} ${symbol}.`;
     } else if (stake > position.balance) {
-      blocker = `Your balance is ${formatUnitsText(position.balance, config.decimals)} ${symbol}.`;
+      blocker = `Not enough ${symbol}. Your balance is ${formatUnitsText(position.balance, config.decimals)}.`;
     }
   }
 
@@ -139,10 +141,9 @@ export function LiveTicket({
     setFailed(false);
     try {
       const { publicClient, walletClient, chain } = await walletClients(config);
-      if ((position?.allowance ?? 0n) < stake) {
-        setStatus(
-          "Approve in your wallet: exactly this amount, not unlimited.",
-        );
+      const approving = (position?.allowance ?? 0n) < stake;
+      if (approving) {
+        setStatus("Step 1 of 2: approve exactly this amount in your wallet.");
         const approval = await walletClient.writeContract({
           chain,
           account,
@@ -151,11 +152,13 @@ export function LiveTicket({
           functionName: "approve",
           args: [market, stake],
         });
-        setStatus("Waiting for the approval to confirm…");
+        setStatus("Step 1 of 2: waiting for the approval to confirm…");
         const receipt = await publicClient.waitForTransactionReceipt({
           hash: approval,
         });
-        if (receipt.status !== "success") throw new Error("Approval reverted.");
+        if (receipt.status !== "success") {
+          throw new UserError("The approval failed on chain.");
+        }
       }
       const { request } = await publicClient.simulateContract({
         account,
@@ -164,15 +167,25 @@ export function LiveTicket({
         functionName: "buy",
         args: [side === "YES", stake],
       });
-      setStatus("Confirm the buy in your wallet.");
+      setStatus(
+        approving
+          ? "Step 2 of 2: confirm the buy in your wallet."
+          : "Confirm the buy in your wallet.",
+      );
       const hash = await walletClient.writeContract({ ...request, chain });
-      setStatus("Waiting for the buy to confirm…");
+      setStatus(
+        approving
+          ? "Step 2 of 2: waiting for the buy to confirm…"
+          : "Waiting for the buy to confirm…",
+      );
       const receipt = await publicClient.waitForTransactionReceipt({ hash });
-      if (receipt.status !== "success") throw new Error("Buy reverted.");
+      if (receipt.status !== "success") {
+        throw new UserError("The buy failed on chain.");
+      }
       setStatus(`Confirmed: ${explorerTx(config, hash)}`);
       await refresh();
     } catch (error) {
-      setFailed(true);
+      setFailed(!isRejection(error));
       setStatus(errorText(error));
     } finally {
       setBusy(false);
@@ -195,11 +208,13 @@ export function LiveTicket({
       const hash = await walletClient.writeContract({ ...request, chain });
       setStatus("Waiting for the tokens…");
       const receipt = await publicClient.waitForTransactionReceipt({ hash });
-      if (receipt.status !== "success") throw new Error("Faucet reverted.");
+      if (receipt.status !== "success") {
+        throw new UserError("The test token request failed on chain.");
+      }
       setStatus(`Test tokens received: ${explorerTx(config, hash)}`);
       await refresh();
     } catch (error) {
-      setFailed(true);
+      setFailed(!isRejection(error));
       setStatus(errorText(error));
     } finally {
       setBusy(false);
@@ -213,7 +228,7 @@ export function LiveTicket({
       await connectWallet(config);
       setStatus("");
     } catch (error) {
-      setFailed(true);
+      setFailed(!isRejection(error));
       setStatus(errorText(error));
     } finally {
       setBusy(false);
@@ -270,9 +285,11 @@ export function LiveTicket({
             disabled={busy || blocker !== null}
             onClick={buy}
           >
-            {position && stake !== null && position.allowance < stake
-              ? "Approve and buy"
-              : "Buy"}
+            {busy
+              ? "Working…"
+              : position && stake !== null && position.allowance < stake
+                ? "Approve and buy"
+                : "Buy"}
           </button>
           {blocker ? (
             <p style={{ fontSize: 12, marginTop: 8 }}>{blocker}</p>
@@ -298,10 +315,10 @@ export function LiveTicket({
           disabled={busy}
           onClick={connect}
         >
-          Connect wallet
+          {busy ? "Connecting…" : "Connect wallet"}
         </button>
       )}
-      <p className="label" style={{ marginTop: 10 }} role="status">
+      <p className={ui.status} role="status">
         {failed ? "■ " : ""}
         <StatusText status={status} />
       </p>

@@ -13,7 +13,9 @@ import {
   connectWallet,
   errorText,
   explorerTx,
+  isRejection,
   type LiveConfig,
+  UserError,
   useAccount,
   walletClients,
 } from "../lib/wallet";
@@ -87,7 +89,7 @@ export function LivePosition({
 
   useEffect(() => {
     refresh().catch((error) => {
-      setFailed(true);
+      setFailed(!isRejection(error));
       setStatus(errorText(error));
     });
   }, [refresh]);
@@ -109,11 +111,11 @@ export function LivePosition({
       setStatus("Waiting for confirmation…");
       const receipt = await publicClient.waitForTransactionReceipt({ hash });
       if (receipt.status !== "success")
-        throw new Error("Transaction reverted.");
+        throw new UserError("The transaction failed on chain.");
       setStatus(`Confirmed: ${explorerTx(config, hash)}`);
       await refresh();
     } catch (error) {
-      setFailed(true);
+      setFailed(!isRejection(error));
       setStatus(errorText(error));
     } finally {
       setBusy(false);
@@ -127,7 +129,7 @@ export function LivePosition({
       await connectWallet(config);
       setStatus("");
     } catch (error) {
-      setFailed(true);
+      setFailed(!isRejection(error));
       setStatus(errorText(error));
     } finally {
       setBusy(false);
@@ -144,9 +146,10 @@ export function LivePosition({
           disabled={busy}
           onClick={connect}
         >
-          Connect wallet
+          {busy ? "Connecting…" : "Connect wallet"}
         </button>
-        <p className="label" role="status">
+        <p className={ui.status} role="status">
+          {failed ? "■ " : ""}
           <StatusText status={status} />
         </p>
       </div>
@@ -167,7 +170,11 @@ export function LivePosition({
   return (
     <div className={ui.card}>
       {holding === null ? (
-        <p>Loading your position…</p>
+        <p>
+          {status
+            ? "Your position is not loaded. Reload the page to try again."
+            : "Loading your position…"}
+        </p>
       ) : (
         <>
           <p style={{ margin: 0 }}>
@@ -204,7 +211,7 @@ export function LivePosition({
           ) : null}
         </>
       )}
-      <p className="label" role="status">
+      <p className={ui.status} role="status">
         {failed ? "■ " : ""}
         <StatusText status={status} />
       </p>

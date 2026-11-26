@@ -17,7 +17,9 @@ import {
   connectWallet,
   errorText,
   explorerTx,
+  isRejection,
   type LiveConfig,
+  UserError,
   useAccount,
   walletClients,
 } from "../lib/wallet";
@@ -64,7 +66,7 @@ export function LivePortfolio({
 
   useEffect(() => {
     refresh().catch((error) => {
-      setFailed(true);
+      setFailed(!isRejection(error));
       setStatus(errorText(error));
     });
   }, [refresh]);
@@ -86,11 +88,11 @@ export function LivePortfolio({
       setStatus("Waiting for confirmation…");
       const receipt = await publicClient.waitForTransactionReceipt({ hash });
       if (receipt.status !== "success")
-        throw new Error("Transaction reverted.");
+        throw new UserError("The transaction failed on chain.");
       setStatus(`Confirmed: ${explorerTx(config, hash)}`);
       await refresh();
     } catch (error) {
-      setFailed(true);
+      setFailed(!isRejection(error));
       setStatus(errorText(error));
     } finally {
       setBusy(false);
@@ -104,7 +106,7 @@ export function LivePortfolio({
       await connectWallet(config);
       setStatus("");
     } catch (error) {
-      setFailed(true);
+      setFailed(!isRejection(error));
       setStatus(errorText(error));
     } finally {
       setBusy(false);
@@ -124,9 +126,9 @@ export function LivePortfolio({
           disabled={busy}
           onClick={connect}
         >
-          Connect wallet
+          {busy ? "Connecting…" : "Connect wallet"}
         </button>
-        <p className="label" role="status">
+        <p className={ui.status} role="status">
           {failed ? "■ " : ""}
           <StatusText status={status} />
         </p>
@@ -148,7 +150,11 @@ export function LivePortfolio({
   return (
     <>
       {rows === null ? (
-        <p>Loading your positions…</p>
+        <p>
+          {status
+            ? "Your positions are not loaded. Reload the page to try again."
+            : "Loading your positions…"}
+        </p>
       ) : rows.length === 0 ? (
         <div className={ui.card}>
           <p style={{ margin: 0 }}>No positions on this wallet yet.</p>
@@ -206,7 +212,7 @@ export function LivePortfolio({
                           Refund {fmt(holding.yes + holding.no)}
                         </button>
                       ) : (
-                        "—"
+                        "n/a"
                       )}
                     </td>
                   </tr>
@@ -216,7 +222,7 @@ export function LivePortfolio({
           </DataTable>
         </>
       )}
-      <p className="label" role="status">
+      <p className={ui.status} role="status">
         {failed ? "■ " : ""}
         <StatusText status={status} />
       </p>
