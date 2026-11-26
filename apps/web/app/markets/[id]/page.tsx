@@ -66,7 +66,7 @@ export default async function MarketPage({
         <StatusChip status={d.isSample ? "NOT_LIVE" : m.status} />{" "}
         {d.isSample ? <SampleTag /> : null}
       </p>
-      <h1 style={{ fontSize: "clamp(32px, 6vw, 68px)" }}>
+      <h1 style={{ fontSize: "clamp(28px, 3.4vw, 44px)", lineHeight: 1.15 }}>
         {/* Odd parts are dates, which must not break at their hyphens. */}
         {m.question.split(/(\d{4}-\d{2}-\d{2})/).map((part, i) =>
           i % 2 ? (
