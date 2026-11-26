@@ -30,7 +30,6 @@ function readouts(i: IndexSnapshot): [string, string, number][] {
       bar(Number(i.valueMicroUsd ?? 0) / 40_000),
     ],
     ["24H", formatChange(i.change24hBps), change(i.change24hBps, 0.08)],
-    ["7D", formatChange(i.change7dBps), change(i.change7dBps, 0.06)],
     [
       "VALID.",
       `${i.validSources}/${i.minValidSources}`,

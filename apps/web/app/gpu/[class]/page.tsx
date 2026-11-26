@@ -80,12 +80,15 @@ ${JSON.stringify(
             {formatChange(i.change24hBps)}
           </b>
         </div>
-        <div>
-          <span className="label">7d</span>
-          <b className={changeTone(i.change7dBps)}>
-            {formatChange(i.change7dBps)}
-          </b>
-        </div>
+        {/* The API sends null until seven days of hourly history exist. */}
+        {i.change7dBps !== null && (
+          <div>
+            <span className="label">7d</span>
+            <b className={changeTone(i.change7dBps)}>
+              {formatChange(i.change7dBps)}
+            </b>
+          </div>
+        )}
       </div>
       <p style={{ marginTop: 16 }}>
         <StatusChip status={i.status} /> &nbsp; Updated {formatUtc(i.updatedAt)}{" "}

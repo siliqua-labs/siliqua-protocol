@@ -88,6 +88,8 @@ export default async function Home() {
     markets: !marketsAreSample,
   };
   const lead = at(indexes, 0);
+  // The API sends null until seven days of hourly history exist.
+  const show7d = indexes.some((i) => i.change7dBps !== null);
   // One card per open market (one per index); the pools scene sums all of them.
   const openMarkets = markets
     .filter((m) => m.status === "OPEN")
@@ -139,9 +141,9 @@ export default async function Home() {
             <b>{formatUsd(lead.valueMicroUsd)}</b>
           </div>
           <div>
-            <span className="label">7-day change</span>
-            <b className={changeTone(lead.change7dBps)}>
-              {formatChange(lead.change7dBps)}
+            <span className="label">24h change</span>
+            <b className={changeTone(lead.change24hBps)}>
+              {formatChange(lead.change24hBps)}
             </b>
           </div>
           <div>
@@ -204,7 +206,7 @@ export default async function Home() {
               <th scope="col">Index</th>
               <th scope="col">Value (USD/hr)</th>
               <th scope="col">24h</th>
-              <th scope="col">7d</th>
+              {show7d && <th scope="col">7d</th>}
               <th scope="col">Trend</th>
               <th scope="col">Valid sources</th>
               <th scope="col">Updated</th>
@@ -226,9 +228,11 @@ export default async function Home() {
                 <td className={changeTone(i.change24hBps)}>
                   {formatChange(i.change24hBps)}
                 </td>
-                <td className={changeTone(i.change7dBps)}>
-                  {formatChange(i.change7dBps)}
-                </td>
+                {show7d && (
+                  <td className={changeTone(i.change7dBps)}>
+                    {formatChange(i.change7dBps)}
+                  </td>
+                )}
                 <td>
                   <Sparkline values={i.trend7d} />
                 </td>
