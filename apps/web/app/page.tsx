@@ -114,8 +114,8 @@ export default async function Home() {
               of <i>compute.</i>
             </h1>
             <p style={{ marginTop: 24, fontSize: 18 }}>
-              Open, recomputable indexes for GPU rental prices and compute
-              narratives, published on-chain. Trade the price of a GPU hour.
+              Indexes for GPU rental prices and compute narratives. GPU prices
+              are published on-chain. Trade the price of a GPU hour.
             </p>
             <div className={ui.cta}>
               <a className={`${ui.btn} ${ui.primary}`} href="#indexes">
