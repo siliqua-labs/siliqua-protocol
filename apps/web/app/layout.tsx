@@ -13,7 +13,7 @@ import "./globals.css";
 
 const mono = JetBrains_Mono({
   subsets: ["latin"],
-  weight: ["400", "500"],
+  weight: ["400", "500", "700"],
   variable: "--font-mono",
 });
 const serif = Cormorant_Garamond({
@@ -24,13 +24,24 @@ const serif = Cormorant_Garamond({
 });
 const sans = Inter_Tight({
   subsets: ["latin"],
-  weight: ["400", "500", "600"],
+  weight: ["400", "500", "600", "700"],
   variable: "--font-sans",
 });
 
+// shortcut: the Vercel domain stands in until a custom domain exists; then set SITE_URL.
+const SITE_URL = process.env.SITE_URL ?? "https://siliqua-compute.vercel.app";
+const TITLE = "Siliqua · The coin of compute";
+const DESCRIPTION =
+  "Open, recomputable indexes of GPU rent and compute narratives.";
+
 export const metadata: Metadata = {
-  title: { default: "Siliqua · The coin of compute", template: "%s · Siliqua" },
-  description: "Open, recomputable indexes of GPU rent and compute narratives.",
+  metadataBase: new URL(SITE_URL),
+  title: { default: TITLE, template: "%s · Siliqua" },
+  description: DESCRIPTION,
+  // "./" resolves to the address of the page being rendered.
+  alternates: { canonical: "./" },
+  openGraph: { type: "website", siteName: "Siliqua", url: "./" },
+  twitter: { card: "summary_large_image", site: "@SiliquaCompute" },
 };
 
 export const viewport: Viewport = {
