@@ -1,34 +1,35 @@
 .strip {
-  background: var(--em);
-  color: #fff;
+  position: relative;
+  z-index: 1;
+  background: var(--ink);
+  color: rgba(255, 255, 255, 0.72);
   font:
-    500 11px var(--font-mono),
+    500 10.5px var(--font-mono),
     monospace;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.22em;
   text-align: center;
-  padding: 6px 10px;
+  padding: 7px 10px;
 }
 
 .header {
   position: sticky;
   top: 0;
   z-index: 20;
-  background: rgba(255, 255, 255, 0.94);
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: saturate(1.4) blur(14px);
   border-bottom: 1px solid var(--ln);
   display: flex;
   align-items: center;
-  gap: 24px;
-  padding: 14px var(--pad);
+  gap: 28px;
+  padding: 16px var(--pad);
 }
 
 .mark {
   display: flex;
   gap: 10px;
   align-items: center;
-  font:
-    900 18px var(--font-head),
-    sans-serif;
-  letter-spacing: 0.2em;
+  font: 600 21px var(--serif);
+  letter-spacing: 0.34em;
   text-decoration: none;
 }
 
@@ -38,26 +39,23 @@
   background: none;
   color: var(--tx);
   cursor: pointer;
-  font:
-    500 12px var(--font-mono),
-    monospace;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  border: 1px solid var(--tx);
-  padding: 9px 14px;
+  font: 500 13px var(--sans);
+  border: 1px solid rgba(17, 17, 17, 0.24);
+  border-radius: 999px;
+  padding: 8px 18px;
 }
 
 .nav {
   display: flex;
-  gap: 22px;
+  gap: clamp(18px, 1.9vw, 28px);
   margin-left: auto;
-  font-size: 12px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  font: 500 13.5px var(--sans);
+  letter-spacing: 0.01em;
 }
 
 .nav a {
   text-decoration: none;
+  white-space: nowrap;
   color: var(--dim);
   padding: 6px 0;
   border-bottom: 1px solid transparent;
@@ -69,7 +67,11 @@
   border-color: var(--em);
 }
 
-@media (max-width: 1040px) {
+.extras {
+  display: none;
+}
+
+@media (max-width: 1140px) {
   .toggle {
     display: block;
   }
@@ -81,6 +83,7 @@
     left: 0;
     right: 0;
     flex-direction: column;
+    gap: 14px;
     background: var(--bg);
     padding: 16px var(--pad);
     border-bottom: 1px solid var(--ln);
@@ -89,13 +92,7 @@
   .nav.open {
     display: flex;
   }
-}
 
-.extras {
-  display: none;
-}
-
-@media (max-width: 1040px) {
   .header > .social,
   .header > .wallet {
     display: none;
@@ -112,9 +109,4 @@
     padding: 0;
     border: 1px solid var(--ln);
   }
-}
-
-.strip {
-  position: relative;
-  z-index: 1;
 }

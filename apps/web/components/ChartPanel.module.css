@@ -1,7 +1,9 @@
 .chart {
   position: relative;
   border: 1px solid var(--ln);
+  border-radius: 6px;
   background: var(--bg);
+  box-shadow: var(--shadow);
   touch-action: pan-y;
 }
 
@@ -10,6 +12,7 @@
   top: 8px;
   background: var(--bg2);
   border: 1px solid var(--ln);
+  border-radius: 4px;
   padding: 4px 8px;
   font-size: 12px;
   pointer-events: none;

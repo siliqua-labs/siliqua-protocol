@@ -113,9 +113,9 @@ export function ChartPanel({
                   x2={W - RIGHT}
                   y1={y(v)}
                   y2={y(v)}
-                  stroke="#E8E4E4"
+                  stroke="#E8E8E8"
                 />
-                <text x={4} y={y(v) + 4} fill="#6B6767" fontSize={11}>
+                <text x={4} y={y(v) + 4} fill="#666666" fontSize={11}>
                   {formatUsd(String(Math.round(v)))}
                 </text>
               </g>
@@ -141,7 +141,7 @@ export function ChartPanel({
               key={s.pts[0]}
               points={s.pts.join(" ")}
               fill="none"
-              stroke={s.stale ? "#6D001A" : "#0A0A0A"}
+              stroke={s.stale ? "#6D001A" : "#111111"}
               strokeWidth={1.6}
               strokeDasharray={s.stale ? "5 4" : undefined}
             />
@@ -153,7 +153,7 @@ export function ChartPanel({
                 x2={x(active)}
                 y1={TOP}
                 y2={H - BOTTOM}
-                stroke="#6B6767"
+                stroke="#666666"
               />
               <circle
                 cx={x(active)}

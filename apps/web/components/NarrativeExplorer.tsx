@@ -5,6 +5,7 @@ import type { NarrativeDay } from "../lib/api/types";
 import { at } from "../lib/at";
 import { NarrativeTreemap } from "./charts";
 import { Notice } from "./primitives";
+import ui from "./ui.module.css";
 
 export function NarrativeExplorer({ days }: { days: NarrativeDay[] }) {
   const first = at(days, 0).date;
@@ -24,14 +25,7 @@ export function NarrativeExplorer({ days }: { days: NarrativeDay[] }) {
         max={last}
         value={date}
         onChange={(e) => setDate(e.target.value)}
-        style={{
-          background: "var(--bg)",
-          border: "1px solid var(--ln)",
-          color: "var(--tx)",
-          font: "16px var(--font-mono), monospace",
-          padding: "12px 14px",
-          maxWidth: 280,
-        }}
+        className={ui.input}
       />
       <div style={{ marginTop: 16 }} aria-live="polite">
         {!day ? (

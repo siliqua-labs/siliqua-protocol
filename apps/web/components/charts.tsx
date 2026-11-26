@@ -6,14 +6,14 @@ import { narrativeNames } from "../lib/narrativeNames";
 // The api decides which narratives exist. Colours go by position, OTHER is always the lightest.
 const PALETTE: { bg: string; text: string }[] = [
   { bg: "#6D001A", text: "#FFFFFF" },
-  { bg: "#0A0A0A", text: "#FFFFFF" },
-  { bg: "#6B6767", text: "#FFFFFF" },
-  { bg: "#A9A4A4", text: "#0A0A0A" },
+  { bg: "#111111", text: "#FFFFFF" },
+  { bg: "#3A3A3A", text: "#FFFFFF" },
+  { bg: "#5A5A5A", text: "#FFFFFF" },
+  { bg: "#767676", text: "#FFFFFF" },
   { bg: "#9B3B52", text: "#FFFFFF" },
-  { bg: "#3A3636", text: "#FFFFFF" },
-  { bg: "#C9A0AA", text: "#0A0A0A" },
+  { bg: "#C9A0AA", text: "#111111" },
 ];
-const OTHER_STYLE = { bg: "#D6D1D1", text: "#0A0A0A" };
+const OTHER_STYLE = { bg: "#C8C8C8", text: "#111111" };
 
 function share(bps: Record<Narrative, number>, name: Narrative): number {
   return bps[name] ?? 0;
@@ -51,7 +51,7 @@ export function Sparkline({
       role="img"
       aria-label={`7-day trend, from ${formatUsd(at(values, 0))} to ${formatUsd(at(values, values.length - 1))} USD`}
     >
-      <polyline points={pts} fill="none" stroke="#0A0A0A" strokeWidth={1.5} />
+      <polyline points={pts} fill="none" stroke="#111111" strokeWidth={1.5} />
     </svg>
   );
 }
@@ -81,7 +81,7 @@ export function SourceSpread({
       }`}
       fontFamily="monospace"
     >
-      <line x1={30} x2={770} y1={70} y2={70} stroke="#E8E4E4" />
+      <line x1={30} x2={770} y1={70} y2={70} stroke="#E8E8E8" />
       {med !== null && (
         <g>
           <line x1={x(med)} x2={x(med)} y1={20} y2={90} stroke="#6D001A" />
@@ -99,14 +99,14 @@ export function SourceSpread({
               cx={x(p)}
               cy={cy}
               r={6}
-              fill={s.included ? "#0A0A0A" : "none"}
-              stroke={s.included ? "#0A0A0A" : "#B45309"}
+              fill={s.included ? "#111111" : "none"}
+              stroke={s.included ? "#111111" : "#A1500B"}
               strokeWidth={2}
             >
               <title>{`${s.name} ${formatUsd(s.priceMicroUsd)}${s.included ? "" : " excluded"}`}</title>
             </circle>
             {!s.included && (
-              <text x={x(p) + 10} y={cy + 4} fill="#B45309" fontSize={11}>
+              <text x={x(p) + 10} y={cy + 4} fill="#A1500B" fontSize={11}>
                 excluded
               </text>
             )}
@@ -124,7 +124,13 @@ export function NarrativeBar({ bps }: { bps: Record<Narrative, number> }) {
       data-bar
       role="img"
       aria-label={`CMI shares: ${NARRATIVES.map((n) => `${n} ${share(bps, n)} bps`).join(", ")}`}
-      style={{ display: "flex", height: 64, border: "1px solid var(--ln)" }}
+      style={{
+        display: "flex",
+        height: 72,
+        borderRadius: 6,
+        overflow: "hidden",
+        boxShadow: "var(--shadow)",
+      }}
     >
       {NARRATIVES.map((n) => (
         <div
@@ -171,6 +177,7 @@ export function NarrativeTreemap({ bps }: { bps: Record<Narrative, number> }) {
                 background: narrativeStyle(NARRATIVES, n).bg,
                 color: narrativeStyle(NARRATIVES, n).text,
                 padding: 10,
+                fontSize: 12,
                 minWidth: 0,
                 overflow: "hidden",
                 overflowWrap: "anywhere",
@@ -243,7 +250,7 @@ export function NarrativeArea({ days }: { days: NarrativeDay[] }) {
           x2={px(i)}
           y1={0}
           y2={H}
-          stroke="#E8E4E4"
+          stroke="#E8E8E8"
           strokeDasharray="4 4"
         />
       ))}

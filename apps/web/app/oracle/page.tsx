@@ -12,7 +12,7 @@ export const metadata: Metadata = { title: "Oracle" };
 
 const W = 800;
 const H = 220;
-const COLORS = ["#0A0A0A", "#6D001A", "#6B6767"];
+const COLORS = ["#111111", "#6D001A", "#666666"];
 
 const short = (address: string) =>
   `${address.slice(0, 6)}...${address.slice(-4)}`;
@@ -221,7 +221,7 @@ function Spread({
             </text>
           </g>
         ))}
-        <line x1={40} x2={780} y1={y(0)} y2={y(0)} stroke="#E8E4E4" />
+        <line x1={40} x2={780} y1={y(0)} y2={y(0)} stroke="#E8E8E8" />
         {operators.map((address, j) => (
           <polyline
             key={address}

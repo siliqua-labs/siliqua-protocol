@@ -35,11 +35,8 @@ export function SiteFooter() {
             <Logo height={30} />
             SILIQUA
           </Link>
-          <p className={styles.legal}>
-            Siliqua publishes index data only. Not a broker or adviser, and not
-            investment, legal or tax advice. Markets may be restricted in your
-            jurisdiction. Data may be delayed or stale.
-          </p>
+          {chain ? <p className={styles.chain}>{chain}</p> : null}
+          <XLink className={styles.social} />
         </div>
         {columns.map(([title, items]) => (
           <div key={title}>
@@ -63,15 +60,17 @@ export function SiteFooter() {
               <PlaceholderLink>Stigmer</PlaceholderLink>
             </li>
           </ul>
-          <h4 className={styles.follow}>Follow on</h4>
-          <XLink />
         </div>
       </div>
+      <p className={styles.legal}>
+        Siliqua publishes index data only. Not a broker or adviser, and not
+        investment, legal or tax advice. Markets may be restricted in your
+        jurisdiction. Data may be delayed or stale.
+      </p>
       <div className={styles.bottom}>
         <span>© 2026 Siliqua</span>
         <Link href="/privacy">Privacy</Link>
         <Link href="/terms">Terms</Link>
-        {chain ? <span className={styles.chain}>{chain}</span> : null}
       </div>
     </footer>
   );

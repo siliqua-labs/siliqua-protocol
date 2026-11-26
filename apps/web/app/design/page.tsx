@@ -22,11 +22,11 @@ export const metadata: Metadata = {
 
 const SWATCHES = [
   ["white", "#FFFFFF"],
-  ["ink", "#0A0A0A"],
-  ["dim", "#6B6767"],
+  ["ink", "#111111"],
+  ["dim", "#666666"],
   ["burgundy", "#6D001A"],
-  ["up", "#2E7D5B"],
-  ["down", "#B45309"],
+  ["up", "#2E6E52"],
+  ["down", "#A1500B"],
 ] as const;
 
 const CHIPS: ChipStatus[] = [
@@ -76,12 +76,13 @@ export default async function DesignPage() {
 
       <h3 style={heading}>Type</h3>
       <h1 style={{ fontSize: 48 }}>
-        Display 900<span style={{ color: "var(--em)" }}>.</span>
+        Display · Cormorant 500<span style={{ color: "var(--em)" }}>.</span>
       </h1>
       <h2>
-        Heading 900<span style={{ color: "var(--em)" }}>.</span>
+        Heading <i>italic accent.</i>
       </h2>
-      <p className="label">Label · mono 12 · tracking .16em</p>
+      <p style={{ color: "var(--tx)" }}>Body · Inter Tight 16 / 1.65</p>
+      <p className="label">Label · mono 11 · tracking .18em</p>
       <p
         style={{
           font: "500 40px var(--font-mono), monospace",

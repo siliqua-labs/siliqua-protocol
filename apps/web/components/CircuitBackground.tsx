@@ -5,14 +5,14 @@ import { rng } from "../lib/rng";
 import { type FxLevel, useAppState } from "./AppState";
 import styles from "./CircuitBackground.module.css";
 
-// Fixed backdrop: white base, a soft burgundy veil, three satin waves, a grid
-// that fades toward the centre and drifting dust. Decorative only. It is a
-// still frame under prefers-reduced-motion.
+// Fixed backdrop: white base, a soft burgundy veil, three satin waves and
+// drifting dust. Decorative only. It is a still frame under
+// prefers-reduced-motion.
 
 const LEVELS: Record<FxLevel, { dust: number; a: number }> = {
-  Subtle: { dust: 16, a: 0.6 },
-  Default: { dust: 28, a: 0.85 },
-  Bold: { dust: 40, a: 1 },
+  Subtle: { dust: 12, a: 0.6 },
+  Default: { dust: 17, a: 0.85 },
+  Bold: { dust: 22, a: 1 },
 };
 
 type Mote = {
@@ -63,7 +63,7 @@ export function CircuitBackground() {
         s: 0.6 + r() * 1.5,
         v: 3 + r() * 8,
         a: r() * 6.28,
-        o: 0.12 + r() * 0.3,
+        o: 0.06 + r() * 0.18,
       }));
     };
 
@@ -139,8 +139,8 @@ export function CircuitBackground() {
         H * 0.16,
         H * 0.05,
         0,
-        "rgba(236,232,232,0)",
-        `rgba(232,227,227,${0.8 * A})`,
+        "rgba(240,240,240,0)",
+        `rgba(238,238,238,${0.75 * A})`,
         H * 0.22,
       );
       wave(
@@ -149,7 +149,7 @@ export function CircuitBackground() {
         H * 0.07,
         2,
         "rgba(109,0,26,0)",
-        `rgba(109,0,26,${0.1 * A})`,
+        `rgba(109,0,26,${0.07 * A})`,
         H * 0.18,
       );
       wave(
@@ -157,34 +157,11 @@ export function CircuitBackground() {
         H * 0.72,
         H * 0.05,
         4.5,
-        "rgba(236,232,232,0)",
-        `rgba(226,221,221,${0.75 * A})`,
+        "rgba(240,240,240,0)",
+        `rgba(232,232,232,${0.6 * A})`,
         H * 0.25,
       );
       g.restore();
-
-      const grid = g.createRadialGradient(
-        W / 2,
-        H / 2,
-        Math.min(W, H) * 0.25,
-        W / 2,
-        H / 2,
-        Math.max(W, H) * 0.75,
-      );
-      grid.addColorStop(0, "rgba(220,214,214,0)");
-      grid.addColorStop(1, `rgba(200,192,192,${0.6 * A})`);
-      g.strokeStyle = grid;
-      g.lineWidth = 1;
-      g.beginPath();
-      for (let x = 0; x < W; x += 64) {
-        g.moveTo(x + 0.5, 0);
-        g.lineTo(x + 0.5, H);
-      }
-      for (let y = 0; y < H; y += 64) {
-        g.moveTo(0, y + 0.5);
-        g.lineTo(W, y + 0.5);
-      }
-      g.stroke();
 
       for (const p of motes) {
         p.y -= p.v * dt;
