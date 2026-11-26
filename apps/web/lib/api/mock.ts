@@ -275,6 +275,7 @@ export function mockNarratives(): NarrativesResponse {
 const MARKETS: Market[] = [
   {
     id: "gri-h100-2026-11-28",
+    indexLabel: "GRI-H100",
     question: "GRI-H100 above $2.50 on Friday 2026-11-28?",
     thresholdMicroUsd: "2500000",
     yesPool: "6200",

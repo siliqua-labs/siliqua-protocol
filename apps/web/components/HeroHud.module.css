@@ -61,10 +61,74 @@
 .klass {
   right: 7%;
   bottom: 11%;
-  width: 13%;
+  padding: 0 2.6cqw;
+  white-space: nowrap;
   line-height: 6cqw;
   text-align: center;
   font-size: 1.7cqw;
   background: #6d001a;
   clip-path: polygon(8% 0, 100% 0, 92% 100%, 0 100%);
+}
+
+.readout {
+  position: absolute;
+  right: -1%;
+  top: 37%;
+  width: 58%;
+  pointer-events: none;
+  filter: drop-shadow(0 12px 28px rgba(17, 17, 17, 0.08));
+}
+
+.readout > div {
+  background: #fff;
+  padding: 2.6cqw 4cqw 3cqw 7cqw;
+  clip-path: polygon(7% 0, 100% 0, 100% 100%, 0 100%);
+}
+
+.readout small {
+  display: block;
+  font:
+    500 1.7cqw var(--font-mono),
+    monospace;
+  letter-spacing: 0.14em;
+  color: var(--dim);
+}
+
+.readout strong {
+  display: block;
+  font: 500 7.8cqw / 1.05 var(--serif);
+  font-variant-numeric: lining-nums;
+  color: var(--tx);
+}
+
+.readout p {
+  display: grid;
+  grid-template-columns: 15cqw 1fr 11cqw;
+  gap: 1.6cqw;
+  align-items: center;
+  margin: 1.2cqw 0 0;
+  max-width: none;
+  color: var(--tx);
+  font:
+    500 1.7cqw var(--font-mono),
+    monospace;
+}
+
+.readout s {
+  display: block;
+  height: 1.1cqw;
+  background: var(--ln);
+  text-decoration: none;
+}
+
+.readout u {
+  display: block;
+  height: 100%;
+  background: var(--em);
+  text-decoration: none;
+}
+
+.readout b {
+  font-weight: 500;
+  text-align: right;
 }

@@ -104,7 +104,7 @@ export default async function Home() {
             <h1>
               The coin
               <br />
-              of compute<span className={styles.em}>.</span>
+              of <i>compute.</i>
             </h1>
             <p style={{ marginTop: 24, fontSize: 18 }}>
               Open, recomputable indexes for GPU rental prices and compute
@@ -117,7 +117,7 @@ export default async function Home() {
               <ButtonLink href="/methodology">Read the methodology</ButtonLink>
             </div>
           </div>
-          <HeroHud gpuClass={lead.gpuClass} isSample={isSample}>
+          <HeroHud lead={lead} isSample={isSample}>
             <ThreeScene
               kind="coin"
               label="Layered burgundy and white hex panels, slowly rotating"
@@ -154,7 +154,6 @@ export default async function Home() {
       <Tape indexes={indexes} isSample={isSample} />
 
       <Reveal className={`${ui.page} ${ui.tinted}`} id="architecture">
-        <div className={`label ${ui.sectionHead}`}>INDEX ARCHITECTURE</div>
         <h2>
           One index.
           <br />
@@ -246,7 +245,6 @@ export default async function Home() {
 
       {latest?.bps && (
         <Reveal className={`${ui.page} ${ui.tinted}`}>
-          <div className={`label ${ui.sectionHead}`}>NARRATIVES</div>
           <h2>
             Where compute attention goes<span className={styles.em}>.</span>
           </h2>
@@ -265,7 +263,6 @@ export default async function Home() {
 
       {openMarkets.length > 0 && (
         <Reveal className={`${ui.page} ${ui.tinted}`} id="weekly-markets">
-          <div className={`label ${ui.sectionHead}`}>WEEKLY MARKETS</div>
           <h2>
             One question a week, per index<span className={styles.em}>.</span>
           </h2>
@@ -283,10 +280,12 @@ export default async function Home() {
                       : market
                   }
                   isSample={marketsAreSample}
+                  detailed
                 />
               ))}
             </div>
-            <div>
+            {/* Stays in view while the market list scrolls past. */}
+            <div style={{ position: "sticky", top: 96 }}>
               <p>
                 Pools are parimutuel: YES and NO stakes in USDG. The losing pool
                 pays the winners, minus a 2% fee taken only at settlement.
@@ -303,7 +302,7 @@ export default async function Home() {
         </Reveal>
       )}
 
-      <Reveal className={`${ui.page} ${ui.tinted}`}>
+      <Reveal className={`${ui.page} ${ui.dark}`}>
         <div className={`label ${ui.sectionHead}`}>METHODOLOGY</div>
         <h2>
           Built to be recomputed<span className={styles.em}>.</span>
@@ -332,7 +331,6 @@ export default async function Home() {
       </Reveal>
 
       <Reveal className={`${ui.page} ${ui.tinted}`}>
-        <div className={`label ${ui.sectionHead}`}>ROADMAP</div>
         <h2>
           Four phases<span className={styles.em}>.</span>
         </h2>
