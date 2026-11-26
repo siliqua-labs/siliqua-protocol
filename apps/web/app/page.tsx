@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { NarrativeBar, Sparkline } from "../components/charts";
 import { HeroHud } from "../components/HeroHud";
@@ -18,6 +19,12 @@ import {
 import { at } from "../lib/at";
 import { changeTone, formatChange, formatUsd, formatUtc } from "../lib/format";
 import styles from "./page.module.css";
+
+// The layout's "./" resolves to "/index" when this page is regenerated.
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+  openGraph: { type: "website", siteName: "Siliqua", url: "/" },
+};
 
 const LAYERS = [
   ["SOURCES", "At least 5 providers per GPU class"],
