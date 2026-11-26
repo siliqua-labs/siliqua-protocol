@@ -8,6 +8,7 @@ export function Logo({ height }: { height: number }) {
       src="/siliqua-logo.png"
       alt=""
       aria-hidden="true"
+      loading="eager"
       width={Math.round(height * RATIO)}
       height={height}
     />

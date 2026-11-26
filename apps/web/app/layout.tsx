@@ -8,6 +8,7 @@ import { AppStateProvider } from "../components/AppState";
 import { CircuitBackground } from "../components/CircuitBackground";
 import { SiteFooter } from "../components/SiteFooter";
 import { SiteHeader } from "../components/SiteHeader";
+import { SplashScreen } from "../components/SplashScreen";
 import { walletChain } from "../lib/chain";
 import "./globals.css";
 
@@ -59,6 +60,7 @@ export default function RootLayout({
       className={`${mono.variable} ${serif.variable} ${sans.variable}`}
     >
       <body>
+        <SplashScreen />
         <AppStateProvider chain={walletChain()}>
           <CircuitBackground />
           <SiteHeader />
