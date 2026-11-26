@@ -80,4 +80,3 @@ Next: a Railway service for the collector, then the 500-post test.
 - Railway Trial credit (5 USD or 30 days, one time) is being used by two always-on services.
 - Vast.ai and RunPod API keys were printed in a chat transcript by mistake on 2026-11-24; rotate both and update `.env` and the Railway worker variables.
 - Market threshold policy (default: latest finalized oracle value) awaits owner confirmation.
-- Empty-pool rules wait for owner confirmation (plan Q-N2).

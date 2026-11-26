@@ -110,7 +110,7 @@ Money enters here. Nothing in this stage touches a public chain; Stage 6 is the 
 
 | #   | Task                                                                                                                                              | Depends on |
 | --- | ------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- |
-| 5.1 | Market spec: timeline, `settle` after `settleTime + 3h`, void rule, tie and empty-pool rules (confirm PLAN Q-N2 first)                              | Stage 3    |
+| 5.1 | Market spec: timeline, `settle` after `settleTime + 3h`, void rule, tie and empty-pool rules (PLAN Q-N2 confirmed)                                  | Stage 3    |
 | 5.2 | `MarketFactory`, `RangeMarket`, `FeeRouter` with unit, fuzz, invariant tests **[owner]**                                                           | 5.1        |
 | 5.3 | `services/market-keeper`: create, settle, sweep fees, alert on missed deadlines                                                                    | 5.2        |
 | 5.4 | Indexer and API for markets (`/v1/markets`, implied odds)                                                                                          | 5.2        |
@@ -152,8 +152,7 @@ Independent review of the oracle before mainnet is recommended (PLAN Phase 1 ris
 2. Three.js approval for the hero (Stage 1.9).
 3. A4: GPU provider accounts, keys and terms review. Blocks collectors, so it sets the real start date.
 4. A7: chain facts checked against official docs. Blocks Stage 6 testnet.
-5. Q-N2: confirm empty-pool and TWAP rounding rules. Blocks Stage 5 spec.
-6. A9, A10, A11: social cost approval, labelers, legal and audit budget.
+5. A9, A10, A11: social cost approval, labelers, legal and audit budget.
 
 ## Graphify
 

@@ -20,7 +20,7 @@ Two on-chain indexes on Robinhood Chain and a weekly prediction market on top of
 - CMI: one post, one narrative (argmax; below the entry threshold goes to OTHER). A day with total raw 0 is not published and is marked stale. Largest-remainder rounding to 10,000. Publish post ID, label, bot score and model hash, never post text.
 - Social platforms: X, Farcaster, Bluesky; Telegram optional for selected public channels. Verify terms and costs from official docs in `docs/sources.md`, then ask the owner about cost.
 - Market: closes 24h before the TWAP window; settlement is the 24h TWAP of hourly GRI; empty hours are skipped and counted as stale; void and full refund if cumulative stale time in the window exceeds 6h. `TWAP > threshold` is YES; equal is NO. TWAP rounds half up.
-- Empty pools: if the winning side has no stake, void and full refund with no fee. If the losing side has no stake, winners get their stake back with no fee. Rounding dust goes to `FeeRouter`. (Pending owner confirmation, plan Q-N2.)
+- Empty pools: if the winning side has no stake, void and full refund with no fee. If the losing side has no stake, winners get their stake back with no fee. Rounding dust goes to `FeeRouter`. (Confirmed 2026-11-26, plan Q-N2.)
 - Fee, bet cap, durations are `MarketFactory` template parameters, not constants. The bet cap is set in whole tokens and scaled by the token's `decimals()`.
 - Market contracts are immutable and pin the oracle address at creation. Oracle and factory use a registry, no proxies; a new version is a new deployment. There is no admin path to rescue a running market; this is deliberate.
 - Admin uses a multisig and a timelock. `pause` stops only `buy`; it never blocks `claim` or `refundIfVoid`.
