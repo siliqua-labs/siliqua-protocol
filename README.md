@@ -1,12 +1,10 @@
 <div align="center">
 
-<img src="docs/assets/banner.png" alt="Siliqua: the price of a GPU hour, recomputable by anyone" width="100%">
-
 # SILIQUA
 
 **On-chain compute indexes and a weekly prediction market**
 
-_The price of a GPU hour, recomputable by anyone._
+_The price of a GPU hour, computed by published rules._
 
 [Website](https://siliqua.tech) &nbsp;·&nbsp; [X](https://x.com/SiliquaCompute) &nbsp;·&nbsp; [Contracts](contracts/announcement.md) &nbsp;·&nbsp; Status: **running on Robinhood Chain Testnet, not audited**
 
@@ -28,7 +26,7 @@ Testnet only (chain ID 46630). Test tokens have no value. Mainnet is not deploye
 
 | Part                                     | State                                                                                                                                         |
 | ---------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| Website (`apps/web`)                     | Live on Vercel: indexes, narratives, markets, portfolio, methodology, oracle, data, docs, whitepaper and FAQ pages. Wallet connect, buy, claim and refund on testnet |
+| Website (`apps/web`)                     | Live on Vercel: indexes, narratives, markets, portfolio, methodology, oracle, data, docs, whitepaper and FAQ pages. Wallet connect and buy on testnet. Claim and refund are built but not yet run: no market has settled |
 | API (`services/api`)                     | Live. Indexes, narratives, markets and oracle status, rate limited                                                                            |
 | Price collectors, index engine, watchdog | Running. A class is published only with at least 5 valid sources after the outlier filter; otherwise the hour is marked and not published     |
 | CMI                                      | Farcaster and Bluesky, keyword classifier. X is off. The 500-post evaluation of the classifier is not done                                    |
@@ -38,7 +36,7 @@ Testnet only (chain ID 46630). Test tokens have no value. Mainnet is not deploye
 | Contract audit, legal review             | Not done. Both are gates before mainnet                                                                                                       |
 | Mainnet admin (multisig and timelock)    | Not built. One key stands in on testnet                                                                                                       |
 
-Addresses, deploy transactions, source verification status and trust boundaries are listed in [contracts/announcement.md](contracts/announcement.md). The methodology is still a draft: [GRI](docs/methodology/gri-v1.0.md), [CMI](docs/methodology/cmi-v1.0.md).
+Addresses, deploy transactions, source verification status and trust boundaries are listed in [contracts/announcement.md](contracts/announcement.md). The methodology is still a draft: [GRI](docs/methodology/gri-v1.0.md) with its [amendments](docs/methodology/gri-v1.0-amendments.md) (GRI uses the median, not the mean in the original text), [CMI](docs/methodology/cmi-v1.0.md).
 
 ## How GRI is computed
 
@@ -48,7 +46,7 @@ Addresses, deploy transactions, source verification status and trust boundaries 
 4. With at least 5 quotes left, the GRI is their median (every weight is 1 in v1.0). Otherwise the hour is not published.
 5. The market settles on the 24-hour TWAP of the hourly GRI. Empty hours are skipped and counted as stale. More than 6 stale hours in the window voids the market with a full refund.
 
-All arithmetic is integer micro-USD with half-up rounding. No floating point touches a price. A monthly export with a SHA-256 manifest and a `verify` script recompute published hours without a database.
+All arithmetic is integer micro-USD with half-up rounding. No floating point touches a price. A monthly export with a SHA-256 manifest and a `verify` script recompute published hours without a database. Raw inputs are published only where source terms allow it, so not every hour can be recomputed from public data.
 
 ## Trust model
 

@@ -47,8 +47,9 @@ export default async function MethodologyPage() {
       <p style={{ marginTop: 20 }}>
         <StatusChip status={isSample ? "NOT_LIVE" : "RUNNING"} /> &nbsp;{" "}
         <span className={ui.tag}>v{METHODOLOGY_VERSION} DRAFT</span>{" "}
-        &nbsp;Published rules, sources and weights. Anyone can recompute an
-        index from the inputs.
+        &nbsp;Published rules, sources and weights. Raw inputs are published
+        only where source terms allow it, so not every value can be recomputed
+        from public data.
       </p>
 
       <h3 className={ui.h3} id="versions" style={{ marginTop: 48 }}>
@@ -69,6 +70,15 @@ export default async function MethodologyPage() {
             <td>2026-11-21</td>
             <td>Draft</td>
             <td>First published rules for GRI and CMI.</td>
+          </tr>
+          <tr>
+            <td>v{METHODOLOGY_VERSION} DRAFT</td>
+            <td>2026-11-26</td>
+            <td>Amendment</td>
+            <td>
+              GRI combines the filtered sources by median instead of mean.
+              Applied on testnet without the 14-day notice.
+            </td>
           </tr>
         </tbody>
       </DataTable>
