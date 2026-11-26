@@ -28,7 +28,7 @@ Testnet only (chain ID 46630). Test tokens have no value. Mainnet is not deploye
 
 | Part                                     | State                                                                                                                                         |
 | ---------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| Website (`apps/web`)                     | Live on Vercel: indexes, narratives, markets, portfolio, methodology, oracle and data pages. Wallet connect, buy, claim and refund on testnet |
+| Website (`apps/web`)                     | Live on Vercel: indexes, narratives, markets, portfolio, methodology, oracle, data, docs, whitepaper and FAQ pages. Wallet connect, buy, claim and refund on testnet |
 | API (`services/api`)                     | Live. Indexes, narratives, markets and oracle status, rate limited                                                                            |
 | Price collectors, index engine, watchdog | Running. A class is published only with at least 5 valid sources after the outlier filter; otherwise the hour is marked and not published     |
 | CMI                                      | Farcaster and Bluesky, keyword classifier. X is off. The 500-post evaluation of the classifier is not done                                    |

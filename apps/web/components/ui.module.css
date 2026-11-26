@@ -389,6 +389,66 @@
   font-variant-numeric: lining-nums tabular-nums;
 }
 
+/* Long-form pages: docs, whitepaper, FAQ. */
+.doc h3 {
+  margin: 48px 0 16px;
+  /* Anchored headings must clear the sticky header. */
+  scroll-margin-top: 96px;
+}
+
+.doc li {
+  max-width: 68ch;
+  margin: 6px 0;
+}
+
+.toc {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 24px;
+  margin-top: 32px;
+  border-block: 1px solid var(--ln);
+  padding: 8px 0;
+}
+
+.toc a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-size: 14px;
+}
+
+.toc a:hover {
+  color: var(--em);
+}
+
+.faq {
+  max-width: 76ch;
+  border-bottom: 1px solid var(--ln);
+}
+
+.faq summary {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 0;
+  font-weight: 500;
+  cursor: pointer;
+  list-style: none;
+}
+
+.faq summary::-webkit-details-marker {
+  display: none;
+}
+
+.faq summary::after {
+  content: "+";
+  color: var(--em);
+}
+
+.faq[open] summary::after {
+  content: "2";
+}
+
 /* Touch targets of at least 44px. */
 @media (max-width: 860px) {
   .btn {

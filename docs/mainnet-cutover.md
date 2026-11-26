@@ -45,13 +45,13 @@ Chain data (markets, oracle events, reports) is replaced at the cutover; index a
 ## 6. What changes by itself
 
 - The strip above the header disappears. Its mainnet wording waits for legal review (`lib/siteStrip.ts`).
-- The footer shows `4663 · Robinhood Chain`.
 - "Get free test tUSDG" in the ticket disappears (`testFaucet` is true only on testnet).
 - The token becomes the mainnet USDG; decimals are read from the contract and checked.
 - The contract table shows the new addresses with their verification status.
 
 ## 7. After
 
+- Update the testnet wording on `/docs`, `/whitepaper` and `/faq` (chain, token, faucet, audit status).
 - `GET <api>/v1/oracle` is 200; each node logs an accepted slot; `/oracle` shows a finalized value.
 - Create one market with a small cap first; buy, wait for settlement, claim.
 - Update `contracts/announcement.md` with the verification status of every contract.
