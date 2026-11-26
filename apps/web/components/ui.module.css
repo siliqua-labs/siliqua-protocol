@@ -133,6 +133,11 @@
   font-size: 25px;
 }
 
+.question a {
+  display: inline-block;
+  min-height: 44px;
+}
+
 .stats {
   margin: 0;
   font-size: 14px;
@@ -422,6 +427,7 @@
 .toc a {
   display: inline-flex;
   align-items: center;
+  min-width: 44px;
   min-height: 44px;
   font-size: 14px;
 }
