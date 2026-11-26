@@ -14,7 +14,7 @@ NOW = datetime(2026, 11, 23, 9, 5, tzinfo=UTC)
 QUOTES = {"a": 3_520_000, "b": 3_523_000, "c": 3_530_000, "d": 3_521_000, "e": 3_525_000}
 
 
-def detail(quotes=None, hour="2026-11-23T08:00:00Z", published="3523800"):
+def detail(quotes=None, hour="2026-11-23T08:00:00Z", published="3523000"):
     quotes = QUOTES if quotes is None else quotes
     return {
         "methodologyVersion": "1.0",
@@ -28,7 +28,7 @@ def detail(quotes=None, hour="2026-11-23T08:00:00Z", published="3523800"):
 
 def test_report_is_recomputed_from_the_inputs():
     report = build_report("h100", detail(), NOW)
-    assert report.value == 3_523_800
+    assert report.value == 3_523_000
     assert report.sources == 5
     assert report.timestamp == int(HOUR.timestamp())
     assert report.index_id == index_id_for("GRI-H100")
@@ -37,7 +37,7 @@ def test_report_is_recomputed_from_the_inputs():
 
 def test_own_value_wins_over_the_published_one(caplog):
     report = build_report("h100", detail(published="9999999"), NOW)
-    assert report.value == 3_523_800
+    assert report.value == 3_523_000
     assert "differs from the api value" in caplog.text
 
 
@@ -89,7 +89,7 @@ def test_run_once_posts_a_signed_report():
     with http:
         assert run_once(http, settings(), NOW) == 1
     entry = posted[0]["reports"][0]
-    assert entry["report"]["value"] == "3523800"
+    assert entry["report"]["value"] == "3523000"
     assert entry["signature"].startswith("0x") and len(entry["signature"]) == 132
 
 

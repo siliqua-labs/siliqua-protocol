@@ -90,8 +90,9 @@ export default function WhitepaperPage() {
           for that hour.
         </li>
         <li>
-          The value is the weighted mean of the remaining quotes, rounded half
-          up. Every weight is 1 in version 1.0, so it is their plain average.
+          The value is the median of the remaining quotes. With an even number
+          it is the mean of the two middle quotes, rounded half up. Every source
+          has the same weight in version 1.0.
         </li>
       </ol>
       <p style={{ marginTop: 16 }}>

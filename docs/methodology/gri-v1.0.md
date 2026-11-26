@@ -47,7 +47,7 @@ Inputs: one quote per source for the class and hour.
 4. Drop every quote with `|x - m| > b`. A quote exactly at the bound is kept.
 5. Count the remaining quotes: `valid_sources`.
 6. If `valid_sources < 5`, the hour is **not published** for that class and is marked stale. The minimum is checked after the outlier filter (owner decision 2026-11-23, replacing the PLAN N1 default of 5 before and 4 after).
-7. Otherwise `GRI = sum(w_i * x_i) / sum(w_i)` over the kept quotes, rounded half up to the micro-USD. **Proposed:** a weighted mean over kept quotes.
+7. Otherwise GRI is the weighted median of the kept quotes (decision 2026-11-26). With equal weights this is the median: the middle value, or for an even count the mean of the two middle values, rounded half up to the micro-USD.
 
 The 1% floor in step 3 keeps the bound meaningful when `MAD = 0`.
 
@@ -89,7 +89,6 @@ A new methodology version takes effect no earlier than 14 days after it is annou
 
 ## 10. Open items
 
-1. Combining rule after filtering: weighted mean (Proposed) or median of kept quotes.
-2. Per-source hourly quote and presence rule (section 3, Proposed).
-3. Age and display of the latest value when the current hour is stale.
-4. Whether a quote exactly at the bound is kept (this draft keeps it).
+1. Per-source hourly quote and presence rule (section 3, Proposed).
+2. Age and display of the latest value when the current hour is stale.
+3. Whether a quote exactly at the bound is kept (this draft keeps it).

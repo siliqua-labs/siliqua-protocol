@@ -44,6 +44,22 @@ def median(values: list[int]) -> int:
     return div_half_up(ordered[middle - 1] + ordered[middle], 2)
 
 
+def weighted_median(weighted: list[tuple[int, int]]) -> int:
+    """Median of (value, positive weight) pairs. Equal weights give the plain median."""
+    if not weighted:
+        raise ValueError("weighted median of an empty list")
+    ordered = sorted(weighted)
+    total = sum(weight for _, weight in ordered)
+    below = 0
+    for position, (value, weight) in enumerate(ordered):
+        below += weight
+        if 2 * below > total:
+            return value
+        if 2 * below == total:
+            return div_half_up(value + ordered[position + 1][0], 2)
+    raise ValueError(f"weights must be positive, got {weighted!r}")
+
+
 def gri(quotes: Mapping[str, int], methodology_version: str = "1.0") -> GriResult:
     """Return the hour's value, or value None when fewer than the minimum sources survive."""
     if methodology_version not in METHODOLOGIES:
@@ -65,7 +81,5 @@ def gri(quotes: Mapping[str, int], methodology_version: str = "1.0") -> GriResul
     if len(kept) < methodology.min_valid_sources:
         return GriResult(value=None, valid_sources=len(kept), kept=kept, dropped=dropped)
 
-    weights = [methodology.weight(quotes[s]) for s in kept]
-    weighted_sum = sum(w * quotes[s] for w, s in zip(weights, kept, strict=True))
-    value = div_half_up(weighted_sum, sum(weights))
+    value = weighted_median([(quotes[s], methodology.weight(quotes[s])) for s in kept])
     return GriResult(value=value, valid_sources=len(kept), kept=kept, dropped=dropped)

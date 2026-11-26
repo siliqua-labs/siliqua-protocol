@@ -93,7 +93,7 @@ export default async function MethodologyPage() {
           ["Sample", "Every 10 minutes, one price per source."],
           [
             "Hourly value",
-            "Per source, the median of its 10-minute samples in that hour. The index is the weighted mean of the source values that pass the outlier filter, rounded half up.",
+            "Per source, the median of its 10-minute samples in that hour. The index is the median of the source values that pass the outlier filter, rounded half up.",
           ],
           [
             "Outlier filter",

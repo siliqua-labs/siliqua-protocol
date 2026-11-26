@@ -184,9 +184,9 @@ export default async function Home() {
           </ol>
         </div>
         <p style={{ marginTop: 36 }}>
-          One provider that lists a wild price should not move the index.
-          Outliers are measured from the median and dropped first, then the rest
-          are averaged with equal weight.
+          A median ignores one provider that lists a wild price. An average
+          would follow it. Outliers are dropped first, then the median of the
+          rest is published.
         </p>
       </Reveal>
 

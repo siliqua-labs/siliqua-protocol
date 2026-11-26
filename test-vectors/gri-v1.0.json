@@ -25,12 +25,12 @@
     {
       "name": "MAD is zero, 1 percent floor keeps a near quote",
       "quotes": {"a": 2000000, "b": 2000000, "c": 2000000, "d": 2000000, "e": 2030000},
-      "expected": {"value": 2006000, "valid_sources": 5, "dropped": []}
+      "expected": {"value": 2000000, "valid_sources": 5, "dropped": []}
     },
     {
       "name": "quote exactly at the bound is kept",
       "quotes": {"a": 2000000, "b": 2000000, "c": 2000000, "d": 2000000, "e": 2060000},
-      "expected": {"value": 2012000, "valid_sources": 5, "dropped": []}
+      "expected": {"value": 2000000, "valid_sources": 5, "dropped": []}
     },
     {
       "name": "quote one micro-USD past the bound is dropped",
@@ -38,8 +38,8 @@
       "expected": {"value": null, "valid_sources": 4, "dropped": ["e"]}
     },
     {
-      "name": "mean rounds half up",
-      "quotes": {"a": 1000000, "b": 1000000, "c": 1000000, "d": 1000000, "e": 1000000, "f": 1000003},
+      "name": "median of an even count rounds half up",
+      "quotes": {"a": 1000000, "b": 1000000, "c": 1000000, "d": 1000001, "e": 1000001, "f": 1000001},
       "expected": {"value": 1000001, "valid_sources": 6, "dropped": []}
     },
     {

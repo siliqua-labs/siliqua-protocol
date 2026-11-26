@@ -16,7 +16,7 @@ _The price of a GPU hour, recomputable by anyone._
 
 Siliqua computes two indexes and runs a weekly YES/NO market on top of the GPU rent index.
 
-- **GRI (GPU Rent Index)** is the on-demand rental price of a GPU class, averaged across sources after outliers are dropped, in USD per GPU-hour with 6 decimals. Classes: H100 80GB SXM, H200 SXM, B200, A100 80GB, RTX 4090 24GB. Signed values are stored on chain.
+- **GRI (GPU Rent Index)** is the median on-demand rental price of a GPU class, in USD per GPU-hour, with 6 decimals. Classes: H100 80GB SXM, H200 SXM, B200, A100 80GB, RTX 4090 24GB. Signed values are stored on chain.
 - **CMI (compute narrative share)** is the share of social attention held by each compute narrative, from 0 to 10,000 bps. It is computed daily and served by the API. It is not published on chain.
 - **Market**: a weekly parimutuel market in test USDG. It closes 24 hours before a 24-hour TWAP window of the hourly GRI, and the TWAP settles it.
 
@@ -45,7 +45,7 @@ Addresses, deploy transactions, source verification status and trust boundaries 
 1. Collectors read prices from each source every 10 minutes and store the raw observations with a payload hash.
 2. For each class and hour, each source contributes one quote (the median of its observations in that hour).
 3. Quotes further than `3 * max(1.4826 * MAD, 1% of median)` from the median are dropped.
-4. With at least 5 quotes left, the GRI is their mean (every weight is 1 in v1.0), rounded half up. Otherwise the hour is not published.
+4. With at least 5 quotes left, the GRI is their median (every weight is 1 in v1.0). Otherwise the hour is not published.
 5. The market settles on the 24-hour TWAP of the hourly GRI. Empty hours are skipped and counted as stale. More than 6 stale hours in the window voids the market with a full refund.
 
 All arithmetic is integer micro-USD with half-up rounding. No floating point touches a price. A monthly export with a SHA-256 manifest and a `verify` script recompute published hours without a database.

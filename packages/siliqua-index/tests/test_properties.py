@@ -2,7 +2,7 @@ import pytest
 from hypothesis import given
 from hypothesis import strategies as st
 from siliqua_index import aggregate, gri, twap
-from siliqua_index.gri import median
+from siliqua_index.gri import median, weighted_median
 from siliqua_index.rounding import div_half_up
 
 quote = st.integers(min_value=1, max_value=10**9)
@@ -54,6 +54,16 @@ def test_div_half_up_is_nearest_with_ties_up(numerator, denominator):
 
 def test_median_of_two_rounds_half_up():
     assert median([1, 2]) == 2
+
+
+@given(st.lists(quote, min_size=1, max_size=15), st.integers(min_value=1, max_value=3))
+def test_equal_weights_give_the_plain_median(values, weight):
+    assert weighted_median([(v, weight) for v in values]) == median(values)
+
+
+def test_weighted_median_follows_the_weight():
+    assert weighted_median([(1, 1), (2, 1), (9, 3)]) == 9
+    assert weighted_median([(1, 2), (2, 1), (4, 1)]) == 2
 
 
 @pytest.mark.parametrize("bad", [0, -5, 2.5, True, "100"])
