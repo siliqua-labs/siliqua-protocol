@@ -8,7 +8,7 @@
 
 _The price of a GPU hour, recomputable by anyone._
 
-[Website](https://siliqua-compute.vercel.app) &nbsp;·&nbsp; [X](https://x.com/SiliquaCompute) &nbsp;·&nbsp; [Contracts](contracts/announcement.md) &nbsp;·&nbsp; Status: **running on Robinhood Chain Testnet, not audited**
+[Website](https://siliqua.tech) &nbsp;·&nbsp; [X](https://x.com/SiliquaCompute) &nbsp;·&nbsp; [Contracts](contracts/announcement.md) &nbsp;·&nbsp; Status: **running on Robinhood Chain Testnet, not audited**
 
 </div>
 
