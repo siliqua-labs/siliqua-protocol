@@ -1,5 +1,6 @@
 {
   "$schema": "https://biomejs.dev/schemas/2.6.8/schema.json",
+  "vcs": { "enabled": true, "clientKind": "git", "useIgnoreFile": true },
   "files": {
     "includes": [
       "**",
@@ -11,7 +12,11 @@
       "!**/.hypothesis",
       "!.claude",
       "!graphify-out",
-      "!**/next-env.d.ts"
+      "!**/next-env.d.ts",
+      "!**/*.md",
+      "!**/tests/fixtures",
+      "!test-vectors",
+      "!contracts/lib"
     ]
   },
   "formatter": { "indentStyle": "space", "indentWidth": 2 }
