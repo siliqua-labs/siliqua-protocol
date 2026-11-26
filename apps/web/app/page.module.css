@@ -6,6 +6,12 @@
   min-height: 78vh;
 }
 
+/* The shared section padding pushes the hero buttons below the first screen on a laptop. The
+   element selector outranks .page whatever order the stylesheets load in. */
+section.heroSection {
+  padding-top: clamp(24px, 4vh, 64px);
+}
+
 .hero {
   display: grid;
   grid-template-columns: 1.1fr 1fr;
