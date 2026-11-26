@@ -177,8 +177,8 @@ export default async function MarketPage({
         Fee: 2% of the losing pool, taken at settlement and accrued in the
         market. Anyone can sweep it to the fee router, which splits it 50%
         buyback and burn of $SILQ, 30% treasury, 20% oracle operators. The
-        router only splits. The buyback is manual and executed by an announced
-        multisig.
+        router only splits. The buyback is manual. On testnet its wallet has a
+        single key. On mainnet an announced multisig will execute it.
       </p>
       <p>
         The per-address cap and region restrictions are partial mitigations, not
