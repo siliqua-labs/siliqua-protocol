@@ -1,3 +1,4 @@
+import { isAddress } from "viem";
 import { liveConfig, marketChainConfig, tokenDecimals } from "../chain";
 import type { LiveConfig } from "../wallet";
 import { type ApiMarket, toMarket, wholeTokens } from "./marketMapping";
@@ -126,7 +127,9 @@ export async function getMarketDetail(
     const d = mockMarketDetail(id);
     return d && { isSample: true, perAddressCapTokens: 1000, ...d };
   }
-  const m = await fetchApi<ApiMarket>(`/v1/markets/${encodeURIComponent(id)}`);
+  // The api answers 400 to anything that is not an address; for a visitor that is a 404.
+  if (!isAddress(id, { strict: false })) return null;
+  const m = await fetchApi<ApiMarket>(`/v1/markets/${id}`);
   if (!m) return null;
   // Hourly prints of the market's index; the TWAP window is the last 24 of them.
   const detail = await getIndexDetail(
