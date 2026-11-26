@@ -7,6 +7,8 @@ export const SETTLE_DELAY_SECONDS = 3 * 3600;
 export const SETTLE_ALERT_SECONDS = 3600;
 // Markets must stay open for betting at least this long, or the week is skipped.
 export const MIN_BETTING_SECONDS = 24 * 3600;
+// A market is not opened on an older price than this, counted from the start of the oracle slot.
+export const MAX_THRESHOLD_AGE_SECONDS = 6 * 3600;
 
 export const STATUS_OPEN = 0;
 export const STATUS_SETTLED = 1;
@@ -24,7 +26,7 @@ export type MarketState = {
 export type KeeperChain = {
   blockTime(): Promise<number>;
   listMarkets(): Promise<MarketState[]>;
-  latestValue(indexId: Hex): Promise<bigint>;
+  latest(indexId: Hex): Promise<{ slotStart: number; value: bigint }>;
   createMarket(
     indexId: Hex,
     threshold: bigint,
@@ -105,13 +107,19 @@ export async function keepOnce(
       (m) => m.indexId === indexId && m.closeTime === closeTime,
     );
     if (exists) continue;
-    // An index without a finalized value yet fails here and is retried on the next pass; the
+    // An index without a recent finalized value fails here and is retried on the next pass; the
     // other indexes are not held back.
     await attempt(log, "createMarket", `${indexId}@${closeTime}`, async () => {
       // Default policy: threshold is the latest finalized value, so the question is "higher
       // or not than now". Pending owner confirmation (plan open question).
-      const threshold = await chain.latestValue(indexId);
-      return chain.createMarket(indexId, threshold, closeTime);
+      const { slotStart, value } = await chain.latest(indexId);
+      const age = now - slotStart;
+      if (age > MAX_THRESHOLD_AGE_SECONDS) {
+        throw new Error(
+          `latest oracle value is ${age}s old, limit ${MAX_THRESHOLD_AGE_SECONDS}s`,
+        );
+      }
+      return chain.createMarket(indexId, value, closeTime);
     });
   }
 }

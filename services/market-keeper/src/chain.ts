@@ -115,14 +115,14 @@ export function keeperChain(options: {
       return Promise.all(addresses.map(readMarket));
     },
 
-    async latestValue(indexId) {
-      const [, value] = await publicClient.readContract({
+    async latest(indexId) {
+      const [slotStart, value] = await publicClient.readContract({
         address: options.oracle,
         abi: oracleAbi,
         functionName: "latest",
         args: [indexId],
       });
-      return value;
+      return { slotStart: Number(slotStart), value };
     },
 
     async createMarket(indexId, threshold, closeTime) {

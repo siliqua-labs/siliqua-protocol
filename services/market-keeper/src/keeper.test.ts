@@ -4,6 +4,7 @@ import type { Address, Hex } from "viem";
 import {
   type KeeperChain,
   keepOnce,
+  MAX_THRESHOLD_AGE_SECONDS,
   type MarketState,
   MIN_BETTING_SECONDS,
   nextCloseTime,
@@ -40,7 +41,7 @@ function fakeChain(markets: MarketState[], failing: string[] = []) {
   const chain: KeeperChain = {
     blockTime: async () => NOW,
     listMarkets: async () => markets,
-    latestValue: async () => 3_500_000n,
+    latest: async () => ({ slotStart: NOW - 3600, value: 3_500_000n }),
     async createMarket(index, threshold, closeTime) {
       calls.push(
         `create:${index === INDEX_ID ? "" : `${index.slice(2, 4)}:`}${threshold}:${closeTime}`,
@@ -174,13 +175,31 @@ test("an index without a finalized value does not stop the others", async () => 
   const { chain, calls } = fakeChain([]);
   const noValue: KeeperChain = {
     ...chain,
-    latestValue: async (index) => {
+    latest: async (index) => {
       if (index === INDEX_ID) throw new Error("no value yet");
-      return 4_000_000n;
+      return { slotStart: NOW - 3600, value: 4_000_000n };
     },
   };
   const rec = recorder();
   const multi = { indexIds: [INDEX_ID, OTHER_INDEX], closeAnchor: ANCHOR };
   await keepOnce(noValue, multi, rec.log);
   assert.equal(calls.filter((c) => c.startsWith("create:")).length, 1);
+});
+
+test("does not open a market on an oracle value older than the limit", async () => {
+  const cases = [
+    [MAX_THRESHOLD_AGE_SECONDS, 1],
+    [MAX_THRESHOLD_AGE_SECONDS + 1, 0],
+  ] as const;
+  for (const [age, expected] of cases) {
+    const { chain, calls } = fakeChain([]);
+    const aged: KeeperChain = {
+      ...chain,
+      latest: async () => ({ slotStart: NOW - age, value: 3_500_000n }),
+    };
+    const { log, errors } = recorder();
+    await keepOnce(aged, config, log);
+    assert.equal(calls.length, expected);
+    assert.equal(errors.length, 1 - expected);
+  }
 });

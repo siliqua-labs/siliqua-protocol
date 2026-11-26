@@ -47,7 +47,7 @@ Order of checks in `settle()`:
 
 - Factory `owner` (a timelock owned by the multisig): template, keepers, unpause, owner and guardian changes.
 - `guardian` (the multisig): pause only.
-- `keeper` addresses (the `market-keeper` service): `createMarket`. Threshold and `closeTime` are chosen by the keeper; the factory only checks the schedule and that the index exists.
+- `keeper` addresses (the `market-keeper` service): `createMarket`. Threshold and `closeTime` are chosen by the keeper; the factory only checks the schedule and that the index exists. The keeper uses the latest finalized oracle value as the threshold and does not open a market while that slot started more than 6 hours ago; it retries on every pass.
 
 ## Tests
 
