@@ -74,6 +74,11 @@
 @media (max-width: 1140px) {
   .toggle {
     display: block;
+    min-height: 44px;
+  }
+
+  .mark {
+    min-height: 44px;
   }
 
   .nav {
@@ -83,7 +88,7 @@
     left: 0;
     right: 0;
     flex-direction: column;
-    gap: 14px;
+    gap: 0;
     background: var(--bg);
     padding: 16px var(--pad);
     border-bottom: 1px solid var(--ln);
@@ -91,6 +96,13 @@
 
   .nav.open {
     display: flex;
+  }
+
+  .nav > a {
+    display: flex;
+    align-items: center;
+    align-self: flex-start;
+    min-height: 44px;
   }
 
   .header > .social,
@@ -106,6 +118,8 @@
   }
 
   .nav .extras a {
+    width: 44px;
+    height: 44px;
     padding: 0;
     border: 1px solid var(--ln);
   }

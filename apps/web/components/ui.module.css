@@ -364,12 +364,44 @@
   color: var(--tx);
 }
 
+.stepper {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.stepper output {
+  font:
+    500 16px var(--font-mono),
+    monospace;
+}
+
+.status {
+  margin-top: 10px;
+  font-size: 13px;
+  color: var(--tx);
+  overflow-wrap: anywhere;
+}
+
 .big {
   font: 400 44px / 1.15 var(--serif);
   font-variant-numeric: lining-nums tabular-nums;
 }
 
+/* Touch targets of at least 44px. */
 @media (max-width: 860px) {
+  .btn {
+    min-height: 44px;
+  }
+
+  summary.btn,
+  a.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
   .grid2,
   .grid4 {
     grid-template-columns: 1fr;

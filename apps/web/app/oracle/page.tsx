@@ -203,7 +203,7 @@ function Spread({
         width="100%"
         role="img"
         aria-label={`Each operator deviation from the slot median. Contract tolerance is ${tol}.`}
-        fontFamily="monospace"
+        style={{ fontFamily: "var(--font-mono), monospace" }}
       >
         {[o.toleranceBps, -o.toleranceBps].map((t) => (
           <g key={t}>

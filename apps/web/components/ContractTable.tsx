@@ -42,7 +42,7 @@ export async function ContractTable({
                 "not deployed"
               )}
             </td>
-            <td>{statuses[i] ? describeVerification(statuses[i]) : "—"}</td>
+            <td>{statuses[i] ? describeVerification(statuses[i]) : "n/a"}</td>
           </tr>
         ))}
       </tbody>

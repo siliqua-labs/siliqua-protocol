@@ -102,7 +102,7 @@ export function ChartPanel({
           viewBox={`0 0 ${W} ${H}`}
           width="100%"
           aria-hidden="true"
-          fontFamily="monospace"
+          style={{ fontFamily: "var(--font-mono), monospace" }}
         >
           {[0, 1, 2, 3].map((k) => {
             const v = lo + ((hi - lo) * k) / 3;

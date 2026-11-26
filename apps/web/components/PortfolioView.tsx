@@ -100,7 +100,7 @@ export function PortfolioView() {
                       className={`${ui.btn} ${ui.small}`}
                       disabled
                     >
-                      —
+                      n/a
                     </button>
                   ) : (
                     <button

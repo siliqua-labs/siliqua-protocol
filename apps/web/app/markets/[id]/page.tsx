@@ -66,11 +66,25 @@ export default async function MarketPage({
         <StatusChip status={d.isSample ? "NOT_LIVE" : m.status} />{" "}
         {d.isSample ? <SampleTag /> : null}
       </p>
-      <h1 style={{ fontSize: "clamp(32px, 6vw, 68px)" }}>{m.question}</h1>
+      <h1 style={{ fontSize: "clamp(32px, 6vw, 68px)" }}>
+        {/* Odd parts are dates, which must not break at their hyphens. */}
+        {m.question.split(/(\d{4}-\d{2}-\d{2})/).map((part, i) =>
+          i % 2 ? (
+            <span key={part} style={{ whiteSpace: "nowrap" }}>
+              {part}
+            </span>
+          ) : (
+            part
+          ),
+        )}
+      </h1>
       <Notice>
         <span className="label">Resolution criteria</span>
         <ul>
-          <li>Source: 24-hour TWAP of GRI-H100 from SiliquaOracle.</li>
+          <li>
+            Source: 24-hour TWAP of {m.indexLabel ?? "the index"} from
+            SiliquaOracle.
+          </li>
           <li>
             Above the threshold is YES. Equal to the threshold falls to NO.
           </li>

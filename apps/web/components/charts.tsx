@@ -79,7 +79,7 @@ export function SourceSpread({
       aria-label={`Source prices from ${formatUsd(String(Math.min(...prices)))} to ${formatUsd(String(Math.max(...prices)))}${
         med === null ? "" : `; median ${formatUsd(String(med))}`
       }`}
-      fontFamily="monospace"
+      style={{ fontFamily: "var(--font-mono), monospace" }}
     >
       <line x1={30} x2={770} y1={70} y2={70} stroke="#E8E8E8" />
       {med !== null && (
@@ -168,7 +168,10 @@ export function NarrativeTreemap({ bps }: { bps: Record<Narrative, number> }) {
       aria-label={NARRATIVES.map((n) => `${n} ${share(bps, n)} bps`).join(", ")}
     >
       {rows.map((r) => (
-        <div key={r[0]} style={{ display: "flex", height: sum(r) / 45 }}>
+        <div
+          key={r[0]}
+          style={{ display: "flex", flexWrap: "wrap", minHeight: sum(r) / 45 }}
+        >
           {r.map((n) => (
             <div
               key={n}
@@ -178,7 +181,8 @@ export function NarrativeTreemap({ bps }: { bps: Record<Narrative, number> }) {
                 color: narrativeStyle(NARRATIVES, n).text,
                 padding: 10,
                 fontSize: 12,
-                minWidth: 0,
+                // Narrow screens wrap boxes instead of breaking names letter by letter.
+                minWidth: 136,
                 overflow: "hidden",
                 overflowWrap: "anywhere",
                 border: "1px solid var(--bg)",
