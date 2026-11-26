@@ -190,9 +190,6 @@ twap(indexId, from, to)         // (value, usedSlots, staleSlots)`}</code>
           <Link href="/faq">FAQ</Link>
         </li>
         <li>
-          <a href={`${REPO}#readme`}>Repository and local setup</a>
-        </li>
-        <li>
           <a href={`${REPO}/blob/main/docs/spec/oracle-v1.md`}>
             Oracle specification
           </a>
