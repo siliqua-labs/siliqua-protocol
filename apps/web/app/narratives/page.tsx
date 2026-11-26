@@ -112,7 +112,10 @@ export default async function NarrativesPage() {
       <div className={ui.card} style={{ marginTop: 32 }}>
         <p className="label">Method</p>
         <ul className={ui.list}>
-          <li>Bot and reply-spam filter before scoring.</li>
+          <li>
+            A post counts for more when its account is older and its bot score
+            is lower.
+          </li>
           <li>Time decay with a 48-hour half-life.</li>
           <li>
             Each post gets one label, the highest-scoring narrative. Posts below

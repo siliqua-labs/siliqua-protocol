@@ -93,7 +93,7 @@ export default async function MethodologyPage() {
           ["Sample", "Every 10 minutes, one price per source."],
           [
             "Hourly value",
-            "Median of the 10-minute samples in that hour, per source, then the median across sources.",
+            "Per source, the median of its 10-minute samples in that hour. The index is the weighted mean of the source values that pass the outlier filter, rounded half up.",
           ],
           [
             "Outlier filter",
@@ -183,11 +183,6 @@ export default async function MethodologyPage() {
             <mi>k</mi>
           </msub>
           <mo>·</mo>
-          <msub>
-            <mi>e</mi>
-            <mi>p</mi>
-          </msub>
-          <mo>·</mo>
           <msup>
             <mi>e</mi>
             <mrow>
@@ -228,7 +223,6 @@ export default async function MethodologyPage() {
             "c",
             "Credibility of the account, from 0 to 1, built from account age, bot score and an owner-maintained tier list.",
           ],
-          ["e", "Engagement of the post."],
           [
             "Decay",
             "Half-life 48 hours, so lambda = ln(2) / 48 h. dt is measured from the end of the UTC day. Lookback is 7 days.",
@@ -239,7 +233,7 @@ export default async function MethodologyPage() {
           ],
           [
             "Rounding",
-            "Largest remainder, so the five values sum to exactly 10,000 bps.",
+            "Largest remainder, so the five narratives and OTHER sum to exactly 10,000 bps.",
           ],
           [
             "Zero day",
