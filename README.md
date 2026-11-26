@@ -8,115 +8,132 @@
 
 _The price of a GPU hour, recomputable by anyone._
 
-`GRI` GPU rent in USD per GPU-hour &nbsp;·&nbsp; `CMI` compute narrative share in bps &nbsp;·&nbsp; Robinhood Chain (EVM) &nbsp;·&nbsp; Status: **pre-release, interim README**
+[Website](https://siliqua-compute.vercel.app) &nbsp;·&nbsp; [X](https://x.com/SiliquaCompute) &nbsp;·&nbsp; [Contracts](contracts/announcement.md) &nbsp;·&nbsp; Status: **running on Robinhood Chain Testnet, not audited**
 
 </div>
 
 ---
 
-Siliqua publishes two indexes on Robinhood Chain and runs a weekly YES/NO market on top of them.
+Siliqua computes two indexes and runs a weekly YES/NO market on top of the GPU rent index.
 
-- **GRI (GPU Rent Index)** is the median on-demand rental price of a GPU class, in USD per GPU-hour, with 6 decimals. Classes: H100 80GB SXM, H200 SXM, B200, A100 80GB, RTX 4090 24GB.
-- **CMI (compute narrative share)** is the share of social attention held by each compute narrative, from 0 to 10,000 bps.
-- **Market**: a weekly parimutuel market in USDG. It closes 24 hours before a 24-hour TWAP window of the hourly GRI, and the TWAP settles it.
-
-Both indexes are pure functions of public raw data. The raw data is exported monthly with a SHA-256 manifest, and a `verify` script recomputes any published hour from it.
+- **GRI (GPU Rent Index)** is the median on-demand rental price of a GPU class, in USD per GPU-hour, with 6 decimals. Classes: H100 80GB SXM, H200 SXM, B200, A100 80GB, RTX 4090 24GB. Signed values are stored on chain.
+- **CMI (compute narrative share)** is the share of social attention held by each compute narrative, from 0 to 10,000 bps. It is computed daily and served by the API. It is not published on chain.
+- **Market**: a weekly parimutuel market in test USDG. It closes 24 hours before a 24-hour TWAP window of the hourly GRI, and the TWAP settles it.
 
 Siliqua indexes are published data, not investment advice. Nothing here is a statement of fact about any provider, and no provider endorses it.
 
 ## Status
 
-This repository is in **Stage 2: backend, data and API**. Nothing is deployed and no money is handled.
+Testnet only (chain ID 46630). Test tokens have no value. Mainnet is not deployed.
 
-| Part                                    | State                                                                                                                          |
-| --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| Index math (`packages/siliqua-index`)   | Done. Integer arithmetic, shared golden vectors, property tests                                                                |
-| Price collectors                        | Done for 5 providers (RunPod, Vast.ai, Lambda, Texel, Akash). Each is off unless switched on                                   |
-| Index engine                            | Done. Computes every complete hour, stores stale hours, immutable once published                                               |
-| Database                                | Done locally. Plain Postgres, monthly partitions, row-level security on every table                                            |
-| API (`services/api`)                    | Done. `/v1/indexes`, `/v1/indexes/:slug`, rate limited. Redis cache not yet added                                              |
-| Frontend (`apps/web`)                   | Reads index data from the API when `API_BASE_URL` is set. Markets read the API and the chain once `CHAIN_ENV` (testnet or mainnet), `RPC_URL` and `FACTORY_ADDRESS` are also set, and the ticket talks to a browser wallet; narratives stay on labelled sample data |
-| Watchdog                                | Done. Coverage gaps per class, source freshness, webhook alert                                                                 |
-| Export and `verify`                     | Done                                                                                                                           |
-| CMI, oracle contracts, market contracts | Not started (later stages)                                                                                                     |
+| Part                                     | State                                                                                                                                         |
+| ---------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| Website (`apps/web`)                     | Live on Vercel: indexes, narratives, markets, portfolio, methodology, oracle and data pages. Wallet connect, buy, claim and refund on testnet |
+| API (`services/api`)                     | Live. Indexes, narratives, markets and oracle status, rate limited                                                                            |
+| Price collectors, index engine, watchdog | Running. A class is published only with at least 5 valid sources after the outlier filter; otherwise the hour is marked and not published     |
+| CMI                                      | Farcaster and Bluesky, keyword classifier. X is off. The 500-post evaluation of the classifier is not done                                    |
+| Oracle contract and 3 operator nodes     | Running on testnet                                                                                                                            |
+| Relayer, indexer, market keeper          | Running on testnet                                                                                                                            |
+| Market contracts and fee router          | Deployed on testnet                                                                                                                           |
+| Contract audit, legal review             | Not done. Both are gates before mainnet                                                                                                       |
+| Mainnet admin (multisig and timelock)    | Not built. One key stands in on testnet                                                                                                       |
 
-**Not yet publishable.** A GRI class is published only with at least 5 valid sources after the outlier filter. With the current providers no class reaches that with independent sources, so every index reports `INSUFFICIENT_SOURCES`. The stage gate also needs 30 days with no raw-coverage gap over 6 hours, which has not started. The methodology draft is in [docs/methodology/gri-v1.0.md](docs/methodology/gri-v1.0.md).
+Addresses, deploy transactions, source verification status and trust boundaries are listed in [contracts/announcement.md](contracts/announcement.md). The methodology is still a draft: [GRI](docs/methodology/gri-v1.0.md), [CMI](docs/methodology/cmi-v1.0.md).
 
-## How an index is computed
+## How GRI is computed
 
-1. Collectors read public prices from each source every 10 minutes and store the raw observations with a payload hash.
+1. Collectors read prices from each source every 10 minutes and store the raw observations with a payload hash.
 2. For each class and hour, each source contributes one quote (the median of its observations in that hour).
-3. Quotes beyond `3 * max(1.4826 * MAD, 1% of median)` from the median are dropped.
+3. Quotes further than `3 * max(1.4826 * MAD, 1% of median)` from the median are dropped.
 4. With at least 5 quotes left, the GRI is their median. Otherwise the hour is not published.
 5. The market settles on the 24-hour TWAP of the hourly GRI. Empty hours are skipped and counted as stale. More than 6 stale hours in the window voids the market with a full refund.
 
-All arithmetic is integer micro-USD with half-up rounding. No floating point touches a price.
+All arithmetic is integer micro-USD with half-up rounding. No floating point touches a price. A monthly export with a SHA-256 manifest and a `verify` script recompute published hours without a database.
 
 ## Trust model
 
-Three oracle operators, all from the Siliqua team, sign their own values on-chain (EIP-712). The contract drops values more than 1% from the median and needs at least 2 left. There is **no stake and no slashing in v1**. This is trust in one team, not economic security, and it is stated on the oracle and methodology pages. Market contracts are immutable and pin the oracle address at creation. Admin actions go through a multisig and a timelock, and a pause never blocks claims or refunds.
+Three oracle operators, all from the Siliqua team, sign their own values (EIP-712). The contract drops values more than 1% from the median and needs at least 2 left. There is **no stake and no slashing in v1**. This is trust in one team, not economic security. Market contracts are immutable and pin the oracle address at creation. Pausing stops buying only; it never blocks claims or refunds.
 
 ## Repository
 
 ```
-apps/web                  Next.js frontend
-services/api              Fastify read API
-packages/siliqua-index    Pure index functions, shared by engine and oracle node
-workers/price-collectors  Provider collectors
-workers/index-engine      Hourly computation, monthly export, verify
-workers/watchdog          Coverage and freshness alerts
-db/migrations             Plain SQL migrations; `pnpm --filter @siliqua/db migrate [VAR]` applies the pending ones to the database in `VAR` (default `SUPABASE_DATABASE_URL`)
-test-vectors              Golden vectors shared by every consumer
-docs                      Brief, plan, roadmap, sources, methodology
+apps/web                   Next.js frontend
+services/api               Fastify API and oracle report relayer
+services/indexer           Reads oracle and market events into Postgres
+services/market-keeper     Creates and settles the weekly markets
+packages/siliqua-index     Pure index functions, shared by the engine and the oracle node
+packages/chain             Chain and token configuration with a verified flag per value
+packages/db                Database types and migrations runner
+workers/price-collectors   Provider collectors
+workers/social-collectors  Farcaster and Bluesky collectors for CMI
+workers/index-engine       Hourly GRI, daily CMI, monthly export, verify
+workers/oracle-node        One per operator: computes and signs
+workers/watchdog           Coverage and freshness alerts
+contracts                  Solidity contracts and Foundry tests
+db/migrations              Plain SQL migrations
+test-vectors               Golden vectors shared by every consumer
+docs                       Brief, plan, specs, methodology, sources, runbooks
 ```
 
-Stack: TypeScript (Next.js, Fastify), Python 3.12, Postgres, Solidity with Foundry. Workspaces are pnpm for TypeScript and uv for Python.
+Stack: TypeScript (Next.js, Fastify, viem), Python 3.12, Postgres, Solidity with Foundry. Workspaces are pnpm for TypeScript and uv for Python.
 
 ## Run it locally
 
-Needs Node, pnpm, uv and Docker.
+Needs Node 26, pnpm, uv, Python 3.12 and Docker. Foundry is needed only for the contracts. The services read environment variables and do not load `.env` themselves, so export it first.
 
 ```bash
-cp .env.example .env              # set POSTGRES_PASSWORD, DATABASE_URL, provider keys
+git clone --recurse-submodules https://github.com/siliqua-labs/siliqua-protocol.git
+cd siliqua-protocol
+cp .env.example .env              # set POSTGRES_PASSWORD, DATABASE_URL and provider keys
+set -a; . ./.env; set +a
 docker compose up -d              # local Postgres, migrations apply on first start
 pnpm install
-uv sync --all-packages
+uv sync --all-packages --python 3.12
 
-# collect, compute, serve
 uv run python -m price_collectors --once
 uv run python -m index_engine --once
 pnpm --filter @siliqua/api start
-
-# frontend against the API
-API_BASE_URL=http://127.0.0.1:8080 pnpm --filter web dev
 ```
 
-Providers are off by default. Set `COLLECTOR_<NAME>_ENABLED=true` and the key where one is needed. Vast.ai and RunPod terms bar use in an index without a written agreement, so those two are for internal testing only. Provider terms are tracked in [docs/sources.md](docs/sources.md).
+Frontend, in a second terminal:
 
-Export a month and recompute it without a database:
+```bash
+API_BASE_URL=http://127.0.0.1:8080 pnpm --filter @siliqua/web dev
+```
+
+Without `API_BASE_URL` the pages show labelled sample data. Markets are live only when `CHAIN_ENV`, `RPC_URL` and `FACTORY_ADDRESS` are set as well.
+
+Providers are off by default. Set `COLLECTOR_<NAME>_ENABLED=true` and the key where one is needed. Several providers need written permission before their prices may feed a published index. Read [docs/sources.md](docs/sources.md) before enabling any of them.
+
+Export a month and recompute it without a database (replace the month):
 
 ```bash
 uv run python -m index_engine.export 2026-11 ./export
 uv run python -m index_engine.verify ./export --sample 100
 ```
 
-Checks:
+## Checks
 
 ```bash
-pnpm lint && pnpm typecheck && pnpm --filter @siliqua/api test
-DATABASE_URL=... uv run pytest db packages workers
+pnpm lint
+pnpm typecheck
+pnpm -r test
+DATABASE_URL=... uv run --python 3.12 pytest db packages workers
+cd contracts && forge test
 ```
 
 ## Documents
 
 - [Developer brief](docs/brief/Siliqua%20Developer%20Brief.md)
 - [Implementation plan](docs/PLAN.md) and [roadmap](docs/ROADMAP.md)
-- [GRI methodology v1.0 (draft)](docs/methodology/gri-v1.0.md)
+- [Oracle spec](docs/spec/oracle-v1.md) and [market spec](docs/spec/market-v1.md)
+- [Reading GRI from a contract or the API](docs/consuming-the-index.md)
 - [Data sources and terms](docs/sources.md)
+- [Testnet deploy](docs/testnet-deploy.md) and [mainnet cutover checklist](docs/mainnet-cutover.md)
 
 ## Out of scope
 
-The $SILQ token and its launch are not part of this repository. Its address is read from configuration only. Chain IDs and the USDG address are configuration with a `verified` flag and are not filled in until checked against official Robinhood Chain documentation.
+The $SILQ token and its launch are not part of this repository. Its address is read from configuration only.
 
 ## License
 
