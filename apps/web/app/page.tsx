@@ -40,7 +40,7 @@ const STEPS = [
   ["Settle", "Markets read the 24-hour TWAP."],
 ] as const;
 
-const HOME_MARKETS = 4;
+const HOME_MARKETS = 5;
 
 const ROADMAP = [
   ["data", "Data", "Gate: 30 days of data, no gap over 6 hours"],
