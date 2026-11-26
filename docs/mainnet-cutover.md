@@ -52,6 +52,7 @@ Chain data (markets, oracle events, reports) is replaced at the cutover; index a
 ## 7. After
 
 - Update the testnet wording on `/docs`, `/whitepaper` and `/faq` (chain, token, faucet, audit status).
+- Update the admin key sentence on `/oracle` once the multisig manages the operator allowlist.
 - `GET <api>/v1/oracle` is 200; each node logs an accepted slot; `/oracle` shows a finalized value.
 - Create one market with a small cap first; buy, wait for settlement, claim.
 - Update `contracts/announcement.md` with the verification status of every contract.

@@ -42,7 +42,10 @@ export default async function OraclePage() {
             from the median are dropped, and at least 2 must remain.
           </li>
           <li>No stake and no slashing in v1.</li>
-          <li>The operator allowlist is managed by a multisig.</li>
+          <li>
+            On testnet a single admin key manages the operator allowlist. On
+            mainnet a multisig will manage it.
+          </li>
           <li>
             Operators may not bet in markets they report on, and their wallets
             are announced.
