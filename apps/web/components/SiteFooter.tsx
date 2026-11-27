@@ -18,7 +18,6 @@ const columns = [
     [
       ["Methodology", "/methodology"],
       ["Oracles", "/oracle"],
-      ["Data Feed", "/data"],
     ],
   ],
   [

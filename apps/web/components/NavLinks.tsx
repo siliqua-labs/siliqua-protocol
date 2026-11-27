@@ -14,7 +14,6 @@ const links = [
   ["/portfolio", "Portfolio"],
   ["/methodology", "Methodology"],
   ["/oracle", "Oracle"],
-  ["/data", "Data & API"],
 ] as const;
 
 export function NavLinks() {
