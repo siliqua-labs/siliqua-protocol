@@ -6,8 +6,8 @@ out = "out"
 libs = ["lib"]
 solc_version = "0.8.28"
 # Shanghai: PUSH0 but no transient storage or MCOPY. The testnet runs the TestUSDG token, which is
-# compiled with PUSH0, so Shanghai is proven there. Mainnet is not checked yet (docs/ROADMAP.md 6.1),
-# and a change to this setting means a new deployment.
+# compiled with PUSH0, so Shanghai is proven there; the mainnet RPC runs PUSH0 too (2026-11-27).
+# A change to this setting means a new deployment.
 evm_version = "shanghai"
 optimizer = true
 optimizer_runs = 200

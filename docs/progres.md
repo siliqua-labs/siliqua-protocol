@@ -20,7 +20,7 @@ Vast.ai and RunPod terms bar index use without written agreement. Hyperstack cla
 - Testnet 46630, token tUSDG `0x3A37C1D137e02e04E1CC1e4a7dB0B4628C762b4e`, 6 decimals. `faucet()` and `mint()` are open; claim with a wallet-connected page, not the block explorer (it has no wallet connector).
 - Mainnet 4663, token USDG (Paxos) `0x5fc5360D0400a0Fd4f2af552ADD042D716F1d168`, 6 decimals, read from the mainnet RPC. The block explorer page was not checked (Cloudflare). The other address once named, `0xe343...491d`, has no code on this chain.
 - Paxos testnet USDG at `0x7E95...802F` exists but is permissioned (no public faucet). Not used.
-- Contracts target EVM `shanghai`. Proven on testnet (the token uses `PUSH0`); mainnet not checked.
+- Contracts target EVM `shanghai`. Proven on testnet (the token uses `PUSH0`) and on the mainnet RPC (`eth_call`, 2026-11-27).
 
 ## Testnet deploy (not done)
 
@@ -46,7 +46,7 @@ After deploy: set `CHAIN_ENV`, `RPC_URL`, `FACTORY_ADDRESS` on Vercel and Railwa
 
 ## Mainnet admin (later)
 
-Admin must be a multisig plus a timelock. Plan: three EOA signers on different devices or people (hardware wallets advised), Safe with threshold 2 of 3, then a timelock contract owned by the Safe. The timelock contract is not in the repo yet and needs approval. Check that Safe supports Robinhood Chain in the Safe app before relying on it. A mainnet deploy script needs two roles (timelock as admin, Safe as guardian) and none of the testnet shortcuts. Check `PUSH0` support on mainnet.
+Admin must be a multisig plus a timelock. Plan: three EOA signers on different devices or people (hardware wallets advised), Safe with threshold 2 of 3, then a timelock contract owned by the Safe. The timelock contract is not in the repo yet and needs approval; `DeployMainnet.s.sol` expects an OpenZeppelin `TimelockController` deployed beforehand. Check that Safe supports Robinhood Chain in the Safe app before relying on it. The mainnet deploy script is `contracts/script/DeployMainnet.s.sol`. `PUSH0` runs on the mainnet RPC (`eth_call`, checked 2026-11-27).
 
 ## Stage 4: CMI
 
