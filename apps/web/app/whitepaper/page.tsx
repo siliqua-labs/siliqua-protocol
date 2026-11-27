@@ -193,11 +193,14 @@ export default function WhitepaperPage() {
       <h3 id="governance">Administration</h3>
       <p>
         On mainnet, the operator allowlist and the parameters are meant to be
-        held by a multisig behind a timelock. That setup is not built yet. On
-        testnet a single key holds the admin roles. A pause stops buying only
-        and never blocks claims or refunds. Contracts are not upgradeable: a new
-        version is a new deployment. A new methodology version needs 14 days of
-        notice.
+        held by a 2 of 3 multisig behind a 1 hour timelock. The multisig can
+        pause buying and remove an operator without that delay, and it can
+        change the delay through the timelock. A change to the operator
+        allowlist or to oracle parameters also applies to markets that are
+        already running. Mainnet is not deployed; on testnet a single key holds
+        the admin roles. A pause stops buying only and never blocks claims or
+        refunds. Contracts are not upgradeable: a new version is a new
+        deployment. A new methodology version needs 14 days of notice.
       </p>
 
       <h3 id="limits">Limitations and risks</h3>
