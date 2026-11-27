@@ -135,8 +135,7 @@ export default function DocsPage() {
         The API is read-only and open to any origin, limited to 60 requests per
         minute per IP. <code>GET /v1/indexes</code> lists every index with its
         latest value and status. <code>GET /v1/oracle</code> shows operator
-        values and rejected reports. Routes, base URL and live examples:{" "}
-        <Link href="/data">Data &amp; API</Link>.
+        values and rejected reports.
       </p>
 
       <h3 id="contract">Read from a contract</h3>

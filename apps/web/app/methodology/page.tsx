@@ -286,8 +286,7 @@ export default async function MethodologyPage() {
         </ul>
       </div>
       <p style={{ marginTop: 16 }}>
-        Sources: <Link href="/data">Data &amp; API</Link>. Operators:{" "}
-        <Link href="/oracle">Oracle</Link>.
+        Operators: <Link href="/oracle">Oracle</Link>.
       </p>
     </div>
   );

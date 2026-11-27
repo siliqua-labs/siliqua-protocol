@@ -32,10 +32,7 @@ const GROUPS: [string, [string, ReactNode][]][] = [
     [
       [
         "Where do GPU prices come from?",
-        <>
-          From provider price listings, on-demand only. The sources behind the
-          latest hour are listed on <Link href="/data">Data &amp; API</Link>.
-        </>,
+        "From provider price listings, on-demand only. The sources behind the latest hour are listed on each GPU index page.",
       ],
       [
         "Why does a class show no value?",
