@@ -70,7 +70,6 @@ export default async function DataPage() {
         2,
       )}`
     : null;
-  const base = process.env.API_BASE_URL;
 
   return (
     <div className={ui.page}>
@@ -86,11 +85,6 @@ export default async function DataPage() {
         per IP. Prices are integer micro-USD strings: 1,000,000 is one US
         dollar. {list.isSample ? <SampleTag /> : null}
       </p>
-      {base ? (
-        <p>
-          Base URL: <code>{base}</code>
-        </p>
-      ) : null}
 
       <div style={{ marginTop: 32 }}>
         <DataTable caption="Endpoints">
