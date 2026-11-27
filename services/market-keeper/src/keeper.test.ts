@@ -18,6 +18,7 @@ import {
 const INDEX_ID = `0x${"ab".repeat(32)}` as Hex;
 const MARKET = `0x${"01".repeat(20)}` as Address;
 const TX = `0x${"cd".repeat(32)}` as Hex;
+const ROUTER = `0x${"0a".repeat(20)}` as Address;
 const NOW = 1_800_000_000;
 const ANCHOR = NOW - 10 * WEEK_SECONDS;
 const config = { indexIds: [INDEX_ID], closeAnchor: ANCHOR };
@@ -32,6 +33,7 @@ function market(overrides: Partial<MarketState> = {}): MarketState {
     status: STATUS_OPEN,
     expiresAt: NOW + 10 * 24 * 3600,
     feeUnswept: 0n,
+    feeRouter: ROUTER,
     ...overrides,
   };
 }
@@ -55,6 +57,12 @@ function fakeChain(markets: MarketState[], failing: string[] = []) {
     },
     async sweepFees(address) {
       calls.push(`sweep:${address}`);
+      return TX;
+    },
+    routerBalance: async () => 0n,
+    async distribute(router) {
+      calls.push(`distribute:${router}`);
+      if (failing.includes("distribute")) throw new Error("reverted");
       return TX;
     },
   };
@@ -202,4 +210,52 @@ test("does not open a market on an oracle value older than the limit", async () 
     assert.equal(calls.length, expected);
     assert.equal(errors.length, 1 - expected);
   }
+});
+
+test("splits each funded fee router once, after the sweeps", async () => {
+  const other = `0x${"0b".repeat(20)}` as Address;
+  const empty = `0x${"0c".repeat(20)}` as Address;
+  const closeTime = nextCloseTime(NOW, ANCHOR);
+  const settled = { status: STATUS_SETTLED, closeTime };
+  const { chain, calls } = fakeChain([
+    market({ ...settled, feeUnswept: 5n }),
+    market(settled),
+    market({ ...settled, feeRouter: other }),
+    market({ ...settled, feeRouter: empty }),
+  ]);
+  const funded: KeeperChain = {
+    ...chain,
+    routerBalance: async (router) => (router === empty ? 0n : 5n),
+  };
+  await keepOnce(funded, config, recorder().log);
+  assert.deepEqual(calls, [
+    `sweep:${MARKET}`,
+    `distribute:${ROUTER}`,
+    `distribute:${other}`,
+  ]);
+});
+
+test("a failing split or balance read does not stop market creation", async () => {
+  const broken = `0x${"0b".repeat(20)}` as Address;
+  const { chain, calls } = fakeChain(
+    [
+      market({ status: STATUS_SETTLED, feeRouter: broken }),
+      market({ status: STATUS_SETTLED }),
+    ],
+    ["distribute"],
+  );
+  const unreadable: KeeperChain = {
+    ...chain,
+    routerBalance: async (router) => {
+      if (router === broken) throw new Error("rpc down");
+      return 5n;
+    },
+  };
+  const { log, errors } = recorder();
+  await keepOnce(unreadable, config, log);
+  assert.deepEqual(errors, [
+    "fee router balance unreadable",
+    "keeper action failed",
+  ]);
+  assert.ok(calls.some((c) => c.startsWith("create:")));
 });

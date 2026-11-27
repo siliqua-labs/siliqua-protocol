@@ -21,6 +21,7 @@ export type MarketState = {
   status: number;
   expiresAt: number;
   feeUnswept: bigint;
+  feeRouter: Address;
 };
 
 export type KeeperChain = {
@@ -34,6 +35,9 @@ export type KeeperChain = {
   ): Promise<Hex>;
   settle(market: Address): Promise<Hex>;
   sweepFees(market: Address): Promise<Hex>;
+  // Market token held by a fee router and not yet split.
+  routerBalance(router: Address): Promise<bigint>;
+  distribute(router: Address): Promise<Hex>;
 };
 
 export type KeeperConfig = {
@@ -99,6 +103,25 @@ export async function keepOnce(
         chain.sweepFees(market.address),
       );
     }
+  }
+
+  // After the sweeps, so fees moved in this pass are split in it too. The balance decides rather
+  // than the sweep, so a failed split is retried and a sweep sent by someone else is picked up.
+  // Markets keep the router they were created with, so a template change can leave several.
+  for (const router of new Set(markets.map((m) => m.feeRouter))) {
+    try {
+      if ((await chain.routerBalance(router)) === 0n) continue;
+    } catch (error) {
+      log.error(
+        {
+          router,
+          error: error instanceof Error ? error.message : String(error),
+        },
+        "fee router balance unreadable",
+      );
+      continue;
+    }
+    await attempt(log, "distribute", router, () => chain.distribute(router));
   }
 
   const closeTime = nextCloseTime(now, config.closeAnchor);

@@ -7,7 +7,13 @@ import {
   http,
 } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
-import { factoryAbi, marketAbi, oracleAbi } from "./abi.ts";
+import {
+  factoryAbi,
+  marketAbi,
+  oracleAbi,
+  routerAbi,
+  tokenAbi,
+} from "./abi.ts";
 import type { KeeperChain, MarketState } from "./keeper.ts";
 
 export function keeperChain(options: {
@@ -39,45 +45,66 @@ export function keeperChain(options: {
     return hash;
   }
 
+  // The factory is pinned to one token for its whole life.
+  const marketToken = () =>
+    publicClient.readContract({
+      address: options.factory,
+      abi: factoryAbi,
+      functionName: "token",
+    });
+
   async function readMarket(address: Address): Promise<MarketState> {
-    const [indexId, closeTime, twapTo, status, expiresAt, accrued, swept] =
-      await Promise.all([
-        publicClient.readContract({
-          address,
-          abi: marketAbi,
-          functionName: "indexId",
-        }),
-        publicClient.readContract({
-          address,
-          abi: marketAbi,
-          functionName: "closeTime",
-        }),
-        publicClient.readContract({
-          address,
-          abi: marketAbi,
-          functionName: "twapTo",
-        }),
-        publicClient.readContract({
-          address,
-          abi: marketAbi,
-          functionName: "status",
-        }),
-        publicClient.readContract({
-          address,
-          abi: marketAbi,
-          functionName: "expiresAt",
-        }),
-        publicClient.readContract({
-          address,
-          abi: marketAbi,
-          functionName: "feeAccrued",
-        }),
-        publicClient.readContract({
-          address,
-          abi: marketAbi,
-          functionName: "feeSwept",
-        }),
-      ]);
+    const [
+      indexId,
+      closeTime,
+      twapTo,
+      status,
+      expiresAt,
+      accrued,
+      swept,
+      feeRouter,
+    ] = await Promise.all([
+      publicClient.readContract({
+        address,
+        abi: marketAbi,
+        functionName: "indexId",
+      }),
+      publicClient.readContract({
+        address,
+        abi: marketAbi,
+        functionName: "closeTime",
+      }),
+      publicClient.readContract({
+        address,
+        abi: marketAbi,
+        functionName: "twapTo",
+      }),
+      publicClient.readContract({
+        address,
+        abi: marketAbi,
+        functionName: "status",
+      }),
+      publicClient.readContract({
+        address,
+        abi: marketAbi,
+        functionName: "expiresAt",
+      }),
+      publicClient.readContract({
+        address,
+        abi: marketAbi,
+        functionName: "feeAccrued",
+      }),
+      publicClient.readContract({
+        address,
+        abi: marketAbi,
+        functionName: "feeSwept",
+      }),
+      publicClient.readContract({
+        address,
+        abi: marketAbi,
+        functionName: "feeRouter",
+      }),
+    ]);
     return {
       address,
       indexId,
@@ -86,6 +113,7 @@ export function keeperChain(options: {
       status,
       expiresAt: Number(expiresAt),
       feeUnswept: accrued - swept,
+      feeRouter,
     };
   }
 
@@ -152,6 +180,26 @@ export function keeperChain(options: {
           address: market,
           abi: marketAbi,
           functionName: "sweepFees",
+        }),
+      );
+    },
+
+    async routerBalance(router) {
+      return publicClient.readContract({
+        address: await marketToken(),
+        abi: tokenAbi,
+        functionName: "balanceOf",
+        args: [router],
+      });
+    },
+
+    async distribute(router) {
+      return confirm(
+        await walletClient.writeContract({
+          address: router,
+          abi: routerAbi,
+          functionName: "distribute",
+          args: [await marketToken()],
         }),
       );
     },
