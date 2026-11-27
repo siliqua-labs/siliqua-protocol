@@ -27,7 +27,9 @@ contract DeployMainnet is Script {
     uint8 internal constant GRI_DECIMALS = 6;
     uint8 internal constant GRI_MIN_SOURCES = 5;
     uint16 internal constant TOLERANCE_BPS = 100;
-    uint256 internal constant TIMELOCK_DELAY = 48 hours;
+    // Owner decision 2026-11-27: short enough to replace a key or unpause the same day. The Safe can
+    // change it with updateDelay through the timelock, without a new deployment.
+    uint256 internal constant TIMELOCK_DELAY = 1 hours;
 
     struct Config {
         IERC20 token;

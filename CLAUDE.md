@@ -23,7 +23,7 @@ Two on-chain indexes on Robinhood Chain and a weekly prediction market on top of
 - Empty pools: if the winning side has no stake, void and full refund with no fee. If the losing side has no stake, winners get their stake back with no fee. Rounding dust goes to `FeeRouter`. (Confirmed 2026-11-26, plan Q-N2.)
 - Fee, bet cap, durations are `MarketFactory` template parameters, not constants. The bet cap is set in whole tokens and scaled by the token's `decimals()`.
 - Market contracts are immutable and pin the oracle address at creation. Oracle and factory use a registry, no proxies; a new version is a new deployment. There is no admin path to rescue a running market; this is deliberate.
-- Admin uses a multisig and a timelock. `pause` stops only `buy`; it never blocks `claim` or `refundIfVoid`.
+- Admin uses a multisig (Safe, 2 of 3) and a timelock with a 1 hour delay (OpenZeppelin `TimelockController`, decided 2026-11-27). The multisig pauses and removes an operator without the delay. `pause` stops only `buy`; it never blocks `claim` or `refundIfVoid`.
 - Chain: Robinhood Chain (EVM), token USDG. Chain IDs 4663 (mainnet) and 46630 (testnet) come from third-party sources: "not yet matched against docs.robinhood.com/chain" until the owner confirms. Everything is configuration with a `verified` flag. Do not fill in the USDG address or decimals; read `decimals()` from the contract and validate it. Use `block.timestamp`, not block numbers. Verify contracts through Blockscout.
 - Never invent contract addresses, RPC URLs, chain IDs, provider endpoints, prices or data terms. Verify from official docs or mark "unverified" and ask.
 

@@ -6,7 +6,7 @@ What changes when the same deployment moves from the testnet (46630) to Robinhoo
 
 - Pass the gates on the roadmap: legal review and contract audit (`docs/ROADMAP.md`).
 - The Safe is `0x27cF1455E761eBcEbD8dd7354e16Ff36673fD11D` on 4663: SafeL2 1.5.0 (code hash matches `safe-global/safe-deployments`), threshold 2 of 3, no modules (checked 2026-11-27). Confirm the three owners before the deploy.
-- The deploy script creates the timelock: OpenZeppelin `TimelockController` v5.7.0, 48 hour delay, the Safe as only proposer, canceller and executor, no outside admin. Clone with `git submodule update --init`.
+- The deploy script creates the timelock: OpenZeppelin `TimelockController` v5.7.0, 1 hour delay (owner decision 2026-11-27), the Safe as only proposer, canceller and executor, no outside admin. An admin change is a `schedule` transaction, then an `execute` transaction an hour later. Pause and operator removal are immediate; unpause waits the hour. Clone with `git submodule update --init`.
 - Match the mainnet USDG address and the explorer URL against `docs.robinhood.com/chain`. `packages/chain` already marks them verified, from the contracts page and the mainnet RPC; the owner confirms that once more before the deploy (CLAUDE.md, chain decisions).
 - Fresh keys for the three operators, the relayer and the keeper. Do not reuse testnet keys.
 - Decide `FEE_BUYBACK`, `FEE_TREASURY` and `FEE_OPERATORS`. `FeeRouter` is immutable.
@@ -22,7 +22,7 @@ Set these in `contracts/.env` or export them. All are public addresses except th
 | `MAINNET_OPERATOR_1` to `_3` | new operator addresses |
 | `MAINNET_KEEPER` | new keeper address |
 | `MAINNET_FEE_BUYBACK`, `_TREASURY`, `_OPERATORS` | permanent for this router |
-| `MAINNET_BET_CAP_TOKENS` | whole tokens; start small. Raising it later goes through the timelock |
+| `MAINNET_BET_CAP_TOKENS` | whole tokens; start small. Raising it later is a Safe transaction through the timelock |
 
 Simulate from `contracts/`, with the deployer key in a forge keystore:
 

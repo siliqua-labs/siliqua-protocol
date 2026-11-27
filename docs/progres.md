@@ -46,7 +46,7 @@ After deploy: set `CHAIN_ENV`, `RPC_URL`, `FACTORY_ADDRESS` on Vercel and Railwa
 
 ## Mainnet admin (later)
 
-Admin must be a multisig plus a timelock. Plan: three EOA signers on different devices or people (hardware wallets advised), Safe with threshold 2 of 3, then a timelock contract owned by the Safe. Approved 2026-11-27: OpenZeppelin `TimelockController` with a 48 hour delay, created by `DeployMainnet.s.sol`. The Safe exists on 4663 (`docs/mainnet-cutover.md`). Check that Safe supports Robinhood Chain in the Safe app before relying on it. The mainnet deploy script is `contracts/script/DeployMainnet.s.sol`. `PUSH0` runs on the mainnet RPC (`eth_call`, checked 2026-11-27).
+Admin must be a multisig plus a timelock. Plan: three EOA signers on different devices or people (hardware wallets advised), Safe with threshold 2 of 3, then a timelock contract owned by the Safe. Approved 2026-11-27: OpenZeppelin `TimelockController` with a 1 hour delay, created by `DeployMainnet.s.sol`. The Safe exists on 4663 (`docs/mainnet-cutover.md`). Check that Safe supports Robinhood Chain in the Safe app before relying on it. The mainnet deploy script is `contracts/script/DeployMainnet.s.sol`. `PUSH0` runs on the mainnet RPC (`eth_call`, checked 2026-11-27).
 
 ## Stage 4: CMI
 

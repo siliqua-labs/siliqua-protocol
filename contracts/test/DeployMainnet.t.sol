@@ -61,7 +61,7 @@ contract DeployMainnetTest is Test {
         DeployMainnet.Deployment memory d = script.deploy(config);
         TimelockController t = d.timelock;
 
-        assertEq(t.getMinDelay(), 48 hours);
+        assertEq(t.getMinDelay(), 1 hours);
         assertTrue(t.hasRole(t.PROPOSER_ROLE(), address(safe)));
         assertTrue(t.hasRole(t.CANCELLER_ROLE(), address(safe)));
         assertTrue(t.hasRole(t.EXECUTOR_ROLE(), address(safe)));
@@ -80,9 +80,9 @@ contract DeployMainnetTest is Test {
         bytes memory call = abi.encodeCall(d.factory.setKeeper, (next, true));
 
         vm.prank(address(safe));
-        d.timelock.schedule(address(d.factory), 0, call, bytes32(0), bytes32(0), 48 hours);
+        d.timelock.schedule(address(d.factory), 0, call, bytes32(0), bytes32(0), 1 hours);
 
-        vm.warp(block.timestamp + 48 hours - 1);
+        vm.warp(block.timestamp + 1 hours - 1);
         vm.prank(address(safe));
         vm.expectRevert();
         d.timelock.execute(address(d.factory), 0, call, bytes32(0), bytes32(0));
@@ -91,6 +91,20 @@ contract DeployMainnetTest is Test {
         vm.prank(address(safe));
         d.timelock.execute(address(d.factory), 0, call, bytes32(0), bytes32(0));
         assertTrue(d.factory.isKeeper(next));
+    }
+
+    function test_safeCanChangeTheDelayLater() public {
+        DeployMainnet.Deployment memory d = script.deploy(config);
+        TimelockController t = d.timelock;
+        bytes memory call = abi.encodeCall(t.updateDelay, (48 hours));
+
+        vm.startPrank(address(safe));
+        t.schedule(address(t), 0, call, bytes32(0), bytes32(0), 1 hours);
+        vm.warp(block.timestamp + 1 hours);
+        t.execute(address(t), 0, call, bytes32(0), bytes32(0));
+        vm.stopPrank();
+
+        assertEq(t.getMinDelay(), 48 hours);
     }
 
     function test_configuresOperatorsIndexesKeeperAndTemplate() public {
