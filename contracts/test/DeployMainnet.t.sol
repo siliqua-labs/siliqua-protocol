@@ -2,6 +2,7 @@
 pragma solidity 0.8.28;
 
 import {Test} from "forge-std/Test.sol";
+import {TimelockController} from "@openzeppelin/contracts/governance/TimelockController.sol";
 import {DeployMainnet} from "../script/DeployMainnet.s.sol";
 import {IERC20} from "../src/interfaces/IERC20.sol";
 import {MockERC20} from "./MockERC20.sol";
@@ -22,39 +23,18 @@ contract MockSafe {
     }
 }
 
-contract MockTimelock {
-    uint256 public getMinDelay;
-    mapping(bytes32 => mapping(address => bool)) public hasRole;
-
-    constructor(uint256 delay) {
-        getMinDelay = delay;
-    }
-
-    function grant(bytes32 role, address account) external {
-        hasRole[role][account] = true;
-    }
-}
-
 contract DeployMainnetTest is Test {
-    bytes32 private constant PROPOSER_ROLE = keccak256("PROPOSER_ROLE");
-    bytes32 private constant EXECUTOR_ROLE = keccak256("EXECUTOR_ROLE");
-
     DeployMainnet private script;
     MockSafe private safe;
-    MockTimelock private timelock;
     DeployMainnet.Config private config;
 
     function setUp() public {
         vm.chainId(4663);
         script = new DeployMainnet();
         safe = new MockSafe(2, 3);
-        timelock = new MockTimelock(2 days);
-        timelock.grant(PROPOSER_ROLE, address(safe));
-        timelock.grant(EXECUTOR_ROLE, address(safe));
         config = DeployMainnet.Config({
             token: IERC20(address(new MockERC20(6))),
             safe: address(safe),
-            timelock: address(timelock),
             operators: [makeAddr("op1"), makeAddr("op2"), makeAddr("op3")],
             keeper: makeAddr("keeper"),
             feeBuyback: makeAddr("buyback"),
@@ -67,13 +47,50 @@ contract DeployMainnetTest is Test {
     function test_handsEveryRoleToTimelockAndSafe() public {
         DeployMainnet.Deployment memory d = script.deploy(config);
 
-        assertEq(d.oracle.admin(), address(timelock));
+        address timelock = address(d.timelock);
+        assertEq(d.oracle.admin(), timelock);
         assertEq(d.oracle.guardian(), address(safe));
-        assertEq(d.factory.owner(), address(timelock));
+        assertEq(d.factory.owner(), timelock);
         assertEq(d.factory.guardian(), address(safe));
-        assertEq(d.registry.admin(), address(timelock));
+        assertEq(d.registry.admin(), timelock);
         assertEq(d.registry.current(d.registry.ORACLE()), address(d.oracle));
         assertEq(d.registry.current(d.registry.FACTORY()), address(d.factory));
+    }
+
+    function test_onlyTheSafeControlsTheTimelock() public {
+        DeployMainnet.Deployment memory d = script.deploy(config);
+        TimelockController t = d.timelock;
+
+        assertEq(t.getMinDelay(), 48 hours);
+        assertTrue(t.hasRole(t.PROPOSER_ROLE(), address(safe)));
+        assertTrue(t.hasRole(t.CANCELLER_ROLE(), address(safe)));
+        assertTrue(t.hasRole(t.EXECUTOR_ROLE(), address(safe)));
+        assertFalse(t.hasRole(t.EXECUTOR_ROLE(), address(0)));
+        assertTrue(t.hasRole(t.DEFAULT_ADMIN_ROLE(), address(t)));
+        // In a test the broadcaster is forge's default sender.
+        bytes32[4] memory roles = [t.DEFAULT_ADMIN_ROLE(), t.PROPOSER_ROLE(), t.CANCELLER_ROLE(), t.EXECUTOR_ROLE()];
+        for (uint256 i; i < roles.length; ++i) {
+            assertFalse(t.hasRole(roles[i], DEFAULT_SENDER));
+        }
+    }
+
+    function test_safeChangesTheFactoryOnlyAfterTheDelay() public {
+        DeployMainnet.Deployment memory d = script.deploy(config);
+        address next = makeAddr("nextKeeper");
+        bytes memory call = abi.encodeCall(d.factory.setKeeper, (next, true));
+
+        vm.prank(address(safe));
+        d.timelock.schedule(address(d.factory), 0, call, bytes32(0), bytes32(0), 48 hours);
+
+        vm.warp(block.timestamp + 48 hours - 1);
+        vm.prank(address(safe));
+        vm.expectRevert();
+        d.timelock.execute(address(d.factory), 0, call, bytes32(0), bytes32(0));
+
+        vm.warp(block.timestamp + 1);
+        vm.prank(address(safe));
+        d.timelock.execute(address(d.factory), 0, call, bytes32(0), bytes32(0));
+        assertTrue(d.factory.isKeeper(next));
     }
 
     function test_configuresOperatorsIndexesKeeperAndTemplate() public {
@@ -118,39 +135,6 @@ contract DeployMainnetTest is Test {
     function test_rejectsSafeWithTwoOwners() public {
         config.safe = address(new MockSafe(2, 2));
         vm.expectRevert("Safe has fewer than 3 owners");
-        script.deploy(config);
-    }
-
-    function test_rejectsPlainWalletAsTimelock() public {
-        config.timelock = makeAddr("wallet");
-        vm.expectRevert("timelock is not a contract");
-        script.deploy(config);
-    }
-
-    function test_rejectsTimelockWithoutDelay() public {
-        config.timelock = address(new MockTimelock(0));
-        vm.expectRevert("timelock has no delay");
-        script.deploy(config);
-    }
-
-    function test_rejectsTimelockTheSafeCannotPropose() public {
-        config.timelock = address(new MockTimelock(2 days));
-        vm.expectRevert("Safe cannot propose on the timelock");
-        script.deploy(config);
-    }
-
-    function test_rejectsTimelockNobodyCanExecute() public {
-        MockTimelock stuck = new MockTimelock(2 days);
-        stuck.grant(PROPOSER_ROLE, address(safe));
-        config.timelock = address(stuck);
-        vm.expectRevert("Safe cannot execute on the timelock");
-        script.deploy(config);
-    }
-
-    function test_rejectsTimelockTheDeployerControls() public {
-        // In a test the broadcaster is forge's default sender.
-        timelock.grant(0x00, DEFAULT_SENDER);
-        vm.expectRevert("deployer still controls the timelock");
         script.deploy(config);
     }
 }

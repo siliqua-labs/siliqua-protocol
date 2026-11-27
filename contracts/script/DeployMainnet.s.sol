@@ -2,6 +2,7 @@
 pragma solidity 0.8.28;
 
 import {Script, console} from "forge-std/Script.sol";
+import {TimelockController} from "@openzeppelin/contracts/governance/TimelockController.sol";
 import {IERC20} from "../src/interfaces/IERC20.sol";
 import {ISiliquaOracle} from "../src/interfaces/ISiliquaOracle.sol";
 import {OracleRegistry} from "../src/OracleRegistry.sol";
@@ -14,15 +15,9 @@ interface ISafe {
     function getOwners() external view returns (address[] memory);
 }
 
-/// The read surface of OpenZeppelin's TimelockController. The timelock is deployed beforehand; this
-/// script only checks it, because a wrong admin address cannot be corrected afterwards.
-interface ITimelock {
-    function getMinDelay() external view returns (uint256);
-    function hasRole(bytes32 role, address account) external view returns (bool);
-}
-
-/// Robinhood Chain mainnet only. The broadcaster deploys and configures, then keeps no role: the
-/// timelock becomes oracle admin, factory owner and registry admin, and the Safe is guardian.
+/// Robinhood Chain mainnet only. The broadcaster deploys and configures, then keeps no role: a new
+/// timelock becomes oracle admin, factory owner and registry admin, and the Safe is guardian. Only the
+/// Safe can propose, cancel and execute on the timelock, which has no admin besides itself.
 /// Variables carry a MAINNET_ prefix so a testnet value left in .env is never picked up. No key is
 /// read here (pass --account to forge).
 contract DeployMainnet is Script {
@@ -32,15 +27,11 @@ contract DeployMainnet is Script {
     uint8 internal constant GRI_DECIMALS = 6;
     uint8 internal constant GRI_MIN_SOURCES = 5;
     uint16 internal constant TOLERANCE_BPS = 100;
-
-    bytes32 internal constant ADMIN_ROLE = 0x00;
-    bytes32 internal constant PROPOSER_ROLE = keccak256("PROPOSER_ROLE");
-    bytes32 internal constant EXECUTOR_ROLE = keccak256("EXECUTOR_ROLE");
+    uint256 internal constant TIMELOCK_DELAY = 48 hours;
 
     struct Config {
         IERC20 token;
         address safe;
-        address timelock;
         address[3] operators;
         address keeper;
         address feeBuyback;
@@ -50,6 +41,7 @@ contract DeployMainnet is Script {
     }
 
     struct Deployment {
+        TimelockController timelock;
         OracleRegistry registry;
         SiliquaOracle oracle;
         FeeRouter router;
@@ -64,7 +56,6 @@ contract DeployMainnet is Script {
             Config({
                 token: IERC20(vm.envAddress("MAINNET_TOKEN")),
                 safe: vm.envAddress("MAINNET_SAFE"),
-                timelock: vm.envAddress("MAINNET_TIMELOCK"),
                 operators: [
                     vm.envAddress("MAINNET_OPERATOR_1"),
                     vm.envAddress("MAINNET_OPERATOR_2"),
@@ -87,7 +78,11 @@ contract DeployMainnet is Script {
 
         vm.startBroadcast();
         (, address deployer,) = vm.readCallers();
-        _checkTimelock(c.timelock, c.safe, deployer);
+
+        address[] memory safeOnly = new address[](1);
+        safeOnly[0] = c.safe;
+        d.timelock = new TimelockController(TIMELOCK_DELAY, safeOnly, safeOnly, address(0));
+        address admin = address(d.timelock);
 
         d.registry = new OracleRegistry(deployer);
         d.oracle = new SiliquaOracle(deployer, c.safe, 2, METHODOLOGY_V1);
@@ -118,19 +113,19 @@ contract DeployMainnet is Script {
         d.registry.register(d.registry.ORACLE(), address(d.oracle));
         d.registry.register(d.registry.FACTORY(), address(d.factory));
 
-        d.oracle.transferAdmin(c.timelock);
-        d.factory.transferOwnership(c.timelock);
-        d.registry.transferAdmin(c.timelock);
+        d.oracle.transferAdmin(admin);
+        d.factory.transferOwnership(admin);
+        d.registry.transferAdmin(admin);
         vm.stopBroadcast();
 
-        require(d.oracle.admin() == c.timelock && d.oracle.guardian() == c.safe, "oracle hand-over failed");
-        require(d.factory.owner() == c.timelock && d.factory.guardian() == c.safe, "factory hand-over failed");
-        require(d.registry.admin() == c.timelock, "registry hand-over failed");
+        require(d.oracle.admin() == admin && d.oracle.guardian() == c.safe, "oracle hand-over failed");
+        require(d.factory.owner() == admin && d.factory.guardian() == c.safe, "factory hand-over failed");
+        require(d.registry.admin() == admin, "registry hand-over failed");
 
         console.log("deployer (no role left):", deployer);
         console.log("Safe (guardian):", c.safe);
-        console.log("timelock (admin, owner):", c.timelock);
-        console.log("timelock delay in seconds:", ITimelock(c.timelock).getMinDelay());
+        console.log("TimelockController (admin, owner):", admin);
+        console.log("timelock delay in seconds:", d.timelock.getMinDelay());
         console.log("token:", address(c.token));
         console.log("token decimals:", d.factory.tokenDecimals());
         console.log("bet cap in whole tokens:", c.betCapWholeTokens);
@@ -144,21 +139,5 @@ contract DeployMainnet is Script {
         require(safe.code.length != 0, "Safe is not a contract");
         require(ISafe(safe).getThreshold() >= 2, "Safe threshold is below 2");
         require(ISafe(safe).getOwners().length >= 3, "Safe has fewer than 3 owners");
-    }
-
-    function _checkTimelock(address timelock, address safe, address deployer) private view {
-        require(timelock.code.length != 0, "timelock is not a contract");
-        ITimelock t = ITimelock(timelock);
-        require(t.getMinDelay() != 0, "timelock has no delay");
-        require(t.hasRole(PROPOSER_ROLE, safe), "Safe cannot propose on the timelock");
-        // The zero address holding the role means anyone may execute a ready operation.
-        require(
-            t.hasRole(EXECUTOR_ROLE, safe) || t.hasRole(EXECUTOR_ROLE, address(0)),
-            "Safe cannot execute on the timelock"
-        );
-        require(
-            !t.hasRole(ADMIN_ROLE, deployer) && !t.hasRole(PROPOSER_ROLE, deployer),
-            "deployer still controls the timelock"
-        );
     }
 }

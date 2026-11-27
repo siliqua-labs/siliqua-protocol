@@ -5,8 +5,8 @@ What changes when the same deployment moves from the testnet (46630) to Robinhoo
 ## 1. Before the deploy
 
 - Pass the gates on the roadmap: legal review and contract audit (`docs/ROADMAP.md`).
-- Create the Safe (2 of 3) on 4663.
-- Deploy the timelock: an OpenZeppelin `TimelockController` with the Safe as proposer and executor, a delay the owner chooses, and no role left on the deploying wallet. It is not in the repo and adding it needs approval.
+- The Safe is `0x27cF1455E761eBcEbD8dd7354e16Ff36673fD11D` on 4663: SafeL2 1.5.0 (code hash matches `safe-global/safe-deployments`), threshold 2 of 3, no modules (checked 2026-11-27). Confirm the three owners before the deploy.
+- The deploy script creates the timelock: OpenZeppelin `TimelockController` v5.7.0, 48 hour delay, the Safe as only proposer, canceller and executor, no outside admin. Clone with `git submodule update --init`.
 - Match the mainnet USDG address and the explorer URL against `docs.robinhood.com/chain`. `packages/chain` already marks them verified, from the contracts page and the mainnet RPC; the owner confirms that once more before the deploy (CLAUDE.md, chain decisions).
 - Fresh keys for the three operators, the relayer and the keeper. Do not reuse testnet keys.
 - Decide `FEE_BUYBACK`, `FEE_TREASURY` and `FEE_OPERATORS`. `FeeRouter` is immutable.
@@ -19,7 +19,6 @@ Set these in `contracts/.env` or export them. All are public addresses except th
 | --- | --- |
 | `MAINNET_TOKEN` | USDG, matched against the chain docs |
 | `MAINNET_SAFE` | the 2 of 3 Safe; guardian |
-| `MAINNET_TIMELOCK` | oracle admin, factory owner, registry admin |
 | `MAINNET_OPERATOR_1` to `_3` | new operator addresses |
 | `MAINNET_KEEPER` | new keeper address |
 | `MAINNET_FEE_BUYBACK`, `_TREASURY`, `_OPERATORS` | permanent for this router |
@@ -31,15 +30,15 @@ Simulate from `contracts/`, with the deployer key in a forge keystore:
 forge script script/DeployMainnet.s.sol --rpc-url <mainnet RPC> --account <keystore> --sender <deployer address>
 ```
 
-Read the printed addresses, token decimals, bet cap and timelock delay. Then run the same command with `--broadcast --slow`. A local rehearsal estimated about 7.6 million gas for the whole run.
+Read the printed addresses, token decimals and bet cap. Then run the same command with `--broadcast --slow`. A simulation against mainnet state on 2026-11-27 estimated about 9.8 million gas for the whole run (about 0.0004 ETH at that day's gas price).
 
-The script deploys `OracleRegistry`, `SiliquaOracle`, `FeeRouter` and `MarketFactory`, registers the three operators, the five GRI indexes (hourly, 6 decimals, 5 sources, 1% tolerance), the keeper and both registry entries, and leaves the deployer with no role. It does not register CMI. If it stops part way, do not use the contracts already sent: run it again.
+The script deploys `TimelockController` (oracle admin, factory owner, registry admin), `OracleRegistry`, `SiliquaOracle`, `FeeRouter` and `MarketFactory`, registers the three operators, the five GRI indexes (hourly, 6 decimals, 5 sources, 1% tolerance), the keeper and both registry entries, and leaves the deployer with no role. It does not register CMI. If it stops part way, do not use the contracts already sent: run it again.
 
-The four addresses, the deploy blocks and the transaction hashes go into the MAINNET section of `contracts/announcement.md`. They are also in `contracts/broadcast/`.
+The five addresses, the deploy blocks and the transaction hashes go into the MAINNET section of `contracts/announcement.md`. They are also in `contracts/broadcast/`.
 
 ## 3. Verify source
 
-Do all four contracts, then the first market, on Sourcify. Blockscout failed on contracts with immutables during the testnet deploy, so do not rely on it alone. The constructor arguments of a market are read from its public immutables. The testnet commands are in the git history of `contracts/announcement.md`.
+Do all five contracts, then the first market, on Sourcify. Blockscout failed on contracts with immutables during the testnet deploy, so do not rely on it alone. The constructor arguments of a market are read from its public immutables. The testnet commands are in the git history of `contracts/announcement.md`.
 
 ## 4. Variables
 
