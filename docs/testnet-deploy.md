@@ -64,6 +64,6 @@ A separate Railway project from `api` and `worker`, so signing keys never sit ne
 ## Limits to remember
 
 - Three operators on one team and one infrastructure: no independence claim. Stated on `/oracle`.
-- Vast.ai, RunPod, Hyperstack, Verda and Nebius have no written agreement for index use. On 2026-11-26 this risk was accepted for the testnet only; mainnet needs a separate decision (`docs/sources.md`).
+- Vast.ai, RunPod, Hyperstack, Verda and Nebius have no written agreement for index use. The owner has accepted this risk for the testnet and mainnet (`docs/sources.md`).
 - `oracle-node` has no HTTP health endpoint; watch its logs.
 - A node only reports the latest published hour. A missed hour cannot be caught up from the api.

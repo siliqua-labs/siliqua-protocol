@@ -1,8 +1,8 @@
 """Vast.ai marketplace: https://docs.vast.ai/api-reference/search/search-offers
 
 Terms status: Vast.ai forbids building an index from this data without a written agreement
-(docs/sources.md). The provider is off unless COLLECTOR_VASTAI_ENABLED=true; use it for
-internal testing only until the agreement exists.
+(docs/sources.md). There is none; the owner accepted the risk on 2026-11-27. The provider is
+off unless COLLECTOR_VASTAI_ENABLED=true.
 
 Many hosts list offers at their own prices, so the provider is one source: the quote for a
 class is the median of its qualifying offers, in micro-USD per GPU-hour.

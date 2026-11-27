@@ -8,8 +8,8 @@ products. A location price is listed whether or not stock exists (availability i
 endpoint), and the collector reduces locations to their median.
 
 The terms read so far (clauses 1 to 8.4) do not bar automated retrieval of prices, but clause
-3.3 makes the pricing page their intellectual property: off unless COLLECTOR_VERDA_ENABLED=true
-and internal testing until Verda confirms index use in writing.
+3.3 makes the pricing page their intellectual property. Verda has not confirmed index use in
+writing; the owner accepted the risk on 2026-11-27. Off unless COLLECTOR_VERDA_ENABLED=true.
 """
 
 import json

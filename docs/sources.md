@@ -13,6 +13,8 @@ Rules for this file:
 
 None of the first-party candidates has a clear written permission to store prices and use them in a published index. Two terms are explicitly against it. The rest are silent or unreadable on the API. No source is ready to be switched on until the owner decides on the terms.
 
+Owner decision 2026-11-27: the risk of using Vast.ai, RunPod, Hyperstack, Verda and Nebius prices in GRI is accepted for the testnet and mainnet. This replaces the testnet-only acceptance of 2026-11-26 and the "internal testing only" notes below. It is not a permission: the terms as described here are unchanged and there is no written agreement. TensorDock is not covered and stays off.
+
 | Provider | API for prices | Key | Rate limit | Terms on index or republish | Status |
 | --- | --- | --- | --- | --- | --- |
 | Vast.ai | Yes, offers search | Required | Not found | Prohibits building an index or market-data product without a written agreement | Blocked by terms |

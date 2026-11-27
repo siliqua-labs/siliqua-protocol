@@ -3,8 +3,8 @@
 The public spot-price API covers preemptible prices only (docs.nebius.com/signup-billing/spot-prices),
 so on-demand prices come from the server-rendered "NVIDIA GPU Instances" table, USD per
 GPU-hour. robots.txt allows every path. Terms clause 2.8 bars derivative works of the Platform
-and does not name price pages: off unless COLLECTOR_NEBIUS_ENABLED=true and internal testing
-until Nebius confirms index use in writing. Nebius lists no A100.
+and does not name price pages. Nebius has not confirmed index use in writing; the owner accepted
+the risk on 2026-11-27. Off unless COLLECTOR_NEBIUS_ENABLED=true. Nebius lists no A100.
 """
 
 import logging
